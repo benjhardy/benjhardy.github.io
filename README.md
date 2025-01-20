@@ -1,2 +1,2 @@
 # benjhardy.github.io
-Portfolio of experience, projects, and publications
+Portfolio of experience, projects, and publications.
