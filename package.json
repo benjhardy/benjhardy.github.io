@@ -2,7 +2,7 @@
   "name": "benjhardy.github.io",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://yourusername.github.io",
+  "homepage": "https://benjhardy.github.io",
   "dependencies": {
     "lucide-react": "^0.474.0",
     "react": "^19.0.0",
