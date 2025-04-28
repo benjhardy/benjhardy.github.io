@@ -13,12 +13,4 @@ export default defineConfig({
     integrations: [react(), tailwind(), sitemap()],
     site: 'https://benjhardy.github.io/',
     //base: 'main',
-    vite: {
-        resolve: {
-          alias: {
-            'kleur/colors.js': 'kleur', // Redirect colors.js to main entry
-            'kleur/colors.mjs': 'kleur' // Redirect colors.mjs to main entry
-          }
-        }
-      }
 });
