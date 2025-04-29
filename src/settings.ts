@@ -13,7 +13,7 @@ export const social = {
 	email: 'ben.hardy@remcom.com',
 	linkedin: 'https://www.linkedin.com/in/ben-hardy-phd-a6162b218/',
 	x: '',
-	github: '',
+	github: 'https://github.com/benjhardy',
 	gitlab: '',
 	scholar: 'https://scholar.google.com/citations?hl=en&user=uBzZ5-UAAAAJ',
 	inspire: '',
@@ -22,9 +22,9 @@ export const social = {
 
 export const template = {
 	website_url: 'https://benjhardy.github.io/', // Astro needs to know your site’s deployed URL to generate a sitemap. It must start with http:// or https://
-	menu_left: false,
+	menu_left: true,
 	transitions: true,
-	lightTheme: 'light', // Select one of the Daisy UI Themes or create your own
+	//lightTheme: 'light', // Select one of the Daisy UI Themes or create your own
 	darkTheme: 'dark', // Select one of the Daisy UI Themes or create your own
 	excerptLength: 200,
 	postPerPage: 5,
@@ -32,7 +32,7 @@ export const template = {
 }
 
 export const seo = {
-	default_title: 'Ben Hardy PhD',
+	default_title: 'Ben Hardy',
 	default_description: '.',
 	default_image: '',
 }
