@@ -1,102 +1,91 @@
-# Astro Academia Documentation
+# Dante - Astro & Tailwind CSS Theme by justgoodui.com
 
-## What is Astro Academia?
+Dante is a single-author blog and portfolio theme for Astro.js. Featuring a minimal, slick, responsive and content-focused design. For more Astro.js themes please check [justgoodui.com](https://justgoodui.com/).
 
-Astro Academia is a personal academic website built using Astro, a modern static site generator. The website is designed to showcase academic achievements, research papers, blog posts, and a CV. It is fast, responsive, and easy to maintain, making it an ideal platform for academics and researchers to present their work.
+![Dante Astro.js Theme](public/dante-preview.jpg)
 
-If you find Astro Academia useful or appreciate my work, consider supporting me! Your support helps keep this project maintained and encourages further development. 🚀✨
+[![Deploy to Netlify Button](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/JustGoodUI/dante-astro-theme)
 
-<a href="https://buymeacoffee.com/maiobarbero" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+If you click this☝️ button, it will create a new repo for you that looks exactly like this one, and sets that repo up immediately for deployment on Netlify.
 
-## How to use it
+## Theme Features:
 
-Fork this repository to create your new website starting from this template.
+- ✅ Dark and light color mode
+- ✅ Hero section with bio
+- ✅ Portfolio collection
+- ✅ Pagination support
+- ✅ Post tags support
+- ✅ Subscription form
+- ✅ View transitions
+- ✅ Tailwind CSS
+- ✅ Mobile-first responsive layout
+- ✅ SEO-friendly with canonical URLs and OpenGraph data
+- ✅ Sitemap support
+- ✅ RSS Feed support
+- ✅ Markdown & MDX support
 
-## How to Create a CV Using the `cv.ts` File
+## Template Integrations
 
-The `cv.ts` file located in the `src/data/` directory is used to define the structure and content of your CV. This file exports an object containing various sections of your CV, such as education, experience, publications, and more.
+- @astrojs/tailwind - https://docs.astro.build/en/guides/integrations-guide/tailwind/
+- @astrojs/sitemap - https://docs.astro.build/en/guides/integrations-guide/sitemap/
+- @astrojs/mdx - https://docs.astro.build/en/guides/markdown-content/
+- @astrojs/rss - https://docs.astro.build/en/guides/rss/
 
-### Example Structure of `cv.ts`
+## Project Structure
 
-```typescript
-export const cv = {
-  education: [
-    {
-      degree: "Ph.D. in Computer Science",
-      institution: "University of Example",
-      year: "2020",
-    },
-    {
-      degree: "M.Sc. in Computer Science",
-      institution: "University of Example",
-      year: "2016",
-    },
-  ],
-  experience: [
-    {
-      title: "Research Scientist",
-      company: "Example Research Lab",
-      year: "2021-Present",
-    },
-    {
-      title: "Software Engineer",
-      company: "Tech Company",
-      year: "2016-2021",
-    },
-  ],
-  // Add more sections as needed
-};
+Inside of Dante Astro theme, you'll see the following folders and files:
+
+```text
+├── public/
+├── src/
+│   ├── components/
+│   ├── content/
+│   ├── data/
+│   ├── icons/
+│   ├── layouts/
+│   ├── pages/
+│   ├── styles/
+│   └── utils/
+├── astro.config.mjs
+├── package.json
+├── README.md
+└── tsconfig.json
 ```
 
-To create or update your CV, modify the `cv.ts` file with your personal information and achievements. The CV will be automatically rendered on the CV page of your website.
+Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
 
-## How to Use the `settings.ts` File
+There's nothing special about `src/components/`, but that's where we like to put any Astro (`.astro`) components.
 
-The `settings.ts` file located in the `src/` directory is used to configure various settings for your Astro Academia website. This file exports an object containing settings such as site title, description, social media links, and more.
+The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
 
-### Example Structure of `settings.ts`
+Any static assets, like images, can be placed in the `public/` directory.
 
-```typescript
-export const settings = {
-  siteTitle: "Astro Academia",
-  siteDescription: "A personal academic website built with Astro.",
-  socialLinks: {
-    twitter: "https://twitter.com/yourusername",
-    github: "https://github.com/yourusername",
-    linkedin: "https://linkedin.com/in/yourusername",
-  },
-  // Add more settings as needed
-};
-```
+## Astro.js Commands
 
-To customize your website settings, modify the `settings.ts` file with your desired values. These settings will be used throughout your website to display the appropriate information.
+All commands are run from the root of the project, from a terminal:
 
-## Where to Find the Blog Collection and Where to Add New Blog Posts
+| Command                   | Action                                           |
+| :------------------------ | :----------------------------------------------- |
+| `npm install`             | Installs dependencies                            |
+| `npm run dev`             | Starts local dev server at `localhost:4321`      |
+| `npm run build`           | Build your production site to `./dist/`          |
+| `npm run preview`         | Preview your build locally, before deploying     |
+| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `npm run astro -- --help` | Get help using the Astro CLI                     |
 
-The blog collection is located in the `src/content/BlogPosts/` directory. Each blog post is a Markdown file with a `.md` extension. The blog posts are named sequentially (e.g., `post1.md`, `post2.md`, etc.).
+## Want to learn more about Astro.js?
 
-### Adding a New Blog Post
+Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
 
-1. Navigate to the `src/content/BlogPosts/` directory.
-2. Create a new Markdown file for your blog post (e.g., `post1.md`).
-3. Add the content of your blog post using Markdown syntax. Include frontmatter at the top of the file to define metadata such as title, date, and tags.
+## Credits
 
-### Example Blog Post (`post11.md`)
+- Demo content generate with [Chat GPT](https://chat.openai.com/)
+- Images for demo content from [Unsplash](https://unsplash.com/)
 
-```markdown
----
-title: "New Blog Post"
-date: "2023-10-01"
-tags: ["research", "astro"]
-excerpt: "Some short paragraphs"
----
+## Astro Themes by Just Good UI
 
-# New Blog Post
+- [Ovidius](https://github.com/JustGoodUI/ovidius-astro-theme) is a free single author blog theme.
 
-This is the content of the new blog post. Write your article here using Markdown syntax.
-```
+## License
 
-Once you have added the new blog post, it will be automatically included in the blog collection and displayed on the blog page of your website.
-
-## Deploy
-The template provides a workflow to deploy the website on Github pages as a static website.
+Licensed under the [GPL-3.0](https://github.com/JustGoodUI/dante-astro-theme/blob/main/LICENSE) license.
