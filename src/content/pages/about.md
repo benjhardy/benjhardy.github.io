@@ -1,43 +1,32 @@
 ---
 title: About
 seo:
-  title: About Me
-  description: Learn more about the person behind the website and embark on a journey of inspiration and shared experiences.
+  title: About Ben Hardy PhD
+  description: Learn more about Ben.
   image:
-    src: '/about.jpeg'
-    alt: A person sitting at a desk in front of a computer
+    src: '/Me.jpg'
+    alt: Sitting at Astro Coffee, Photo credit to my lovely wife, Bailey.
 ---
 
-![Alt text for image](/about.jpeg)
+![Me again](/Me.jpg)
 
-**Note!:** This about page is entirely fictional and created for the purpose of showcasing [Dante Astro.js theme functionality](https://justgoodui.com/astro-themes/dante/).
+## Ben Hardy - Physics PhD in Nashville, TN
 
-## Ethan Donovan - Web Developer based in Estonia
+**Greetings!** I'm Ben Hardy, I completed my PhD in physics in June of 2023 at Vanderbilt University.
+I studied under [John C. Gore](https://www.google.com/search?sca_esv=008f9e8726f85704&q=John+Gore&si=APYL9bvbTYBlvjo9HgsKokb80VOuw9zV-z5EXyhbMKCadi8Rh3qtZz2cB5rviQOUEXwD4LWJecr8n261ZgXYsZETLyaJW3CDbA%3D%3D&sa=X&ved=2ahUKEwjYsviY4Y2NAxUAE1kFHbUTDcUQ-pgMegQIBhAB&biw=1707&bih=912&dpr=2.25), where I focused on MRI hardware development, high resolution imaging theory, and RF coil simulation.
 
-**Greetings!** I'm Ethan Donovan, a passionate web developer residing in the picturesque landscapes of [Estonia](https://en.wikipedia.org/wiki/Estonia). With a keen eye for design and a love for crafting seamless digital experiences, I bring a unique blend of creativity and technical expertise to the world of web development.
+
 
 ## Skills and Expertise
 
-I specialize in front-end and back-end development, utilizing the latest technologies to build responsive and user-friendly websites. My proficiency includes **HTML**, **CSS**, **JavaScript**, and frameworks such as **Astro.js** for dynamic and interactive user interfaces. On the server side, I'm well-versed in Node.js and have experience with database management systems like MongoDB.
+The best way to see my skills in action is to check out the homepage of this site, where I have a few projects listed.
 
-## Innovation and Problem-Solving
+- **Python**: I primarily work with Python and libraries such as NumPy, SciPy, PIL, and Matplotlib.
+- **Machine Learning**: I have experience with machine learning techniques and libraries, including TensorFlow and PyTorch.
+- **C++**: I have some C++ experience from my time at Remcom.
+- **MATLAB**: I have experience with MATLAB for numerical analysis and simulation.
+- **C**: I wrote a lot of C code for my PhD, including some low level C code for interfacing with MRI scanners.
+- **LaTeX**: I have experience with LaTeX for typesetting documents and creating professional reports.
 
-I thrive on solving complex problems and transforming ideas into functional, elegant websites. Whether it's optimizing performance, implementing new features, or troubleshooting issues, I approach each challenge with enthusiasm and a commitment to delivering high-quality solutions.
 
-## Global Perspective, Local Impact
-
-Living in Estonia has not only influenced my appreciation for nature and culture but has also shaped my approach to web development. I understand the importance of creating digital solutions that resonate with local audiences while maintaining a global perspective.
-
-## Continuous Learning
-
-The dynamic nature of the tech industry inspires me to stay up-to-date with the latest trends and advancements. I'm always eager to expand my skill set and embrace emerging technologies that enhance the functionality and aesthetics of the websites I create.
-
-## Collaboration and Communication
-
-I believe in the power of collaboration and effective communication. Whether working with clients, designers, or fellow developers, I value clear communication to ensure the success of every project.
-
-## Get in Touch
-
-Are you looking to elevate your online presence or bring your digital ideas to life? I'd love to hear from you! Feel free to reach out for collaboration, consultation, or just a friendly chat about all things web development.
-
-_Let's build something amazing together!_
+_<3_

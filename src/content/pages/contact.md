@@ -1,14 +1,15 @@
 ---
-title: Get in touch
+title: Contact me
 seo:
-  title: Contact
-  description: Get in touch through email or social media! Let me know how I can help.
+  title: Contact Ben Hardy PhD
+  description: Get in touch through email or LinkedIn or ... er Lichess?
 ---
 
-Thank you for reaching out! Whether you have a question, a suggestion, or just want to share your thoughts, I'm all ears. Feel free to get in touch through any of the methods below:
+Thanks for reaching out, if you'd like to enquire about an open role or have a question you can reach me here:
 
 _Email:_
-Feel free to drop me an email at [example@example.com](mailto:example@example.com), and I'll do my best to respond as soon as possible.
+My personal email: benjamin(dot)mi(dot)hardy(at)gmail.com
 
 _Social Media:_
-Connect with me on social media as well. Find me on [Twitter](https://twitter.com) or [LinkedIn](https://www.linkedin.com/).
+Find me on [LinkedIn](https://www.linkedin.com/in/ben-hardy-phd-a6162b218/).
+Or ... Lichess? [Lichess](https://lichess.org/@/blacbeanburgr)

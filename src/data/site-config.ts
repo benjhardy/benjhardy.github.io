@@ -39,13 +39,13 @@ export type SiteConfig = {
 };
 
 const siteConfig: SiteConfig = {
-    website: 'https://example.com',
-    title: 'Dante',
-    subtitle: 'Minimal Astro.js theme',
-    description: 'Astro.js and Tailwind CSS theme for blog and portfolio by justgoodui.com',
+    website: 'https://benjhardy.github.io/',
+    title: 'Ben Hardy PhD',
+    subtitle: 'Portfolio, Experience, and Blog',
+    description: 'Ben Hardy\'s portfolio, experience, and blog.',
     image: {
-        src: '/dante-preview.jpg',
-        alt: 'Dante - Astro.js and Tailwind CSS theme'
+        src: '/Me.jpg',
+        alt: 'Me at Astro Coffee in Detroit, MI',
     },
     headerNavLinks: [
         {
@@ -57,13 +57,17 @@ const siteConfig: SiteConfig = {
             href: '/projects'
         },
         {
-            text: 'Blog',
-            href: '/blog'
-        },
-        {
-            text: 'Tags',
-            href: '/tags'
-        }
+            text: 'Experience',
+            href: '/experience'
+        }//,
+        //{
+        //    text: 'Blog',
+        //    href: '/blog'
+        //},
+        //{
+        //    text: 'Tags',
+        //    href: '/tags'
+        //}
     ],
     footerNavLinks: [
         {
@@ -73,36 +77,30 @@ const siteConfig: SiteConfig = {
         {
             text: 'Contact',
             href: '/contact'
-        },
-        {
-            text: 'Terms',
-            href: '/terms'
-        },
-        {
-            text: 'Download theme',
-            href: 'https://github.com/JustGoodUI/dante-astro-theme'
         }
+
     ],
     socialLinks: [
         {
-            text: 'Dribbble',
-            href: 'https://dribbble.com/'
+            text: 'LinkedIn',
+            href: 'https://www.linkedin.com/in/ben-hardy-phd-a6162b218/'
         },
         {
-            text: 'Instagram',
-            href: 'https://instagram.com/'
+            text: 'GitHub',
+            href: 'https://github.com/benjhardy/'
         },
         {
-            text: 'X/Twitter',
-            href: 'https://twitter.com/'
-        }
+            text: 'Lichess',
+            href: 'https://lichess.org/@/blacbeanburgr'
+        },
+
     ],
     hero: {
-        title: 'Hi There & Welcome to My Corner of the Web!',
-        text: "I'm **Ethan Donovan**, a web developer at Amazing Studio, dedicated to the realms of collaboration and artificial intelligence. My approach involves embracing intuition, conducting just enough research, and leveraging aesthetics as a catalyst for exceptional products. I have a profound appreciation for top-notch software, visual design, and the principles of product-led growth. Feel free to explore some of my coding endeavors on <a href='https://github.com/JustGoodUI/dante-astro-theme'>GitHub</a> or follow me on <a href='https://twitter.com/justgoodui'>Twitter/X</a>.",
+        title: 'Thank you for taking time to check out my portfolio!',
+        text: "I\'m Ben Hardy, an Application Engineer with a PhD in Physics. I'm passionate about creating useful and innovative software solutions related to simulation, AI, and modern engineering practices. I have a strong background in physics and engineering, and I enjoy solving complex problems with creative solutions. I have experience in a variety of programming languages and frameworks, and I'm always looking to learn new technologies and improve my skills.",
         image: {
-            src: '/hero.jpeg',
-            alt: 'A person sitting at a desk in front of a computer'
+            src: '/Me.jpg',
+            alt: 'A younger version of me at Astro Coffee in Detroit, MI',
         },
         actions: [
             {
@@ -112,8 +110,8 @@ const siteConfig: SiteConfig = {
         ]
     },
     subscribe: {
-        title: 'Subscribe to Dante Newsletter',
-        text: 'One update per week. All the latest posts directly in your inbox.',
+        title: 'Subscribe to THE HARDY PARTY newsletter',
+        text: 'If you want to stay up to date with my latest projects and the freshest memes, subscribe to my newsletter!',
         formUrl: '#'
     },
     postsPerPage: 8,
