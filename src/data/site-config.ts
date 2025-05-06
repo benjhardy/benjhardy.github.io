@@ -43,6 +43,7 @@ const siteConfig: SiteConfig = {
     title: 'Ben Hardy PhD',
     subtitle: 'Portfolio, Experience, and Blog',
     description: 'Ben Hardy\'s portfolio, experience, and blog.',
+    // set the image but make it a little smaller.
     image: {
         src: '/Me.jpg',
         alt: 'Me at Astro Coffee in Detroit, MI',

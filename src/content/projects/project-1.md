@@ -4,11 +4,11 @@ description: I created a convolutional neural network to predict breathing patte
 publishDate: 'May 05 2025'
 seo:
   image:
-    src: '/fig1.png'
+    src: '/fig1-large.png'
     alt: Project preview
 ---
 
-![Project preview](/fig1.png)
+<img src="/fig1-large.png" alt="Predictions versus Ground Truth" width="600"/>
 
 **Authors:** 
 **Project Overview:**
