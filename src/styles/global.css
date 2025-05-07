@@ -95,4 +95,13 @@ html.dark {
     .prose blockquote {
         @apply font-serif font-normal italic border-none pl-0 text-[1.375em] leading-snug sm:text-[1.66667em];
     }
+
+    /* Make all Markdown content images slightly smaller */
+    .prose img {
+    max-width: 1%; /* Adjust percentage as needed */
+    height: auto;
+    margin: 0 auto; /* This centers the images */
+    display: block; /* This helps with the centering */
+    }
 }
+

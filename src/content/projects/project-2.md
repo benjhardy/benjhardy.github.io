@@ -9,11 +9,28 @@ seo:
     alt: Project preview
 ---
 
-![Example of man walking with monopole on wrist](/importBlender.gif)
+![Example of man walking with monopole on wrist](/walking-ReturnLoss.gif)
 
-
-**Authors:** 
 **Project Overview:**
 
+Digital Twins are becoming more and more realistic. 
+In Electromagnetic simulations, one way is to introduce movement of human bodies or other objects through time.
 
-## Objectives
+Blender is a powerful (and open source tool) that is capable of easily digitally animating human like models.
+
+I designed a utility that interfaces with the blender backend python module bpy to access a project's animations and import them into Remcom tools.
+
+The utility
+
+
+
+
+
+
+
+
+
+
+
+
+![Blender Import Macro](/blenderImport.gif)

@@ -1,0 +1,27 @@
+---
+import type { GetStaticPathsOptions, Page } from 'astro';
+import { type CollectionEntry, getCollection } from 'astro:content';
+import Pagination from '../../components/Pagination.astro';
+import PostPreview from '../../components/PostPreview.astro';
+import Subscribe from '../../components/Subscribe.astro';
+import siteConfig from '../../data/site-config';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { sortItemsByDateDesc } from '../../utils/data-utils';
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+    const posts = (await getCollection('publications')).sort(sortItemsByDateDesc);
+    return paginate(posts, { pageSize: siteConfig.postsPerPage || 4 });
+}
+
+type Props = { page: Page<CollectionEntry<'publications'>> };
+
+const { page } = Astro.props;
+const publications = page.data;
+---
+
+<BaseLayout title="Publications" description="publications" image={{ src: '/Me.jpg', alt: 'preview' }} showHeader={false}>
+    <h1 class="mb-12 text-2xl leading-tight font-serif italic sm:mb-16 sm:text-4xl">Publications Archive</h1>
+    {publications.map((post) => <PostPreview post={post} class="mb-10 sm:mb-12" />)}
+    <Pagination page={page} class="my-16 sm:my-24" />
+    <Subscribe class="my-16 sm:my-24" />
+</BaseLayout>

@@ -1,11 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
+import Subscribe from '../../components/Subscribe.astro';
 import ArrowRight from '../../icons/ArrowRight.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Subscribe from '../../components/Subscribe.astro';
-import { sortItemsByDateDesc, getAllTags, getPostsByTag } from '../../utils/data-utils';
+import { getAllTags, getPostsByTag, sortItemsByDateDesc } from '../../utils/data-utils';
 
-const posts = (await getCollection('blog')).sort(sortItemsByDateDesc);
+const posts = (await getCollection('publications')).sort(sortItemsByDateDesc);
 const tags = getAllTags(posts).sort((tagA, tagB) => {
     const postCountTagA = getPostsByTag(posts, tagA.id).length;
     const postCountTagB = getPostsByTag(posts, tagB.id).length;

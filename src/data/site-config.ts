@@ -41,8 +41,8 @@ export type SiteConfig = {
 const siteConfig: SiteConfig = {
     website: 'https://benjhardy.github.io/',
     title: 'Ben Hardy PhD',
-    subtitle: 'Portfolio, Experience, and Blog',
-    description: 'Ben Hardy\'s portfolio, experience, and blog.',
+    subtitle: 'Projects, Publications, and Experience',
+    description: 'Ben Hardy\'s portfolio, experience, and publications.',
     // set the image but make it a little smaller.
     image: {
         src: '/Me.jpg',
@@ -56,6 +56,10 @@ const siteConfig: SiteConfig = {
         {
             text: 'Projects',
             href: '/projects'
+        },
+        {
+            text: 'Publications',
+            href: '/publications'
         },
         {
             text: 'Experience',
@@ -87,6 +91,10 @@ const siteConfig: SiteConfig = {
             href: 'https://www.linkedin.com/in/ben-hardy-phd-a6162b218/'
         },
         {
+            text: 'Scholar',
+            href: 'https://scholar.google.com/citations?user=uBzZ5-UAAAAJ&hl=en'
+        },
+        {
             text: 'GitHub',
             href: 'https://github.com/benjhardy/'
         },
@@ -97,8 +105,8 @@ const siteConfig: SiteConfig = {
 
     ],
     hero: {
-        title: 'Thank you for taking time to check out my portfolio!',
-        text: "I\'m Ben Hardy, an Application Engineer with a PhD in Physics. I'm passionate about creating useful and innovative software solutions related to simulation, AI, and modern engineering practices. I have a strong background in physics and engineering, and I enjoy solving complex problems with creative solutions. I have experience in a variety of programming languages and frameworks, and I'm always looking to learn new technologies and improve my skills.",
+        title: '',
+        text: "Hello, I\'m Ben Hardy, an Application Engineer with a PhD in Physics. I'm passionate about creating useful and innovative software solutions related to simulation, AI, and modern engineering.",
         image: {
             src: '/Me.jpg',
             alt: 'A younger version of me at Astro Coffee in Detroit, MI',
