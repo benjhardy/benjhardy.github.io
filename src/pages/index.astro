@@ -17,6 +17,29 @@ const featuredProjects = projects.filter(({ data }) => data.isFeatured);
 
 <BaseLayout description={siteConfig.description} image={siteConfig.image}>
     <Hero />
+    <h2 class="mb-12 text-xl font-serif italic sm:mb-16 sm:text-2xl">Highlights</h2>
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="flex flex-col items-center">
+            <a href="/projects/project-1/">
+                <img src="/image12-crop.gif" alt="Breathing Simulations" class="rounded-lg shadow-lg w-full h-auto" />
+            </a>
+            <p class="mt-2 font-serif text-sm text-center">Breathing Simulations Model</p>
+        </div>
+        <div class="flex flex-col items-center">
+            <a href="/projects/project-2/">
+                <img src="/importBlender.gif" alt="Project 2" class="rounded-lg shadow-lg w-full h-auto" />
+            </a>
+            <p class="mt-2 font-serif text-sm text-center">Blender Animation Import</p>
+        </div>
+        <div class="flex flex-col items-center">
+            <a href="/projects/project-3">
+                <img src="/best_movie.gif" alt="Project 3" class="rounded-lg shadow-lg w-full h-auto" />
+            </a>
+            <p class="mt-2 font-serif text-sm text-center">E&M Simulations</p>
+        </div>
+    </div>
+
+    <h2 class="mb-12 text-xl font-serif italic sm:mb-16 sm:text-2xl"></h2>
     {
         featuredProjects?.length > 0 && (
             <div class="mb-16 sm:mb-24">

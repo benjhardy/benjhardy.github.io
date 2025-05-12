@@ -8,13 +8,14 @@ seo:
     alt: Sitting at Astro Coffee, Photo credit to my lovely wife, Bailey.
 ---
 
-![Me again](/Me.jpg)
+![Me again](/IEEE.jpg)
 
 ## Ben Hardy - Physics PhD in Nashville, TN
 
 **Greetings!** I'm Ben Hardy, I completed my PhD in physics in June of 2023 at Vanderbilt University.
 I studied under [John C. Gore](https://www.google.com/search?sca_esv=008f9e8726f85704&q=John+Gore&si=APYL9bvbTYBlvjo9HgsKokb80VOuw9zV-z5EXyhbMKCadi8Rh3qtZz2cB5rviQOUEXwD4LWJecr8n261ZgXYsZETLyaJW3CDbA%3D%3D&sa=X&ved=2ahUKEwjYsviY4Y2NAxUAE1kFHbUTDcUQ-pgMegQIBhAB&biw=1707&bih=912&dpr=2.25), where I focused on MRI hardware development, high resolution imaging theory, and RF coil simulation.
 
+I'm currently working at [Remcom](https://www.remcom.com) as an application and research engineer, where I develop tools for electromagnetic simulation and analysis. My work involves creating user-friendly interfaces, automating complex workflows to enhance the user experience, and occasionally performing research on computational electromagnetic.
 
 
 ## Skills and Expertise
