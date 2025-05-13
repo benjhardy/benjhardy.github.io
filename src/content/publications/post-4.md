@@ -1,7 +1,7 @@
 ---
 title: Other Publications I've Coauthored
 excerpt: A collection of publications I've coauthored.
-publishDate: '2019 - Present'
+publishDate: 'Oct 2019'
 isFeatured: true
 seo:
   image:
