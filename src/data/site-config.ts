@@ -63,7 +63,7 @@ const siteConfig: SiteConfig = {
         },
         {
             text: 'Experience',
-            href: '/experience'
+            href: '/BenHardyPhysicsPhD_Resume.pdf'
         }//,
         //{
         //    text: 'Blog',

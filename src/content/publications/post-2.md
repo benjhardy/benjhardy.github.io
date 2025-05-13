@@ -1,70 +1,39 @@
 ---
-title: Building an Impressive Front-End Developer Portfolio
-excerpt: In the competitive world of front-end development, a strong portfolio is your ticket to showcasing your skills, making a lasting impression on potential employers or clients, and advancing your career.
-publishDate: 'October 5 2023'
-tags:
-  - Web
-  - Web development
+title: Experimental demonstration of diffusion limitations on resolution and SNR in MR microscopy
+excerpt: A study on the effects of diffusion on resolution and SNR in MR microscopy.
+publishDate: 'July 2023'
+isFeatured: true
 seo:
   image:
-    src: '/post-2.jpg'
-    alt: Half open laptop on a desk
+    src: '/blah.jpg'
+    alt: nonya
 ---
 
-![Half open laptop on a desk](/post-2.jpg)
+![20 micron isotropic image of excised mouse brain.](/image17.gif)
 
-**Note:** This post was created using Chat GPT to demonstrate the features of the _[Dante Astro.js theme functionality](https://justgoodui.com/astro-themes/dante/)_.
 
-In the competitive world of front-end development, a strong portfolio is your ticket to showcasing your skills, making a lasting impression on potential employers or clients, and advancing your career. Your portfolio is your digital business card, and it should be a reflection of your talent, creativity, and expertise. In this post, we'll walk you through the steps to create an impressive front-end developer portfolio that will help you stand out in the crowd.
+**Highlights**
+-------------
+Diffusion attenuation is measured in voxels 3–15 µm in dimension.
 
-## 1. Showcase a Diverse Range of Projects
+Resolution is measured in voxels smaller than 10 µm.
 
-Your portfolio should be a testament to your versatility. Include a variety of projects that demonstrate your skills in different areas of front-end development. Consider including projects like:
+Phase and frequency encoding are compared in time efficiency for microscopy.
 
-- **Responsive Websites:** Showcase your ability to create websites that adapt seamlessly to various screen sizes and devices.
+The limits of frequency encoding due to diffusion are clarified.
 
-- **Interactive Web Applications:** Feature web applications that engage users with dynamic features and functionalities.
 
-- **E-commerce Websites:** If you've worked on e-commerce sites, include them to demonstrate your expertise in handling complex web development tasks.
 
-- **Open Source Contributions:** Highlight your involvement in open-source projects or contributions to online coding communities.
+**Abstract**
+-------------
+***Purpose:***
+MR microscopy is in principle capable of producing images at cellular resolution (<10 µm), but various factors limit the quality achieved in practice. A recognized limit on the signal to noise ratio and spatial resolution is the dephasing of transverse magnetization caused by diffusion of spins in strong gradients. Such effects may be reduced by using phase encoding instead of frequency encoding read-out gradients. However, experimental demonstration of the quantitative benefits of phase encoding are lacking, and the exact conditions in which it is preferred are not clearly established. We quantify the conditions where phase encoding outperforms a readout gradient with emphasis on the detrimental effects of diffusion on SNR and resolution.
+***Methods:***
+A 15.2 T Bruker MRI scanner, with 1 T/m gradients, and micro solenoid RF coils < 1 mm in diameter, were used to quantify diffusion effects on resolution and the signal to noise ratio of frequency and phase encoded acquisitions. Frequency and phase encoding’s spatial resolution and SNR per square root time were calculated and measured for images at the diffusion limited resolution. The point spread function was calculated and measured for phase and frequency encoding using additional constant time phase gradients with voxels 3–15 µm in dimension.
+***Results:***
+The effect of diffusion during the readout gradient on SNR was experimentally demonstrated. The achieved resolutions of frequency and phase encoded acquisitions were measured via the point-spread-function and shown to be lower than the nominal resolution. SNR per square root time and actual resolution were calculated for a wide range of maximum gradient amplitudes, diffusion coefficients, and relaxation properties. The results provide a practical guide on how to choose between phase encoding and a conventional readout. Images of excised rat spinal cord at 10 µm × 10 µm in-plane resolution demonstrate phase encoding’s benefits in the form of higher measured resolution and higher SNR than the same image acquired with a conventional readout.
+***Conclusion:***
+We provide guidelines to determine the extent to which phase encoding outperforms frequency encoding in SNR and resolution given a wide range of voxel sizes, sample, and hardware properties.
 
-## 2. Highlight Your Coding Skills
 
-Your portfolio should provide a clear view of your coding proficiency. Consider the following:
-
-- **Clean and Organized Code:** Present your code in a clean and well-organized manner. Use proper indentation, comments, and coding standards.
-
-- **Use of Version Control:** Showcase your use of version control systems like Git and GitHub to demonstrate your collaboration and code management skills.
-
-- **Code Samples:** Include snippets of code from your projects to give visitors an insight into your coding style and problem-solving abilities.
-
-## 3. Emphasize Responsive Design
-
-As a front-end developer, responsive design is paramount. Ensure that your portfolio itself is a shining example of responsive design. It should look and function flawlessly on a variety of devices, including desktops, tablets, and smartphones.
-
-## 4. User Experience (UX) Matters
-
-Front-end development is not just about writing code; it's about creating a great user experience. Explain your thought process behind the user interface (UI) and UX decisions you made in your projects. Discuss how you optimized performance and accessibility.
-
-## 5. Document Your Projects
-
-Accompany each project with a detailed description. Explain the project's goals, your role in it, the technologies and tools you used, and any challenges you overcame. This documentation provides context and depth to your work.
-
-## 6. Regularly Update Your Portfolio
-
-A stagnant portfolio can give the impression of inactivity or lack of progress. Regularly update your portfolio with your latest work and projects. Remove outdated or less impressive work to keep your portfolio relevant and impactful.
-
-## 7. Test and Optimize Load Times
-
-Slow-loading websites can turn visitors away. Ensure your portfolio loads quickly by optimizing images and using proper techniques to minimize load times.
-
-## 8. Seek Feedback
-
-Before finalizing your portfolio, seek feedback from peers, mentors, or online communities. Constructive criticism can help you refine your portfolio and make it even more impressive.
-
-## 9. Personalize Your Portfolio
-
-Your portfolio is not just about your work; it's also about you. Add a personal touch by including an **"About Me"** section that tells your story, your passions, and what makes you unique as a front-end developer.
-
-Remember, your front-end developer portfolio is an ongoing project. Keep refining it, stay up-to-date with the latest trends, and let it evolve as your skills and experience grow. An impressive portfolio not only serves as a testament to your abilities but also opens doors to exciting opportunities in the world of front-end development.
+link to the [paper](https://doi.org/10.1016/j.jmr.2023.107479)
