@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import AppPreview from '../components/AppPreview.astro';
 import Button from '../components/Button.astro';
 import Hero from '../components/Hero.astro';
 import PostPreview from '../components/PostPreview.astro';
@@ -13,12 +14,25 @@ const featuredPosts = posts.filter(({ data }) => data.isFeatured);
 
 const projects = (await getCollection('projects')).sort(sortItemsByDateDesc);
 const featuredProjects = projects.filter(({ data }) => data.isFeatured);
+
+const apps = (await getCollection('apps')).sort(sortItemsByDateDesc);
+const featuredApps = apps.filter(({ data }) => data.isFeatured);
 ---
 
 <BaseLayout description={siteConfig.description} image={siteConfig.image}>
     <Hero />
     <h2 class="mb-12 text-xl font-serif italic sm:mb-16 sm:text-2xl">Highlights</h2>
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="mb-12 sm:mb-16">
+        <h3 class="mb-6 text-lg font-serif italic sm:text-xl">Featured</h3>
+        <div class="flex flex-col items-center">
+            <a href="/projects/fusion/">
+                <img src="/2026/Fusion/antenna-viewer.gif" alt="Remcom Fusion Studio" class="max-w-full rounded-lg shadow-lg sm:max-w-[800px] sm:w-[800px] sm:max-h-[480px] sm:object-contain" width="800" height="480" />
+            </a>
+            <p class="mt-2 font-serif text-sm text-center">Remcom Fusion Studio</p>
+        </div>
+    </div>
+    <h3 class="mb-6 text-lg font-serif italic sm:text-xl">More highlights</h3>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <div class="flex flex-col items-center">
             <a href="/projects/project-1/">
                 <img src="/image12-crop.gif" alt="Breathing Simulations" class="rounded-lg shadow-lg w-full h-auto" />
@@ -27,28 +41,40 @@ const featuredProjects = projects.filter(({ data }) => data.isFeatured);
         </div>
         <div class="flex flex-col items-center">
             <a href="/projects/project-2/">
-                <img src="/importBlender.gif" alt="Project 2" class="rounded-lg shadow-lg w-full h-auto" />
+                <img src="/importBlender.gif" alt="Blender Animation Import" class="rounded-lg shadow-lg w-full h-auto" />
             </a>
             <p class="mt-2 font-serif text-sm text-center">Blender Animation Import</p>
         </div>
         <div class="flex flex-col items-center">
-            <a href="/projects/project-3">
-                <img src="/best_movie.gif" alt="Project 3" class="rounded-lg shadow-lg w-full h-auto" />
+            <a href="/projects/project-3/">
+                <img src="/best_movie.gif" alt="On-Body Devices" class="rounded-lg shadow-lg w-full h-auto" />
             </a>
             <p class="mt-2 font-serif text-sm text-center">On-Body Devices</p>
         </div>
     </div>
 
-    <h2 class="mb-12 text-xl font-serif italic sm:mb-16 sm:text-2xl"></h2>
     {
         featuredProjects?.length > 0 && (
             <div class="mb-16 sm:mb-24">
                 <h2 class="mb-12 text-xl font-serif italic sm:mb-16 sm:text-2xl">Projects</h2>
                 {featuredProjects.map((project) => (
-                    <ProjectPreview project={project} class="mb-10 sm:mb-12" headingLevel="h3" />
+                    <ProjectPreview project={project} class="mb-10 sm:mb-12" headingLevel="h3" showImage />
                 ))}
                 <div class="mt-12 sm:mt-16">
                     <Button href="/projects">View All Projects</Button>
+                </div>
+            </div>
+        )
+    }
+    {
+        featuredApps?.length > 0 && (
+            <div class="mb-16 sm:mb-24">
+                <h2 class="mb-12 text-xl font-serif italic sm:mb-16 sm:text-2xl">Apps</h2>
+                {featuredApps.map((app) => (
+                    <AppPreview app={app} class="mb-10 sm:mb-12" headingLevel="h3" showImage />
+                ))}
+                <div class="mt-12 sm:mt-16">
+                    <Button href="/apps">View All Apps</Button>
                 </div>
             </div>
         )

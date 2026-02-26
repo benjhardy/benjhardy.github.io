@@ -58,6 +58,10 @@ const siteConfig: SiteConfig = {
             href: '/projects'
         },
         {
+            text: 'Apps',
+            href: '/apps'
+        },
+        {
             text: 'Publications',
             href: '/publications'
         },
@@ -106,10 +110,10 @@ const siteConfig: SiteConfig = {
     ],
     hero: {
         title: '',
-        text: "Hello, I\'m Ben Hardy, an Application Engineer with a PhD in Physics. I'm passionate about creating useful and innovative software solutions related to simulation, AI, and modern engineering.",
+        text: "Hello, I\'m Ben Hardy, an Application Engineer with a PhD in Physics. I'm passionate about creating useful and innovative software solutions related to simulation, AI, and modern engineering. I build with Cursor and often run 2–3 agents in parallel across projects.",
         image: {
-            src: '/Me.jpg',
-            alt: 'A younger version of me at Astro Coffee in Detroit, MI',
+            src: '/2026/headshot.jpg',
+            alt: 'A headshot of me',
         },
         actions: [
             {

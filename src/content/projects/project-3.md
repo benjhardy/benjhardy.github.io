@@ -5,7 +5,8 @@ publishDate: 'May 03 2025'
 isFeatured: true
 seo:
   image:
-    src: '/project-3.jpg'
+    src: '/huygensBoxController.png'
+    alt: Huygens Box Controller
 ---
 
 **Project Overview:**

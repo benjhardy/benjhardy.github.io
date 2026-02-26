@@ -1,0 +1,35 @@
+---
+import { type CollectionEntry } from 'astro:content';
+import ArrowRight from '../icons/ArrowRight.astro';
+
+type Props = { app: CollectionEntry<'apps'>; class?: string; headingLevel?: 'h2' | 'h3'; showImage?: boolean };
+
+const { app, class: className, headingLevel = 'h2', showImage = false } = Astro.props;
+const { title, description, seo } = app.data;
+const TitleTag = headingLevel;
+const imageSrc = seo?.image?.src;
+---
+
+<a class:list={['flex justify-between items-start gap-8 group', className]} href={`/apps/${app.id}/`}>
+    {showImage && imageSrc && (
+        <img
+            src={imageSrc}
+            alt={seo?.image?.alt ?? title}
+            class="h-20 w-20 shrink-0 rounded object-cover sm:h-24 sm:w-24"
+            width="96"
+            height="96"
+            loading="lazy"
+        />
+    )}
+    <div class="grow min-w-0">
+        <TitleTag
+            class="text-xl leading-tight font-serif font-medium group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4 group-hover:decoration-1 sm:text-2xl"
+        >
+            {title}
+        </TitleTag>
+        {description && <div class="mt-1 text-sm leading-normal">{description}</div>}
+    </div>
+    <div class="hidden font-serif italic opacity-0 transition group-hover:opacity-100 sm:inline-flex sm:gap-1 sm:items-center sm:shrink-0">
+        View App <ArrowRight class="fill-current w-4 h-4" />
+    </div>
+</a>

@@ -5,7 +5,8 @@ publishDate: 'May 02 2025'
 isFeatured: true
 seo:
   image:
-    src: '/project-4.jpg'
+    src: '/sar_macro.png'
+    alt: SAR Simulation Utility
 ---
 
 **Project Overview:**

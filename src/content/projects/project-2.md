@@ -5,8 +5,8 @@ publishDate: 'May 04 2025'
 isFeatured: true
 seo:
   image:
-    src: '/project-2.jpg'
-    alt: Project preview
+    src: '/importBlender.gif'
+    alt: Blender Animation Import
 ---
 
 

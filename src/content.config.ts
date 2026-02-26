@@ -41,8 +41,23 @@ const projects = defineCollection({
         description: z.string().optional(),
         publishDate: z.coerce.date(),
         isFeatured: z.boolean().default(false),
-        seo: seoSchema.optional()
+        seo: seoSchema.optional(),
+        repo: z.string().optional()
     })
 });
 
-export const collections = { publications, pages, projects };
+const apps = defineCollection({
+    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/apps' }),
+    schema: z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        publishDate: z.coerce.date(),
+        isFeatured: z.boolean().default(false),
+        seo: seoSchema.optional(),
+        repo: z.string().optional(),
+        appStoreUrl: z.string().optional(),
+        playStoreUrl: z.string().optional()
+    })
+});
+
+export const collections = { publications, pages, projects, apps };

@@ -13,3 +13,7 @@ My personal email: benjamin(dot)mi(dot)hardy(at)gmail.com
 _Social Media:_
 Find me on [LinkedIn](https://www.linkedin.com/in/ben-hardy-phd-a6162b218/).
 Or ... Lichess? [Lichess](https://lichess.org/@/blacbeanburgr)
+
+
+
+![Simulation turkey](/2026/xfuimain_dGW1ZPy2gr.gif)
