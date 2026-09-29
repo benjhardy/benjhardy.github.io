@@ -5,7 +5,7 @@ publishDate: '2026-04-29'
 isFeatured: true
 seo:
   image:
-    src: '/2026/cards/designforge-wilkinson.svg'
+    src: '/2026/designforge/wilkinson-splitter.png'
     alt: 10 GHz Wilkinson splitter designed in HFSS with DesignForge AI
 ---
 
@@ -20,6 +20,7 @@ At [DesignForge AI](https://www.designforgeai.com), I build RF knowledge into th
 
 Built on [PyAEDT](https://aedt.docs.pyansys.com/), the Python scripting library for Ansys HFSS.
 
-<iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7455362622486384641" height="760" width="100%" style="max-width: 560px; border: 0;" allowfullscreen title="DesignForge AI: 10 GHz Wilkinson splitter in HFSS"></iframe>
-
-[View the post on LinkedIn](https://www.linkedin.com/posts/ben-hardy-phd-a6162b218_hfss-electromagnetics-rf-ugcPost-7455362622486384641-zbRs/)
+<video controls playsinline preload="metadata" poster="/2026/designforge/wilkinson-splitter.png" style="width: 100%; border-radius: 8px;">
+  <source src="/2026/designforge/wilkinson-splitter.mp4" type="video/mp4">
+</video>
+*The agent sets up the splitter in HFSS, sweeps the quarter-wave length, and reports S-parameters.*

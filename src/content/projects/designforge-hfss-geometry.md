@@ -5,7 +5,7 @@ publishDate: '2026-05-04'
 isFeatured: true
 seo:
   image:
-    src: '/2026/cards/designforge-geometry.svg'
+    src: '/2026/designforge/tie-fighter.png'
     alt: TIE fighter geometry built in HFSS with DesignForge AI
 ---
 
@@ -15,6 +15,7 @@ For May the Fourth, I built a TIE fighter in Ansys HFSS with a few prompts in [D
 
 Geometry is only one part of the job, though. The real value comes when agents complete RF workflows from start to finish, or run experiments while you sleep.
 
-<iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7457175974460309505" height="760" width="100%" style="max-width: 560px; border: 0;" allowfullscreen title="DesignForge AI: TIE fighter built in HFSS"></iframe>
-
-[View the post on LinkedIn](https://www.linkedin.com/posts/ben-hardy-phd-a6162b218_hfss-ai-simulation-ugcPost-7457175974460309505-DAgL/)
+<video controls playsinline preload="metadata" poster="/2026/designforge/tie-fighter.png" style="width: 100%; border-radius: 8px;">
+  <source src="/2026/designforge/tie-fighter.mp4" type="video/mp4">
+</video>
+*Geometry built from primitives and Boolean operations, then lit with a plane wave.*

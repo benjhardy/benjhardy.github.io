@@ -23,10 +23,20 @@ const featuredApps = apps.filter(({ data }) => data.isFeatured);
     <Hero />
     <h2 class="mb-12 text-xl font-serif italic sm:mb-16 sm:text-2xl">Highlights</h2>
     <div class="mb-12 sm:mb-16">
-        <h3 class="mb-6 text-lg font-serif italic sm:text-xl">Featured</h3>
-        <div class="flex flex-col items-center">
-            <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7455362622486384641" height="760" width="100%" style="max-width: 560px; border: 0;" class="rounded-lg shadow-lg" allowfullscreen title="DesignForge AI: one-shot 10 GHz Wilkinson splitter in HFSS"></iframe>
-            <p class="mt-2 font-serif text-sm text-center"><a href="/projects/designforge-wilkinson/">DesignForge AI: one-shot 10 GHz Wilkinson splitter in HFSS</a></p>
+        <h3 class="mb-6 text-lg font-serif italic sm:text-xl">Featured: agentic RF design in HFSS with DesignForge AI</h3>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class="flex flex-col items-center">
+                <a href="/projects/designforge-wilkinson/" class="w-full">
+                    <video class="w-full rounded-lg shadow-lg" src="/2026/designforge/wilkinson-splitter.mp4" poster="/2026/designforge/wilkinson-splitter.png" autoplay muted loop playsinline preload="metadata" aria-label="Agent designs a 10 GHz Wilkinson splitter in HFSS"></video>
+                </a>
+                <p class="mt-2 font-serif text-sm text-center"><a href="/projects/designforge-wilkinson/">One-shot 10 GHz Wilkinson splitter</a></p>
+            </div>
+            <div class="flex flex-col items-center">
+                <a href="/projects/designforge-hfss-geometry/" class="w-full">
+                    <video class="w-full rounded-lg shadow-lg" src="/2026/designforge/tie-fighter.mp4" poster="/2026/designforge/tie-fighter.png" autoplay muted loop playsinline preload="metadata" aria-label="A TIE fighter built in HFSS from a few prompts"></video>
+                </a>
+                <p class="mt-2 font-serif text-sm text-center"><a href="/projects/designforge-hfss-geometry/">HFSS geometry from a few prompts</a></p>
+            </div>
         </div>
     </div>
     <h3 class="mb-6 text-lg font-serif italic sm:text-xl">More highlights</h3>
