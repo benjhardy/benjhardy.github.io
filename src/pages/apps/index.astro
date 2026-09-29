@@ -1,0 +1,17 @@
+---
+import { getCollection } from 'astro:content';
+import AppPreview from '../../components/AppPreview.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { sortItemsByDateDesc } from '../../utils/data-utils';
+
+const apps = (await getCollection('apps')).sort(sortItemsByDateDesc);
+---
+
+<BaseLayout title="Apps" description="iOS and Android apps" showHeader={false}>
+    <h1 class="mb-12 text-2xl leading-tight font-serif italic sm:mb-16 sm:text-4xl">Apps</h1>
+    {apps.length > 0 ? (
+        apps.map((app) => <AppPreview app={app} class="mb-10 sm:mb-12" />)
+    ) : (
+        <p class="text-sm">No apps yet.</p>
+    )}
+</BaseLayout>
