@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Forge · Smith Chart Tutor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ DESIGN FORGE TOKENS — swap brand colors here ============ */
+:root{
+  --df-bg:        #14161b;   /* anvil black */
+  --df-panel:     #1d222b;   /* steel plate */
+  --df-panel-2:   #242b37;   /* raised steel */
+  --df-line:      #39424f;   /* gunmetal rule */
+  --df-line-dim:  #2a313c;
+  --df-text:      #eae6dc;   /* warm bone */
+  --df-dim:       #98a1ad;
+  --df-ember:     #F85820;   /* brand coral (from logo) */
+  --df-molten:    #FFB35C;   /* hot highlight */
+  --df-heat:      #F02845;   /* brand crimson (from logo) */
+  --df-quench:    #5cb8dc;   /* tempered blue — admittance */
+  --df-ok:        #8fd97a;
+  --df-bad:       #ff6b6b;
+  --font-display:'Chakra Petch',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--df-bg);
+  color:var(--df-text);
+  font-family:var(--font-display);
+  font-size:14px;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+button{font-family:var(--font-display);cursor:pointer}
+/* ============ HEADER ============ */
+header{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 18px;
+  border-bottom:1px solid var(--df-line);
+  background:linear-gradient(180deg,var(--df-panel) 0%,var(--df-bg) 100%);
+  flex:0 0 auto;
+}
+.brandmark{width:34px;height:34px;flex:0 0 auto}
+.brand-text{line-height:1.05}
+.brand-text .co{font-size:10px;letter-spacing:.32em;color:var(--df-dim);text-transform:uppercase}
+.brand-text .app{font-size:17px;font-weight:700;letter-spacing:.04em}
+.brand-text .app em{font-style:normal;color:var(--df-ember)}
+.mode-switch{margin-left:auto;display:flex;border:1px solid var(--df-line);border-radius:6px;overflow:hidden}
+.mode-switch button{
+  background:transparent;border:0;color:var(--df-dim);
+  padding:6px 16px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;
+}
+.mode-switch button.active{background:var(--df-ember);color:#191006}
+/* ============ LAYOUT ============ */
+main{flex:1;display:grid;grid-template-columns:320px 1fr 372px;min-height:0}
+@media (max-width:1100px){ main{grid-template-columns:280px 1fr 320px} }
+.panel{border-right:1px solid var(--df-line);display:flex;flex-direction:column;min-height:0;background:var(--df-bg)}
+.panel:last-child{border-right:0}
+.panel-head{
+  padding:9px 14px;border-bottom:1px solid var(--df-line-dim);
+  font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--df-dim);font-weight:600;
+  display:flex;align-items:center;gap:8px;flex:0 0 auto;
+}
+.panel-head::before{content:"";width:8px;height:8px;background:var(--df-ember);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+/* ============ LESSON PANEL ============ */
+#lessonPanel{overflow-y:auto}
+.module-tabs{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px 4px}
+.module-tab{flex:1 1 46%}
+.module-tab{
+  flex:1;background:var(--df-panel);border:1px solid var(--df-line);border-radius:5px;
+  color:var(--df-dim);font-size:11px;font-weight:600;padding:7px 4px;letter-spacing:.03em;
+}
+.module-tab.active{border-color:var(--df-ember);color:var(--df-ember)}
+.module-tab.done{color:var(--df-ok);border-color:var(--df-ok)}
+.step-dots{display:flex;gap:6px;padding:10px 16px 2px}
+.step-dot{width:9px;height:9px;border-radius:50%;background:var(--df-line);border:1px solid var(--df-line)}
+.step-dot.current{background:var(--df-ember);box-shadow:0 0 8px var(--df-ember)}
+.step-dot.done{background:var(--df-ok)}
+.lesson-body{padding:12px 16px 20px;display:flex;flex-direction:column;gap:12px}
+.lesson-title{font-size:16px;font-weight:700;letter-spacing:.02em}
+.lesson-step-label{font-size:10px;letter-spacing:.26em;color:var(--df-ember);text-transform:uppercase;font-weight:700}
+.lesson-text{font-size:13.5px;line-height:1.55;color:var(--df-text)}
+.lesson-text b{color:var(--df-molten)}
+.lesson-text code{font-family:var(--font-mono);font-size:12.5px;background:var(--df-panel-2);padding:1px 5px;border-radius:3px;color:var(--df-molten)}
+.quiz-choices{display:flex;flex-direction:column;gap:8px}
+.quiz-choice{
+  text-align:left;background:var(--df-panel);border:1px solid var(--df-line);border-radius:6px;
+  color:var(--df-text);padding:9px 12px;font-size:13px;transition:border-color .15s;
+}
+.quiz-choice:hover{border-color:var(--df-ember)}
+.quiz-choice.correct{border-color:var(--df-ok);color:var(--df-ok);background:rgba(143,217,122,.06)}
+.quiz-choice.wrong{border-color:var(--df-bad);color:var(--df-bad)}
+.status-forge{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;
+  border:1px dashed var(--df-line);color:var(--df-dim);font-size:12.5px;
+}
+.status-forge.pass{
+  border:1px solid var(--df-ember);color:var(--df-molten);
+  background:linear-gradient(90deg,rgba(255,69,48,.12),rgba(255,194,71,.10));
+  text-shadow:0 0 12px rgba(248,88,32,.5);font-weight:700;letter-spacing:.12em;
+}
+.hint-btn{background:none;border:0;color:var(--df-quench);font-size:12px;text-decoration:underline;padding:0;align-self:flex-start}
+.hint-text{font-size:12.5px;color:var(--df-quench);line-height:1.5;border-left:2px solid var(--df-quench);padding-left:10px;display:none}
+.hint-text.show{display:block}
+.next-btn{
+  background:var(--df-ember);color:#191006;border:0;border-radius:6px;
+  padding:10px 14px;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  opacity:.35;pointer-events:none;transition:opacity .2s;
+}
+.next-btn.ready{opacity:1;pointer-events:auto;box-shadow:0 0 18px rgba(248,88,32,.45)}
+/* ============ CHART PANEL ============ */
+#chartPanel{align-items:center;overflow:hidden}
+.chart-tools{display:flex;gap:8px;padding:10px 12px 0;align-self:stretch;justify-content:center;flex:0 0 auto}
+.tool-toggle{
+  background:var(--df-panel);border:1px solid var(--df-line);border-radius:5px;color:var(--df-dim);
+  font-size:11px;font-weight:600;padding:5px 12px;letter-spacing:.06em;
+}
+.tool-toggle.on{color:var(--df-quench);border-color:var(--df-quench)}
+.tool-toggle.on.ember{color:var(--df-ember);border-color:var(--df-ember)}
+#chartWrap{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;padding:6px}
+canvas#smith{max-width:100%;max-height:100%}
+.readouts{
+  display:flex;gap:0;border-top:1px solid var(--df-line-dim);align-self:stretch;flex:0 0 auto;
+  background:var(--df-panel);
+}
+.readout{flex:1;padding:8px 6px;text-align:center;border-right:1px solid var(--df-line-dim)}
+.readout:last-child{border-right:0}
+.readout .k{font-size:9.5px;letter-spacing:.18em;color:var(--df-dim);text-transform:uppercase}
+.readout .v{font-family:var(--font-mono);font-size:13px;color:var(--df-molten);margin-top:2px;font-weight:500}
+/* ============ BENCH PANEL ============ */
+#benchPanel{overflow-y:auto}
+#schemWrap{padding:8px 10px;border-bottom:1px solid var(--df-line-dim);background:var(--df-panel)}
+#schem{width:100%;display:block}
+.palette{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 12px}
+.pal-btn{
+  background:var(--df-panel);border:1px solid var(--df-line);border-radius:5px;color:var(--df-text);
+  font-size:11.5px;font-weight:600;padding:8px 4px;letter-spacing:.02em;transition:all .12s;
+}
+.pal-btn:hover{border-color:var(--df-ember);color:var(--df-ember)}
+.bench-section{padding:4px 12px 12px}
+.bench-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--df-dim);font-weight:700;margin:8px 0 6px}
+.ctrl-row{display:flex;align-items:center;gap:10px;margin:7px 0}
+.ctrl-row label{font-size:12px;color:var(--df-dim);flex:0 0 92px}
+.ctrl-row input[type=range]{flex:1;accent-color:var(--df-ember);height:4px}
+.ctrl-row .val{font-family:var(--font-mono);font-size:12px;color:var(--df-molten);flex:0 0 86px;text-align:right}
+.elem-actions{display:flex;gap:8px;margin-top:6px}
+.ghost-btn{
+  background:transparent;border:1px solid var(--df-line);border-radius:5px;color:var(--df-dim);
+  font-size:11px;padding:6px 12px;font-weight:600;letter-spacing:.05em;
+}
+.ghost-btn:hover{border-color:var(--df-bad);color:var(--df-bad)}
+.empty-note{font-size:12px;color:var(--df-dim);font-style:italic;padding:2px 0 6px}
+/* scrollbars */
+::-webkit-scrollbar{width:9px}
+::-webkit-scrollbar-track{background:var(--df-bg)}
+::-webkit-scrollbar-thumb{background:var(--df-line);border-radius:5px}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+<header>
+  <svg class="brandmark" viewBox="0 0 100 100" style="background:none" aria-label="Design Forge">
+    <defs>
+      <linearGradient id="lgO" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#F87F08"/><stop offset="1" stop-color="#F85820"/></linearGradient>
+      <linearGradient id="lgR" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#F85820"/><stop offset="1" stop-color="#F02845"/></linearGradient>
+    </defs>
+    <rect x="10" y="44" width="46" height="46" rx="12" fill="none" stroke="url(#lgO)" stroke-width="13"/>
+    <rect x="44" y="10" width="46" height="46" rx="12" fill="none" stroke="url(#lgR)" stroke-width="13"/>
+    <rect x="44" y="44" width="12" height="12" fill="#F8D0C0" opacity="0.9"/>
+  </svg>
+  <div class="brand-text">
+    <div class="co">Design Forge</div>
+    <div class="app">SMITH <em>CHART</em> FORGE</div>
+  </div>
+  <div class="mode-switch">
+    <button id="modeLessons" class="active">Lessons</button>
+    <button id="modeSandbox">Sandbox</button>
+  </div>
+</header>
+<main>
+
+  <!-- ===== LESSONS ===== -->
+  <section class="panel" id="lessonPanel">
+    <div class="panel-head">Guided Lessons</div>
+    <div class="module-tabs" id="moduleTabs"></div>
+    <div class="step-dots" id="stepDots"></div>
+    <div class="lesson-body" id="lessonBody"></div>
+  </section>
+
+  <!-- ===== CHART ===== -->
+  <section class="panel" id="chartPanel">
+    <div class="chart-tools">
+      <button class="tool-toggle" id="tglY">Admittance grid</button>
+      <button class="tool-toggle ember" id="tglVSWR">VSWR circle</button>
+    </div>
+    <div id="chartWrap"><canvas id="smith"></canvas></div>
+    <div class="readouts">
+      <div class="readout"><div class="k">z in</div><div class="v" id="roZ">—</div></div>
+      <div class="readout"><div class="k">Z in (Ω)</div><div class="v" id="roZohm">—</div></div>
+      <div class="readout"><div class="k">|Γ| ∠</div><div class="v" id="roG">—</div></div>
+      <div class="readout"><div class="k">VSWR</div><div class="v" id="roV">—</div></div>
+      <div class="readout"><div class="k">RL (dB)</div><div class="v" id="roRL">—</div></div>
+    </div>
+  </section>
+
+  <!-- ===== BENCH ===== -->
+  <section class="panel" id="benchPanel">
+    <div class="panel-head">Circuit Bench</div>
+    <div id="schemWrap"><svg id="schem" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div class="bench-section">
+      <div class="bench-label">Add element (toward generator)</div>
+      <div class="palette">
+        <button class="pal-btn" data-add="sL">Series L</button>
+        <button class="pal-btn" data-add="sC">Series C</button>
+        <button class="pal-btn" data-add="sR">Series R</button>
+        <button class="pal-btn" data-add="shL">Shunt L</button>
+        <button class="pal-btn" data-add="shC">Shunt C</button>
+        <button class="pal-btn" data-add="shR">Shunt R</button>
+        <button class="pal-btn" data-add="tl">Series Line</button>
+        <button class="pal-btn" data-add="stubS">Short Stub</button>
+        <button class="pal-btn" data-add="stubO">Open Stub</button>
+      </div>
+      <div class="bench-label">Selected element</div>
+      <div id="elemCtrls"><div class="empty-note">Tap an element in the schematic to tune it.</div></div>
+      <div class="elem-actions">
+        <button class="ghost-btn" id="delElem">Remove selected</button>
+        <button class="ghost-btn" id="clearElems">Clear circuit</button>
+      </div>
+      <div class="bench-label">Load Z<sub>L</sub> &nbsp;·&nbsp; system Z₀ = 50 Ω</div>
+      <div class="ctrl-row"><label>R load</label><input type="range" id="slRL" min="0" max="250" step="1"><div class="val" id="vRL"></div></div>
+      <div class="ctrl-row"><label>X load</label><input type="range" id="slXL" min="-250" max="250" step="1"><div class="val" id="vXL"></div></div>
+    </div>
+  </section>
+</main>
+<script>
+/* ================= COMPLEX MATH ================= */
+const C=(re,im=0)=>({re,im});
+const cadd=(a,b)=>C(a.re+b.re,a.im+b.im);
+const csub=(a,b)=>C(a.re-b.re,a.im-b.im);
+const cmul=(a,b)=>C(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
+const cdiv=(a,b)=>{const d=b.re*b.re+b.im*b.im||1e-12;return C((a.re*b.re+a.im*b.im)/d,(a.im*b.re-a.re*b.im)/d)};
+const cabs=a=>Math.hypot(a.re,a.im);
+const Z0SYS=50;
+const gammaOfZ=Z=>cdiv(csub(Z,C(Z0SYS)),cadd(Z,C(Z0SYS)));         // Z in ohms
+const fmt=(x,d=2)=>(Math.abs(x)<1e-4?0:x).toFixed(d);
+const fmtC=(z,d=2)=>`${fmt(z.re,d)} ${z.im<0?'−':'+'} j${fmt(Math.abs(z.im),d)}`;
+const clampTan=v=>Math.max(-40,Math.min(40,v));
+
+/* ================= STATE ================= */
+const S={
+  RL:25, XL:-25,
+  elements:[],            // load side = index 0
+  selected:-1,
+  showY:false, showVSWR:false,
+  mode:'lessons', mi:0, si:0,
+  moduleDone:[false,false,false,false,false,false],
+  quizAnswered:false, stepPassed:false, hintOpen:false,
+};
+
+/* element factories */
+const ELEM_DEFS={
+  sL:{name:'Series L', make:()=>({type:'sL',X:50})},
+  sC:{name:'Series C', make:()=>({type:'sC',X:50})},
+  sR:{name:'Series R', make:()=>({type:'sR',R:25})},
+  shL:{name:'Shunt L', make:()=>({type:'shL',X:50})},
+  shC:{name:'Shunt C', make:()=>({type:'shC',X:50})},
+  shR:{name:'Shunt R', make:()=>({type:'shR',R:100})},
+  tl:{name:'Series Line', make:()=>({type:'tl',len:0.10,Zl:50})},
+  stubS:{name:'Short Stub', make:()=>({type:'stubS',len:0.10,Zl:50})},
+  stubO:{name:'Open Stub', make:()=>({type:'stubO',len:0.10,Zl:50})},
+};
+
+/* ================= CIRCUIT ENGINE =================
+   Everything in ohms/siemens. Returns Γ path samples per element + final Zin. */
+function applyElement(Z,el,t){       // t in (0..1] scales the element's value
+  if(t<=0)return Z;
+  switch(el.type){
+    case 'sR': return cadd(Z,C(el.R*t));
+    case 'sL': return cadd(Z,C(0, el.X*t));
+    case 'sC': return cadd(Z,C(0,-el.X*t));
+    case 'shR':{const Y=cadd(cdiv(C(1),Z),C(t/el.R));return cdiv(C(1),Y)}
+    case 'shL':{const Y=cadd(cdiv(C(1),Z),C(0,-t/el.X));return cdiv(C(1),Y)}
+    case 'shC':{const Y=cadd(cdiv(C(1),Z),C(0, t/el.X));return cdiv(C(1),Y)}
+    case 'tl':{
+      const th=2*Math.PI*el.len*t, cs=Math.cos(th), sn=Math.sin(th), Zl=el.Zl;
+      // Zin = Zl·(ZL·cosθ + jZl·sinθ)/(Zl·cosθ + jZL·sinθ) — exact, no tan singularity
+      return cdiv(cmul(C(Zl),cadd(cmul(Z,C(cs)),C(0,Zl*sn))),
+                  cadd(C(Zl*cs),cmul(C(0,sn),Z)));
+    }
+    case 'stubS':{
+      const th=2*Math.PI*el.len*t, B=-clampTan(1/Math.tan(th||1e-6))/el.Zl;   // Y = -j·cot/Zl
+      const Y=cadd(cdiv(C(1),Z),C(0,B));return cdiv(C(1),Y);
+    }
+    case 'stubO':{
+      const th=2*Math.PI*el.len*t, B=clampTan(Math.tan(th))/el.Zl;            // Y = +j·tan/Zl
+      const Y=cadd(cdiv(C(1),Z),C(0,B));return cdiv(C(1),Y);
+    }
+  }
+  return Z;
+}
+function computeAll(){
+  let Z=C(Math.max(S.RL,0.01),S.XL);
+  const segs=[]; const N=44;
+  for(const el of S.elements){
+    const pts=[];
+    for(let i=0;i<=N;i++) pts.push(gammaOfZ(applyElement(Z,el,i/N)));
+    segs.push(pts);
+    Z=applyElement(Z,el,1);
+  }
+  const g=gammaOfZ(Z), ag=cabs(g);
+  return {Zin:Z, zin:cdiv(Z,C(Z0SYS)), gamma:g, absG:Math.min(ag,0.9999),
+          vswr:(1+ag)/(1-Math.min(ag,.9999)), segs, gL:gammaOfZ(C(Math.max(S.RL,0.01),S.XL))};
+}
+
+/* ================= SMITH CHART DRAWING ================= */
+const cv=document.getElementById('smith'), ctx=cv.getContext('2d');
+let CW=640, R=280, CX=320, CY=320;
+function sizeChart(){
+  const wrap=document.getElementById('chartWrap');
+  const s=Math.max(320,Math.min(wrap.clientWidth,wrap.clientHeight)-8);
+  const dpr=window.devicePixelRatio||1;
+  cv.width=s*dpr; cv.height=s*dpr; cv.style.width=s+'px'; cv.style.height=s+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  CW=s; CX=s/2; CY=s/2; R=s/2-26;
+}
+const gx=g=>CX+g.re*R, gy=g=>CY-g.im*R;
+function circleClip(fn){ctx.save();ctx.beginPath();ctx.arc(CX,CY,R,0,7);ctx.clip();fn();ctx.restore()}
+function drawGrid(mirror,color,alphaMain){
+  const sgn=mirror?-1:1;
+  ctx.strokeStyle=color;
+  circleClip(()=>{
+    for(const r of [0,0.2,0.5,1,2,5]){
+      ctx.globalAlpha=(r===1?alphaMain:alphaMain*0.55);
+      ctx.lineWidth=(r===1?1.4:1);
+      const c=r/(1+r), rad=1/(1+r);
+      ctx.beginPath();ctx.arc(CX+sgn*c*R,CY,rad*R,0,7);ctx.stroke();
+    }
+    for(const x of [0.2,0.5,1,2,5]){
+      for(const s2 of [1,-1]){
+        ctx.globalAlpha=(x===1?alphaMain*0.9:alphaMain*0.5);
+        ctx.lineWidth=1;
+        ctx.beginPath();ctx.arc(CX+sgn*R, CY - sgn*s2*(R/x), R/x, 0, 7);ctx.stroke();
+      }
+    }
+    ctx.globalAlpha=alphaMain*0.7;
+    ctx.beginPath();ctx.moveTo(CX-R,CY);ctx.lineTo(CX+R,CY);ctx.stroke();
+  });
+  ctx.globalAlpha=1;
+}
+function drawLabels(){
+  ctx.fillStyle='#98a1ad';ctx.font=`10px 'IBM Plex Mono',monospace`;ctx.textAlign='center';
+  for(const r of [0.2,0.5,1,2,5]){
+    const g=(r-1)/(r+1);
+    ctx.fillText(r.toString(), CX+g*R, CY+12);
+  }
+  for(const x of [0.2,0.5,1,2,5]){
+    for(const s2 of [1,-1]){
+      const g=cdiv(C(-1,s2*x),C(1,s2*x));          // Γ of z = 0 + jx
+      const px=CX+g.re*(R+13), py=CY-g.im*(R+13)+3;
+      ctx.fillText((s2>0?'+':'−')+'j'+x, px, py);
+    }
+  }
+  ctx.fillText('0', CX-R-10, CY+3); ctx.fillText('∞', CX+R+10, CY+3);
+}
+function heatColor(t){ // 0..1 → deep heat → molten
+  const a=[240,40,69], b=[248,88,32], c=[255,179,92];
+  const mix=(p,q,u)=>Math.round(p+(q-p)*u);
+  let col; if(t<0.5){const u=t*2; col=[mix(a[0],b[0],u),mix(a[1],b[1],u),mix(a[2],b[2],u)]}
+  else{const u=(t-.5)*2; col=[mix(b[0],c[0],u),mix(b[1],c[1],u),mix(b[2],c[2],u)]}
+  return `rgb(${col[0]},${col[1]},${col[2]})`;
+}
+function drawChart(res,step){
+  ctx.clearRect(0,0,CW,CW);
+  // ambient forge glow behind chart
+  const rg=ctx.createRadialGradient(CX,CY,R*0.1,CX,CY,R*1.15);
+  rg.addColorStop(0,'rgba(248,88,32,0.05)');rg.addColorStop(1,'rgba(248,88,32,0)');
+  ctx.fillStyle=rg;ctx.fillRect(0,0,CW,CW);
+  // rim
+  ctx.strokeStyle='#39424f';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.arc(CX,CY,R,0,7);ctx.stroke();
+  drawGrid(false,'#4a5566',0.85);
+  if(S.showY) drawGrid(true,'#5cb8dc',0.5);
+  drawLabels();
+  // lesson highlights
+  if(step&&step.highlight){
+    ctx.save();ctx.setLineDash([6,5]);ctx.lineWidth=2;
+    if(step.highlight==='r1'){ctx.strokeStyle='#FFB35C';ctx.shadowColor='#F85820';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(CX+0.5*R,CY,0.5*R,0,7);ctx.stroke()}
+    if(step.highlight==='g1'){ctx.strokeStyle='#5cb8dc';ctx.shadowColor='#5cb8dc';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(CX-0.5*R,CY,0.5*R,0,7);ctx.stroke()}
+    ctx.restore();
+  }
+  if(step&&step.target){
+    const g=gammaOfZ(cmul(step.target,C(Z0SYS)));
+    ctx.save();ctx.strokeStyle='#FFB35C';ctx.lineWidth=1.4;ctx.shadowColor='#FFB35C';ctx.shadowBlur=8;
+    const px=gx(g),py=gy(g);
+    ctx.beginPath();ctx.arc(px,py,9,0,7);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px-14,py);ctx.lineTo(px-5,py);ctx.moveTo(px+5,py);ctx.lineTo(px+14,py);
+    ctx.moveTo(px,py-14);ctx.lineTo(px,py-5);ctx.moveTo(px,py+5);ctx.lineTo(px,py+14);ctx.stroke();
+    ctx.restore();
+  }
+  // VSWR circle
+  if(S.showVSWR){
+    ctx.save();ctx.strokeStyle='rgba(248,127,8,0.7)';ctx.setLineDash([3,4]);ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.arc(CX,CY,res.absG*R,0,7);ctx.stroke();ctx.restore();
+  }
+  // molten trace — the Design Forge signature
+  const total=res.segs.reduce((a,s)=>a+s.length,0)||1; let k=0;
+  ctx.save();ctx.lineCap='round';
+  for(const seg of res.segs){
+    for(let i=1;i<seg.length;i++){
+      const t=k/total; k++;
+      ctx.strokeStyle=heatColor(t);
+      ctx.shadowColor=heatColor(t);ctx.shadowBlur=7;ctx.lineWidth=2.6;
+      ctx.beginPath();ctx.moveTo(gx(seg[i-1]),gy(seg[i-1]));ctx.lineTo(gx(seg[i]),gy(seg[i]));ctx.stroke();
+    }
+  }
+  ctx.restore();
+  // load marker (cold steel ring)
+  ctx.save();
+  ctx.strokeStyle='#eae6dc';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(gx(res.gL),gy(res.gL),5.5,0,7);ctx.stroke();
+  // input point (molten bead)
+  const pg=res.gamma;
+  ctx.shadowColor='#FFB35C';ctx.shadowBlur=16;
+  ctx.fillStyle='#FFB35C';
+  ctx.beginPath();ctx.arc(gx(pg),gy(pg),6,0,7);ctx.fill();
+  ctx.shadowBlur=0;ctx.fillStyle='#fff3d6';
+  ctx.beginPath();ctx.arc(gx(pg),gy(pg),2.4,0,7);ctx.fill();
+  ctx.restore();
+}
+
+/* ================= SCHEMATIC (SVG) ================= */
+const svg=document.getElementById('schem');
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);(parent||svg).appendChild(e);return e}
+function drawSchematic(){
+  svg.innerHTML='';
+  const TOP=34, BOT=118;
+  const series=S.elements.filter(e=>['sL','sC','sR','tl'].includes(e.type));
+  const W=Math.max(320, 170+S.elements.length*74);
+  svg.setAttribute('viewBox',`0 0 ${W} 150`);
+  const wire=(x1,y1,x2,y2,cls)=>el('line',{x1,y1,x2,y2,stroke:'#98a1ad','stroke-width':1.6});
+  // generator
+  wire(16,TOP,44,TOP); wire(16,BOT,44,BOT); wire(16,TOP,16,BOT);
+  el('circle',{cx:16,cy:(TOP+BOT)/2,r:13,fill:'#1d222b',stroke:'#eae6dc','stroke-width':1.6});
+  el('path',{d:`M 8 ${(TOP+BOT)/2} q 4 -7 8 0 q 4 7 8 0`,fill:'none',stroke:'#eae6dc','stroke-width':1.5});
+  // load at right
+  const xL=W-46;
+  wire(xL,TOP,W-16,TOP); wire(xL,BOT,W-16,BOT); wire(W-16,TOP,W-16,BOT);
+  el('rect',{x:W-27,y:60,width:22,height:32,fill:'#242b37',stroke:'#FFB35C','stroke-width':1.6,rx:3});
+  const tL=el('text',{x:W-16,y:80,'text-anchor':'middle',fill:'#FFB35C','font-size':11,'font-family':"'IBM Plex Mono',monospace"});tL.textContent='ZL';
+  // base wires
+  wire(44,TOP,xL,TOP); wire(44,BOT,xL,BOT);
+  // ground hatch under generator
+  // lay out elements: index 0 nearest load → rightmost
+  let x=xL-16;
+  const groups=[];
+  for(let i=0;i<S.elements.length;i++){
+    const e2=S.elements[i]; const isSeries=['sL','sC','sR','tl'].includes(e2.type);
+    const w=isSeries?74:60; x-=w;
+    groups.push({el:e2,idx:i,x:x+w/2,isSeries,w});
+  }
+  for(const g of groups){
+    const grp=el('g',{'data-idx':g.idx,cursor:'pointer'});
+    const sel=g.idx===S.selected;
+    const col=sel?'#F85820':'#eae6dc';
+    const sw=sel?2.2:1.6;
+    if(g.isSeries){
+      // mask wire
+      el('rect',{x:g.x-26,y:TOP-14,width:52,height:28,fill:'#1d222b'},grp);
+      drawSeriesSym(grp,g.el.type,g.x,TOP,col,sw);
+    }else{
+      drawShuntSym(grp,g.el.type,g.x,TOP,BOT,col,sw);
+    }
+    if(sel) el('rect',{x:g.x-30,y:8,width:60,height:134,fill:'none',stroke:'#F85820','stroke-dasharray':'4 3',rx:5,opacity:.7},grp);
+    const lbl=el('text',{x:g.x,y:146,'text-anchor':'middle',fill:sel?'#F85820':'#98a1ad','font-size':9.5,'font-family':"'Chakra Petch',sans-serif"},grp);
+    lbl.textContent=ELEM_DEFS[g.el.type].name;
+    grp.addEventListener('click',()=>{S.selected=g.idx;render()});
+    svg.appendChild(grp);
+  }
+}
+function drawSeriesSym(grp,type,x,y,col,sw){
+  const st={fill:'none',stroke:col,'stroke-width':sw};
+  if(type==='sR'){
+    el('path',{...st,d:`M ${x-26} ${y} l 5 0 l 3 -7 l 6 14 l 6 -14 l 6 14 l 6 -14 l 3 7 l 5 0`},grp);
+  }else if(type==='sL'){
+    el('path',{...st,d:`M ${x-24} ${y} l 2 0 a 5 5 0 0 1 10 0 a 5 5 0 0 1 10 0 a 5 5 0 0 1 10 0 a 5 5 0 0 1 10 0 l 2 0`},grp);
+  }else if(type==='sC'){
+    el('path',{...st,d:`M ${x-26} ${y} l 21 0 M ${x+5} ${y} l 21 0 M ${x-5} ${y-11} l 0 22 M ${x+5} ${y-11} l 0 22`},grp);
+  }else if(type==='tl'){
+    el('rect',{x:x-22,y:y-9,width:44,height:18,fill:'#242b37',stroke:col,'stroke-width':sw,rx:8},grp);
+    el('line',{x1:x-26,y1:y,x2:x-22,y2:y,stroke:col,'stroke-width':sw},grp);
+    el('line',{x1:x+22,y1:y,x2:x+26,y2:y,stroke:col,'stroke-width':sw},grp);
+  }
+}
+function drawShuntSym(grp,type,x,top,bot,col,sw){
+  const st={fill:'none',stroke:col,'stroke-width':sw};
+  const mid=(top+bot)/2;
+  el('circle',{cx:x,cy:top,r:2.4,fill:col},grp);
+  if(type==='shR'){
+    el('path',{...st,d:`M ${x} ${top} l 0 8 l -7 3 l 14 6 l -14 6 l 14 6 l -14 6 l 7 3 l 0 8 M ${x} ${bot-12} l 0 12`},grp);
+  }else if(type==='shL'){
+    el('path',{...st,d:`M ${x} ${top} l 0 10 a 5 5 0 0 1 0 10 a 5 5 0 0 1 0 10 a 5 5 0 0 1 0 10 a 5 5 0 0 1 0 10 l 0 4`},grp);
+  }else if(type==='shC'){
+    el('path',{...st,d:`M ${x} ${top} l 0 26 M ${x-11} ${mid-4} l 22 0 M ${x-11} ${mid+4} l 22 0 M ${x} ${mid+4} l 0 ${bot-mid-4}`},grp);
+  }else if(type==='stubS'||type==='stubO'){
+    el('line',{x1:x,y1:top,x2:x,y2:top+12,stroke:col,'stroke-width':sw},grp);
+    el('rect',{x:x-8,y:top+12,width:16,height:40,fill:'#242b37',stroke:col,'stroke-width':sw,rx:7},grp);
+    if(type==='stubS'){
+      el('line',{x1:x,y1:top+52,x2:x,y2:top+60,stroke:col,'stroke-width':sw},grp);
+      el('path',{...st,d:`M ${x-10} ${top+60} l 20 0 M ${x-6} ${top+64} l 12 0 M ${x-2.5} ${top+68} l 5 0`},grp);
+    }else{
+      el('circle',{cx:x,cy:top+58,r:2.6,fill:'none',stroke:col,'stroke-width':sw},grp);
+    }
+  }
+}
+
+/* ================= BENCH CONTROLS ================= */
+const logMap=(t,lo,hi)=>lo*Math.pow(hi/lo,t);          // t 0..1
+const logInv=(v,lo,hi)=>Math.log(v/lo)/Math.log(hi/lo);
+function renderElemCtrls(){
+  const box=document.getElementById('elemCtrls');
+  const e2=S.elements[S.selected];
+  if(!e2){box.innerHTML='<div class="empty-note">Tap an element in the schematic to tune it.</div>';return}
+  const rows=[];
+  const row=(id,label,min,max,step,val,valTxt)=>`
+    <div class="ctrl-row"><label>${label}</label>
+    <input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}">
+    <div class="val">${valTxt}</div></div>`;
+  const f=1e9, wq=2*Math.PI*f;
+  if(e2.type==='sL'||e2.type==='shL'){
+    rows.push(row('sX','Reactance X',0,1,0.002,logInv(e2.X,2.5,400),`${fmt(e2.X,1)} Ω`));
+    rows.push(`<div class="empty-note">L ≈ ${(e2.X/wq*1e9).toFixed(2)} nH @ 1 GHz</div>`);
+  }else if(e2.type==='sC'||e2.type==='shC'){
+    rows.push(row('sX','Reactance |X|',0,1,0.002,logInv(e2.X,2.5,400),`${fmt(e2.X,1)} Ω`));
+    rows.push(`<div class="empty-note">C ≈ ${(1/(wq*e2.X)*1e12).toFixed(2)} pF @ 1 GHz</div>`);
+  }else if(e2.type==='sR'||e2.type==='shR'){
+    rows.push(row('sRv','Resistance',0,1,0.002,logInv(e2.R,1,500),`${fmt(e2.R,1)} Ω`));
+  }else{ // tl / stubs
+    rows.push(row('sLen','Length',0.002,0.499,0.001,e2.len,`${e2.len.toFixed(3)} λ`));
+    rows.push(row('sZl','Line Z₀',10,150,0.5,e2.Zl,`${fmt(e2.Zl,1)} Ω`));
+  }
+  box.innerHTML=rows.join('');
+  const wq2=2*Math.PI*1e9;
+  const bind=(id,fn,txt)=>{const s=document.getElementById(id);if(!s)return;
+    s.addEventListener('input',()=>{fn(parseFloat(s.value));
+      s.parentElement.querySelector('.val').textContent=txt();
+      const note=box.querySelector('.empty-note');
+      if(note&&(e2.type==='sL'||e2.type==='shL'))note.textContent=`L ≈ ${(e2.X/wq2*1e9).toFixed(2)} nH @ 1 GHz`;
+      if(note&&(e2.type==='sC'||e2.type==='shC'))note.textContent=`C ≈ ${(1/(wq2*e2.X)*1e12).toFixed(2)} pF @ 1 GHz`;
+      renderCore();drawSchematic();
+    })};
+  bind('sX',v=>e2.X=logMap(v,2.5,400),()=>`${fmt(e2.X,1)} Ω`);
+  bind('sRv',v=>e2.R=logMap(v,1,500),()=>`${fmt(e2.R,1)} Ω`);
+  bind('sLen',v=>e2.len=v,()=>`${e2.len.toFixed(3)} λ`);
+  bind('sZl',v=>e2.Zl=v,()=>`${fmt(e2.Zl,1)} Ω`);
+}
+document.querySelectorAll('.pal-btn').forEach(b=>b.addEventListener('click',()=>{
+  S.elements.push(ELEM_DEFS[b.dataset.add].make());
+  S.selected=S.elements.length-1; render();
+}));
+document.getElementById('delElem').addEventListener('click',()=>{
+  if(S.selected>=0){S.elements.splice(S.selected,1);S.selected=-1;render()}
+});
+document.getElementById('clearElems').addEventListener('click',()=>{S.elements=[];S.selected=-1;render()});
+const slRL=document.getElementById('slRL'), slXL=document.getElementById('slXL');
+slRL.addEventListener('input',()=>{S.RL=+slRL.value;renderCore()});
+slXL.addEventListener('input',()=>{S.XL=+slXL.value;renderCore()});
+document.getElementById('tglY').addEventListener('click',e=>{S.showY=!S.showY;e.target.classList.toggle('on',S.showY);render()});
+document.getElementById('tglVSWR').addEventListener('click',e=>{S.showVSWR=!S.showVSWR;e.target.classList.toggle('on',S.showVSWR);render()});
+
+/* ================= LESSONS ================= */
+const near=(a,b,tol)=>Math.hypot(a.re-b.re,a.im-b.im)<tol;
+const has=(t)=>S.elements.some(e2=>e2.type===t);
+const LESSONS=[
+{ title:'Read the Chart', steps:[
+  { text:`Every impedance on the chart is <b>normalized</b> to the system impedance: <code>z = Z / Z₀</code>. Your load is set to <code>ZL = 25 − j25 Ω</code> in a 50 Ω system. What is the normalized load <code>z</code>?`,
+    setup:()=>{S.RL=25;S.XL=-25;S.elements=[]},
+    quiz:{choices:['0.5 − j0.5','2 − j2','25 − j25','0.5 + j0.5'],answer:0},
+    explain:`Divide both parts by 50. The white ring on the chart marks that point.` },
+  { text:`Now steer the point yourself. Use the two <b>load sliders</b> on the bench to move the load to <code>z = 1 + j1</code> — that's <code>50 + j50 Ω</code>. Land inside the target crosshair.`,
+    setup:()=>{S.RL=25;S.XL=-25;S.elements=[]},
+    target:C(1,1),
+    check:r=>near(r.zin,C(1,1),0.12),
+    hint:`R load → 50 Ω moves you along the r = 1 circle. X load → +50 Ω slides you up the +j1 arc.` },
+  { text:`On the <b>positive real axis</b>, the normalized resistance you read <i>is</i> the VSWR. Set the load to <code>150 + j0 Ω</code> (z = 3) and watch the dashed VSWR circle pass through it.`,
+    setup:()=>{S.RL=25;S.XL=-25;S.elements=[];S.showVSWR=true;document.getElementById('tglVSWR').classList.add('on')},
+    target:C(3,0),
+    check:r=>near(r.zin,C(3,0),0.15),
+    hint:`X load to 0, then push R load to 150 Ω. VSWR readout should show ≈ 3.` },
+  { text:`Quick bearings check: where does a <b>short circuit</b> (Z = 0) live on the chart?`,
+    setup:()=>{S.RL=0;S.XL=0;S.elements=[]},
+    quiz:{choices:['Far left edge — Γ = −1','Far right edge — Γ = +1','Dead center — Γ = 0'],answer:0},
+    explain:`Z = 0 reflects everything, inverted: Γ = (0−50)/(0+50) = −1. The far right is an open; the center is a perfect match.` },
+  { text:`And the <b>center</b> of the chart means…`,
+    quiz:{choices:['Perfect match: z = 1, Γ = 0, VSWR = 1','Maximum power reflected','Infinite impedance'],answer:0},
+    explain:`Center is home. Every matching exercise in this forge ends there.` },
+]},
+{ title:'Transmission Lines', steps:[
+  { text:`A series line <b>rotates</b> the point clockwise around the chart ("toward the generator"). Load is <code>50 + j50 Ω</code>. Add a <b>Series Line</b> and tune its <b>length</b> until the point crosses the <b>real axis</b> — pure resistance, no reactance.`,
+    setup:()=>{S.RL=50;S.XL=50;S.elements=[]},
+    check:r=>has('tl')&&Math.abs(r.zin.im)<0.08,
+    hint:`Watch the molten trace sweep an arc at constant |Γ|. Around 0.088 λ gets you to the axis (either crossing counts).` },
+  { text:`You just traced part of a circle. How much line length is one <b>full lap</b> of the Smith chart?`,
+    quiz:{choices:['Half a wavelength — λ/2','One wavelength — λ','A quarter wavelength — λ/4'],answer:0},
+    explain:`Γ rotates by 2βl, so the chart spins twice as fast as the line grows. λ/2 of line = 360° on the chart.` },
+  { text:`The <b>quarter-wave transformer</b>: load is <code>100 + j0 Ω</code>. Add a <b>Series Line</b>, set length to <code>0.25 λ</code>, then tune the line's <b>Z₀</b> until the point lands at center.`,
+    setup:()=>{S.RL=100;S.XL=0;S.elements=[]},
+    check:r=>{const t=S.elements.find(e2=>e2.type==='tl');return t&&t.len>0.23&&t.len<0.27&&r.absG<0.08},
+    hint:`Theory says Z₀ = √(50·100) ≈ 70.7 Ω. Length must stay pinned at 0.25 λ.` },
+  { text:`Stubs are lines used as <b>reactive parts</b>. A short-circuited stub of length λ/8 looks like what at its input?`,
+    quiz:{choices:['An inductor — Z = +jZ₀','A capacitor — Z = −jZ₀','A resistor — Z = Z₀'],answer:0},
+    explain:`Z_in = jZ₀·tan(βl); tan(45°) = 1, so a λ/8 short stub is a clean +jZ₀ inductance. You'll wield this in the final module.` },
+]},
+{ title:'Forge a Match', steps:[
+  { text:`The classic <b>L-network</b>, step one. Load: <code>100 + j50 Ω</code>. Add a <b>Shunt C</b> and tune it until the point lands on the glowing <b>r = 1 circle</b> — the circle that passes through center.`,
+    setup:()=>{S.RL=100;S.XL=50;S.elements=[]},
+    highlight:'r1',
+    check:r=>(has('shC')||has('shL'))&&Math.abs(r.zin.re-1)<0.1,
+    hint:`A shunt element slides the point along a constant-conductance circle. Aim for X ≈ 72 Ω (that's a normalized susceptance b ≈ +0.69).` },
+  { text:`Step two: you're on <code>r = 1</code> with leftover reactance. Add a <b>Series L</b> and tune it to drag the point into <b>center</b>. Pass when <code>|Γ| &lt; 0.06</code>.`,
+    keep:true, highlight:'r1',
+    check:r=>(has('sL')||has('sC'))&&r.absG<0.06,
+    hint:`On the r = 1 circle below the axis you need +j reactance: series L around X ≈ 61 Ω. Retune the shunt C if you drifted.` },
+  { text:`Now the RF-native way: <b>single-stub matching</b>. Load: <code>30 − j40 Ω</code>. Add a <b>Series Line</b> to rotate onto the blue <b>g = 1 circle</b>, then add a <b>Short Stub</b> to cancel the remaining susceptance. Pass when <code>|Γ| &lt; 0.08</code>.`,
+    setup:()=>{S.RL=30;S.XL=-40;S.elements=[];S.showY=true;document.getElementById('tglY').classList.add('on')},
+    highlight:'g1',
+    check:r=>has('tl')&&(has('stubS')||has('stubO'))&&r.absG<0.08,
+    hint:`Tune the line until the point rides the mirrored (admittance) unit circle, then grow the stub — it slides the point along that circle to center.` },
+  { text:`<b>Final tempering.</b> A mystery load has been drawn from the fire. Match it however you like — any elements, any order. Pass when <code>|Γ| &lt; 0.1</code>.`,
+    setup:()=>{S.RL=Math.round(15+Math.random()*160);S.XL=Math.round(-90+Math.random()*180);S.elements=[]},
+    check:r=>S.elements.length>0&&r.absG<0.1,
+    hint:`One shunt + one series element can match anything on this chart. Or rotate with a line first — forge your own path.` },
+]},
+{ title:'Admittance', steps:[
+  { text:`Shunt elements add <b>admittance</b>: <code>y = 1/z</code>, so conductance <code>g</code> stays fixed while susceptance <code>b</code> slides. Which curve does a shunt element move the point along?`,
+    setup:()=>{S.RL=50;S.XL=50;S.elements=[];S.showY=true;document.getElementById('tglY').classList.add('on')},
+    quiz:{choices:['A constant-conductance circle','A constant-resistance circle','A straight line toward center'],answer:0},
+    explain:`Adding pure susceptance can't change conductance — the point rides a constant-g circle, visible on the mirrored (blue) admittance grid.` },
+  { text:`A quarter-wave of matched line is an <b>inverter</b>: it maps <code>z → 1/z</code> straight through center. Load is <code>200 Ω</code> (z = 4). Add a <b>Series Line</b>, hold it at <code>50 Ω</code> and exactly <code>0.25 λ</code>, and land at <code>z = 0.25</code>.`,
+    setup:()=>{S.RL=200;S.XL=0;S.elements=[]},
+    target:C(0.25,0),
+    check:r=>{const t=S.elements.find(e2=>e2.type==='tl');return t&&t.len>0.23&&t.len<0.27&&t.Zl>48&&t.Zl<52&&near(r.zin,C(0.25,0),0.05)},
+    hint:`Pin the length at 0.250 λ and the line Z₀ at 50 Ω. Z_in = Z₀²/Z_L = 2500/200 = 12.5 Ω.` },
+  { text:`Mental arithmetic: the load sits at <code>z = 0.5 + j0.5</code>. What is its admittance <code>y</code>?`,
+    setup:()=>{S.RL=25;S.XL=25;S.elements=[]},
+    quiz:{choices:['1 − j1','1 + j1','0.5 − j0.5','2 + j2'],answer:0},
+    explain:`1/(0.5 + j0.5) = (0.5 − j0.5)/0.5 = 1 − j1. On the chart, y is the same point read against the mirrored grid.` },
+  { text:`The simplest match of all: load <code>25 − j25 Ω</code> has <code>y = 1 + j1</code> — conductance is <b>already 1</b>. Add a single <b>Shunt L</b> and cancel the +j1 susceptance to reach center. Pass with only that one element and <code>|Γ| &lt; 0.06</code>.`,
+    setup:()=>{S.RL=25;S.XL=-25;S.elements=[];S.showY=true;document.getElementById('tglY').classList.add('on')},
+    check:r=>has('shL')&&S.elements.length===1&&r.absG<0.06,
+    hint:`A shunt inductor's normalized susceptance is −Z₀/X. You need −1, so X = 50 Ω exactly.` },
+]},
+{ title:'Meter Craft', steps:[
+  { text:`If <code>|Γ| = 0.5</code>, what is the VSWR?`,
+    quiz:{choices:['3','2','1.5'],answer:0},
+    explain:`S = (1 + |Γ|)/(1 − |Γ|) = 1.5/0.5 = 3.` },
+  { text:`Return loss: with <code>|Γ| = 0.1</code>, how many dB of power are reflected relative to incident?`,
+    quiz:{choices:['20 dB','10 dB','40 dB'],answer:0},
+    explain:`RL = −20·log₁₀|Γ| = 20 dB — only 1% of the power is reflected.` },
+  { text:`Using the <b>load sliders only</b> (no elements), place the load anywhere on the <b>VSWR = 2</b> circle. There is a whole ring of correct answers.`,
+    setup:()=>{S.RL=25;S.XL=-25;S.elements=[];S.showVSWR=true;document.getElementById('tglVSWR').classList.add('on')},
+    check:r=>S.elements.length===0&&Math.abs(r.vswr-2)<0.15,
+    hint:`Pure resistance is easiest: 100 Ω gives z = 2 — and 25 Ω lands on the very same circle. A VSWR meter can't tell those apart.` },
+  { text:`On a real line, the standing-wave <b>voltage minimum</b> occurs where the rotation crosses the left real axis, at <code>z = 1/S</code>. Load is <code>100 Ω</code> (S = 2). Add a <b>Series Line</b> and rotate the point to the V-min at <code>z = 0.5</code>.`,
+    setup:()=>{S.RL=100;S.XL=0;S.elements=[];S.showVSWR=true;document.getElementById('tglVSWR').classList.add('on')},
+    target:C(0.5,0),
+    check:r=>has('tl')&&near(r.zin,C(0.5,0),0.06),
+    hint:`A quarter wave inverts z = 2 into z = 0.5. V-max sits at z = S on the opposite crossing.` },
+]},
+{ title:'Master Trials', steps:[
+  { text:`Low-resistance loads flip the L-network order: <b>series first, then shunt</b>. Load is <code>10 Ω</code> (z = 0.2, inside the r = 1 circle). Add a <b>Series L</b> to climb onto the g = 1 circle, then a <b>Shunt C</b> to finish. Pass at <code>|Γ| &lt; 0.06</code>.`,
+    setup:()=>{S.RL=10;S.XL=0;S.elements=[];S.showY=true;document.getElementById('tglY').classList.add('on')},
+    highlight:'g1',
+    check:r=>has('sL')&&has('shC')&&r.absG<0.06,
+    hint:`Series L near X = 20 Ω reaches g = 1; the shunt C then wants about X = 25 Ω. Rule: inside r = 1 lead with series, outside lead with shunt.` },
+  { text:`Match <code>100 Ω</code> using only a <b>Series Line</b> and an <b>Open Stub</b> — no shorts, no lumped parts. Pass at <code>|Γ| &lt; 0.08</code>.`,
+    setup:()=>{S.RL=100;S.XL=0;S.elements=[];S.showY=true;document.getElementById('tglY').classList.add('on')},
+    highlight:'g1',
+    check:r=>has('tl')&&has('stubO')&&r.absG<0.08,
+    hint:`Rotate onto the g = 1 circle, then grow the stub. An open stub shorter than λ/4 is capacitive (−j), which is what this rotation leaves over.` },
+  { text:`Which load can <b>no lossless network</b> ever match?`,
+    quiz:{choices:['A pure reactance on the rim (r = 0)','Any load with r > 1','Any load below the real axis'],answer:0},
+    explain:`Matching means delivering power into the load. A purely reactive load absorbs none, and lossless elements cannot create dissipation — the rim is unreachable. Everything with r > 0 can be matched.` },
+  { text:`<b>Final trial.</b> A random mystery load. Match it with <b>at least two elements</b> to <code>|Γ| &lt; 0.05</code>.`,
+    setup:()=>{S.RL=Math.round(15+Math.random()*160);S.XL=Math.round(-90+Math.random()*180);S.elements=[]},
+    check:r=>S.elements.length>=2&&r.absG<0.05,
+    hint:`Pick your side of the r = 1 circle, lead with the right element type, and tune the pair alternately. A 50 Ω line makes a harmless second element — it only rotates the point.` },
+]}];
+
+/* ================= LESSON ENGINE ================= */
+function curStep(){return S.mode==='lessons'?LESSONS[S.mi].steps[S.si]:null}
+function enterStep(){
+  const st=curStep(); if(!st)return;
+  S.stepPassed=false;S.quizAnswered=false;S.hintOpen=false;S.selected=-1;
+  if(st.setup&&!st.keep)st.setup();
+  renderLessonUI();render();
+}
+function renderLessonUI(){
+  const tabs=document.getElementById('moduleTabs');
+  tabs.innerHTML=LESSONS.map((m,i)=>
+    `<button class="module-tab ${i===S.mi?'active':''} ${S.moduleDone[i]?'done':''}" data-m="${i}">${i+1}. ${m.title}</button>`).join('');
+  tabs.querySelectorAll('.module-tab').forEach(b=>b.addEventListener('click',()=>{S.mi=+b.dataset.m;S.si=0;enterStep()}));
+  const dots=document.getElementById('stepDots');
+  dots.innerHTML=LESSONS[S.mi].steps.map((_,i)=>
+    `<div class="step-dot ${i<S.si?'done':i===S.si?'current':''}"></div>`).join('');
+  const st=curStep(), body=document.getElementById('lessonBody');
+  let html=`<div class="lesson-step-label">Step ${S.si+1} of ${LESSONS[S.mi].steps.length}</div>
+            <div class="lesson-title">${LESSONS[S.mi].title}</div>
+            <div class="lesson-text">${st.text}</div>`;
+  if(st.quiz){
+    html+=`<div class="quiz-choices">`+st.quiz.choices.map((c,i)=>
+      `<button class="quiz-choice" data-q="${i}">${c}</button>`).join('')+`</div>
+      <div class="lesson-text" id="quizExplain" style="display:none;color:var(--df-dim)"></div>`;
+  }else{
+    html+=`<div class="status-forge" id="stepStatus">Cold steel — keep working the piece…</div>`;
+    if(st.hint)html+=`<button class="hint-btn" id="hintBtn">Need a hint?</button><div class="hint-text" id="hintTxt">${st.hint}</div>`;
+  }
+  html+=`<button class="next-btn" id="nextBtn">${S.si===LESSONS[S.mi].steps.length-1?'Finish module':'Next step'} →</button>`;
+  body.innerHTML=html;
+  if(st.quiz){
+    body.querySelectorAll('.quiz-choice').forEach(b=>b.addEventListener('click',()=>{
+      const i=+b.dataset.q;
+      if(i===st.quiz.answer){b.classList.add('correct');S.quizAnswered=true;
+        const ex=document.getElementById('quizExplain');if(st.explain){ex.textContent=st.explain;ex.style.display='block'}
+        document.getElementById('nextBtn').classList.add('ready');
+      }else b.classList.add('wrong');
+    }));
+  }
+  const hb=document.getElementById('hintBtn');
+  if(hb)hb.addEventListener('click',()=>document.getElementById('hintTxt').classList.toggle('show'));
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    if(S.si<LESSONS[S.mi].steps.length-1){S.si++;enterStep()}
+    else{S.moduleDone[S.mi]=true;
+      if(S.mi<LESSONS.length-1){S.mi++;S.si=0;enterStep()}
+      else renderLessonUI()}
+  });
+}
+function updateStepStatus(res){
+  const st=curStep(); if(!st||st.quiz)return;
+  const pass=st.check?st.check(res):true;
+  const box=document.getElementById('stepStatus');
+  if(box){
+    box.classList.toggle('pass',pass);
+    box.textContent=pass?'⬥ TEMPERED — step complete':'Cold steel — keep working the piece…';
+  }
+  const nb=document.getElementById('nextBtn');
+  if(nb)nb.classList.toggle('ready',pass);
+}
+
+/* ================= MODE SWITCH ================= */
+document.getElementById('modeLessons').addEventListener('click',()=>{setMode('lessons')});
+document.getElementById('modeSandbox').addEventListener('click',()=>{setMode('sandbox')});
+function setMode(m){
+  S.mode=m;
+  document.getElementById('modeLessons').classList.toggle('active',m==='lessons');
+  document.getElementById('modeSandbox').classList.toggle('active',m==='sandbox');
+  const lp=document.getElementById('lessonPanel');
+  if(m==='sandbox'){
+    lp.querySelector('.lesson-body')?.remove();
+    document.getElementById('moduleTabs').innerHTML='';
+    document.getElementById('stepDots').innerHTML='';
+    if(!document.getElementById('sandboxNote')){
+      const d=document.createElement('div');d.className='lesson-body';d.id='sandboxNote';
+      d.innerHTML=`<div class="lesson-title">Open Forge</div>
+      <div class="lesson-text">No rails. Set any load, stack any elements, and watch the molten trace. Toggle the <b>admittance grid</b> when working shunt elements, and the <b>VSWR circle</b> to see your reflection budget.</div>`;
+      lp.appendChild(d);
+    }
+    render();
+  }else{
+    document.getElementById('sandboxNote')?.remove();
+    const d=document.createElement('div');d.className='lesson-body';d.id='lessonBody';
+    if(!document.getElementById('lessonBody'))lp.appendChild(d);
+    enterStep();
+  }
+}
+
+/* ================= RENDER LOOP ================= */
+function renderCore(){
+  slRL.value=S.RL; slXL.value=S.XL;
+  document.getElementById('vRL').textContent=`${S.RL} Ω`;
+  document.getElementById('vXL').textContent=`${S.XL>=0?'+':'−'}j${Math.abs(S.XL)} Ω`;
+  const res=computeAll();
+  drawChart(res,curStep());
+  document.getElementById('roZ').textContent=fmtC(res.zin);
+  document.getElementById('roZohm').textContent=fmtC(res.Zin,1);
+  document.getElementById('roG').textContent=`${res.absG.toFixed(3)} ∠${fmt(Math.atan2(res.gamma.im,res.gamma.re)*180/Math.PI,1)}°`;
+  document.getElementById('roV').textContent=res.vswr>99?'>99':res.vswr.toFixed(2);
+  const rl=-20*Math.log10(Math.max(res.absG,1e-4));
+  document.getElementById('roRL').textContent=rl>60?'>60':rl.toFixed(1);
+  updateStepStatus(res);
+}
+function render(){renderCore();drawSchematic();renderElemCtrls()}
+window.addEventListener('resize',()=>{sizeChart();render()});
+sizeChart();
+enterStep();
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@ import { sortItemsByDateDesc } from '../../utils/data-utils';
 const apps = (await getCollection('apps')).sort(sortItemsByDateDesc);
 ---
 
-<BaseLayout title="Apps" description="iOS and Android apps" showHeader={false}>
+<BaseLayout title="Apps" description="Web apps and tools you can try in the browser" showHeader={false}>
     <h1 class="mb-12 text-2xl leading-tight font-serif italic sm:mb-16 sm:text-4xl">Apps</h1>
     {apps.length > 0 ? (
         apps.map((app) => <AppPreview app={app} class="mb-10 sm:mb-12" />)
