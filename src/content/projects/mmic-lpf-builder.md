@@ -37,12 +37,10 @@ return loss, 31.8 dB rejection, 0.70 dB loss). At 15 GHz the lumped traps run ou
 ![10 GHz elliptic high-pass verified in HFSS](/2026/mmic-lpf/hpf-10ghz-verified.png)
 *10 GHz elliptic high-pass (N = 5), verified in HFSS at loop pass 5.*
 
-<!-- VIDEO SLOT: the demo video goes here.
 <video controls playsinline preload="metadata" poster="/2026/mmic-lpf/demo.png" style="width: 100%; border-radius: 8px;">
   <source src="/2026/mmic-lpf/demo.mp4" type="video/mp4">
 </video>
-*Caption for the demo.*
--->
+*A 90-second demo: from the spec to a filter verified in HFSS, with the HFSS and AEDT Circuit runs sped up.*
 
 ## Root cause: why one notch always landed high
 
