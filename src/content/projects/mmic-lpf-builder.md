@@ -42,14 +42,6 @@ return loss, 31.8 dB rejection, 0.70 dB loss). At 15 GHz the lumped traps run ou
 </video>
 *A 90-second demo: from the spec to a filter verified in HFSS, with the HFSS and AEDT Circuit runs sped up.*
 
-## Root cause: why one notch always landed high
-
-The upper trap's notch verified 5 to 8 % above the tuner's prediction in every low-pass run; the lower one agreed
-to 0.1 %. Two controlled HFSS experiments took it apart. Shrinking the tuning gap from 6 to 1 um changed nothing.
-Metal in place of shorted gap ports explained about 1.5 %. The rest, about 5.7 %, came from the resize: the tuner
-adds series inductance as ideal parts, but built, those spirals roughly double in size beside the trap and pull
-its notch up. The loop now corrects such a trap on its next pass, and keeps notches the tuner moved on purpose.
-
 ## Authorship
 
 Ben specified, directed, reviewed and ran it. The build is deterministic scripting:
