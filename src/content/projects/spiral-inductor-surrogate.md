@@ -11,6 +11,8 @@ seo:
 
 Built by Ben with Claude Code.
 
+**[Two-page summary (PDF)](/2026/spiral-surrogate/Hardy_SpiralInductorSurrogate_Summary.pdf)**
+
 **Problem.** This surrogate maps the geometry of a GaAs square spiral to L(f), Q(f) and
 self-resonant frequency (SRF). The inputs are turns 1.5-5.5, width 5-20 um, spacing 5-15 um and
 inner diameter 40-200 um. It is benchmarked against held-out HFSS solves.
