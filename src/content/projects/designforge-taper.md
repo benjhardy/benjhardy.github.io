@@ -22,11 +22,17 @@ At [DesignForge AI](https://www.designforgeai.com), one prompt took a 50→90 Ω
 
 **Result:** the HFSS S11 and S21 follow the analytical Klopfenstein response from 1 to 60 GHz. It took about 20 minutes end to end, simulation time included.
 
-![Taper design, end to end](/2026/designforge/taper-slide.png)
-*From the prompt, through the deterministic calculators and skills, to the solved HFSS model and the comparison plot.*
+<figure>
+<img class="wide" src="/2026/designforge/taper-slide.png" alt="Taper design, end to end">
+<figcaption>From the prompt, through the deterministic calculators and skills, to the solved HFSS model and the comparison plot.</figcaption>
+</figure>
 
-![HFSS vs analytical S-parameters](/2026/designforge/taper-hfss-vs-analytical.png)
-*HFSS (solid) against the analytical model (dashed), S11 and S21 from 1 to 60 GHz.*
+<figure>
+<img class="wide" src="/2026/designforge/taper-hfss-vs-analytical.png" alt="HFSS vs analytical S-parameters">
+<figcaption>HFSS (solid) against the analytical model (dashed), S11 and S21 from 1 to 60 GHz.</figcaption>
+</figure>
 
-![The taper in HFSS](/2026/designforge/taper-hfss.png)
-*The complete taper, built and solved in HFSS.*
+<figure>
+<img class="full" src="/2026/designforge/taper-hfss-zoom.png" alt="The taper in HFSS">
+<figcaption>The complete taper, built and solved in HFSS.</figcaption>
+</figure>

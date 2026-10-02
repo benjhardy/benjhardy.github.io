@@ -105,3 +105,17 @@ html.dark {
     }
 }
 
+
+/* Opt-in figure sizes. Images default to 70% of the text column (BaseLayout);
+   add class="full" to fill the column, or class="wide" to break out of it. */
+img.full {
+    width: 100%;
+    max-width: 100%;
+}
+img.wide {
+    width: max(100%, min(1120px, calc(100vw - 3rem)));
+    max-width: none;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
