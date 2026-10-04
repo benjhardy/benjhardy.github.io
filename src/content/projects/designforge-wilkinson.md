@@ -20,7 +20,9 @@ At [DesignForge AI](https://www.designforgeai.com), I build RF knowledge into th
 
 Built on [PyAEDT](https://aedt.docs.pyansys.com/), the Python scripting library for Ansys HFSS.
 
+<figure>
 <video controls playsinline preload="metadata" poster="/2026/designforge/wilkinson-splitter.png" style="width: 100%; border-radius: 8px;">
   <source src="/2026/designforge/wilkinson-splitter.mp4" type="video/mp4">
 </video>
-*The agent sets up the splitter in HFSS, sweeps the quarter-wave length, and reports S-parameters.*
+<figcaption>The agent sets up the splitter in HFSS, sweeps the quarter-wave length, and reports S-parameters.</figcaption>
+</figure>

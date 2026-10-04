@@ -9,8 +9,6 @@ seo:
     alt: Inductance predicted by the surrogate against HFSS on held-out spiral designs
 ---
 
-Built by Ben with Claude Code.
-
 **[Two-page summary (PDF)](/2026/spiral-surrogate/Hardy_SpiralInductorSurrogate_Summary.pdf)**
 
 **Problem.** This surrogate maps the geometry of a GaAs square spiral to L(f), Q(f) and

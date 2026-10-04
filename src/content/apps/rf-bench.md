@@ -31,7 +31,7 @@ RF Bench is a set of small interactive benches for the ideas RF engineers use ev
 
 Each tab asks you to predict a number before it shows you the answer, then explains the gap. The drills interleave topics on purpose, so you practise choosing the right formula, not just applying it.
 
-**Tech:** plain HTML, CSS and JavaScript with hand-drawn SVG plots. No framework, no server. Built with Claude Code.
+**Tech:** plain HTML, CSS and JavaScript with hand-drawn SVG plots. No framework, no server.
 
 ![RF Bench mismatch tab](/2026/rf-bench/rf-bench-mismatch.png)
 *Mismatch: pick a load and read Γ, return loss and VSWR off the same point.*

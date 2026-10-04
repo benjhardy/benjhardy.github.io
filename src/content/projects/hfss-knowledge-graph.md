@@ -57,8 +57,3 @@ Twelve SPARQL queries define what the graph has to answer. A few of them:
 
 ![Neighbourhood of the boundary_conditions category](/2026/hfss-kg/hfss-kg-boundary-conditions.png)
 *Two hops around the boundary_conditions category: its examples, the PyAEDT calls they make, the concepts they apply, and the skill pages copied from them.*
-
-## Authorship
-
-Source content and navigation design: Ben Hardy. Ontology, builder and queries: built by Ben
-with Claude Code.

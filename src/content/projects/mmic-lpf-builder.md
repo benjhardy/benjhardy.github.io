@@ -37,12 +37,11 @@ return loss, 31.8 dB rejection, 0.70 dB loss). At 15 GHz the lumped traps run ou
 ![10 GHz elliptic high-pass verified in HFSS](/2026/mmic-lpf/hpf-10ghz-verified.png)
 *10 GHz elliptic high-pass (N = 5), verified in HFSS at loop pass 5.*
 
+<figure>
 <video controls playsinline preload="metadata" poster="/2026/mmic-lpf/demo.png" style="width: 100%; border-radius: 8px;">
   <source src="/2026/mmic-lpf/demo.mp4" type="video/mp4">
 </video>
-*A 90-second demo: from the spec to a filter verified in HFSS, with the HFSS and AEDT Circuit runs sped up.*
+<figcaption>A 90-second demo: from the spec to a filter verified in HFSS, with the HFSS and AEDT Circuit runs sped up.</figcaption>
+</figure>
 
-## Authorship
-
-Ben specified, directed, reviewed and ran it. The build is deterministic scripting:
-the same spec gives the same model every run, with no AI in the loop at run time.
+The build is deterministic scripting: the same spec gives the same model every run, with no AI in the loop at run time.
