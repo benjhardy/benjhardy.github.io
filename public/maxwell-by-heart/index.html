@@ -1,0 +1,1303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Maxwell by Heart</title>
+<meta name="description" content="Learn to write Maxwell's four equations from memory, with interactive fields for each law.">
+<meta property="og:title" content="Maxwell by Heart">
+<meta property="og:description" content="Learn to write Maxwell's four equations from memory, with interactive fields for each law.">
+<meta property="og:image" content="https://benjhardy.github.io/2026/maxwell-by-heart/maxwell-by-heart.png">
+<meta property="og:url" content="https://benjhardy.github.io/maxwell-by-heart/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Math&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<style>
+/* Layout: one calm column. Each step is one screen. Progress sticks to the top, Back/Next to the bottom.
+   One accent per law: c1 Gauss E, c2 Gauss B, c3 Faraday, c4 Ampere-Maxwell. */
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --ink:#121721; --muted:#566070; --line:#D7DCE4; --faint:#E8ECF1;
+  --c1:#B94C14; --c2:#2A5FC4; --c3:#8638BE; --c4:#08805D;
+  --ok:#17773F; --bad:#C02B39; --focus:#2A5FC4;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-math:"STIX Two Text","Cambria Math","Noto Sans Math","Times New Roman",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --a:var(--ink);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C0F15; --surface:#151A23; --ink:#E6E9EF; --muted:#9AA3B3; --line:#2A313D; --faint:#1B212B;
+    --c1:#FF8E57; --c2:#7AA8FF; --c3:#C696FF; --c4:#41D4A3; --ok:#52DB8C; --bad:#FF7381; --focus:#8DB4FF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C0F15; --surface:#151A23; --ink:#E6E9EF; --muted:#9AA3B3; --line:#2A313D; --faint:#1B212B;
+  --c1:#FF8E57; --c2:#7AA8FF; --c3:#C696FF; --c4:#41D4A3; --ok:#52DB8C; --bad:#FF7381; --focus:#8DB4FF;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-body)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+#app{max-width:760px;margin:0 auto;padding-inline:16px;min-height:100vh;display:flex;flex-direction:column}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:center}
+.brand{font:800 15px/1 var(--f-display);letter-spacing:.01em}
+.pbar{height:6px;border-radius:3px;background:var(--faint);overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:var(--a);transition:width .45s ease,background-color .3s}
+#plabel{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px;font:500 12px/1.2 var(--f-mono);color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+#plabel span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+main{flex:1;padding-block:6px 28px;outline:none}
+.nav{position:sticky;bottom:0;z-index:5;background:var(--bg);display:flex;gap:12px;align-items:center;justify-content:space-between;padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:10px 20px;min-height:46px;font:700 15px/1 var(--f-body);cursor:pointer;color:var(--ink);transition:background-color .15s,border-color .15s,transform .1s}
+.btn:hover{border-color:var(--muted)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.ghost{background:transparent}
+.btn.sm{min-height:40px;padding:8px 14px;font-size:14px}
+.btn[aria-pressed="true"]{background:color-mix(in srgb,var(--a) 14%,var(--surface));border-color:var(--a)}
+.btn.lg{min-height:54px;padding:14px 30px;font-size:17px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+.screen{display:flex;flex-direction:column;gap:18px;animation:in .28s ease both}
+@keyframes in{from{transform:translateY(8px)}to{transform:none}}
+.head{display:flex;flex-direction:column;gap:6px}
+.stg{display:inline-flex;gap:10px;margin-left:14px}
+.stg span{color:var(--muted);opacity:.7}
+.stg span.on{color:var(--a);opacity:1;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px}
+.kicker{margin:0;font:600 12px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--a)}
+h1,h2,h3{margin:0;font-family:var(--f-display);text-wrap:balance;letter-spacing:-.01em;outline:none}
+h1{font-size:clamp(38px,10vw,64px);font-weight:800;line-height:1}
+h2{font-size:clamp(26px,6.6vw,36px);font-weight:800;line-height:1.08;color:var(--a)}
+h3{font-size:clamp(22px,5.6vw,30px);font-weight:800;line-height:1.1}
+.say{margin:0;font:700 clamp(19px,4.8vw,23px)/1.3 var(--f-body);text-wrap:balance}
+.lede{margin:0;font:700 clamp(20px,5vw,26px)/1.3 var(--f-body);max-width:30ch}
+.small{margin:0;font-size:14px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.lbl{margin:0;font:600 11px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.inst{margin:0;color:var(--muted);font-size:15px}
+
+/* maths */
+.m,.eq,.tile,.slot,.key{font-family:var(--f-math)}
+.m b.v,.eq b.v,.tile b.v,.slot b.v,.key b.v{font-weight:600;font-style:normal}
+.eq i,.m i,.tile i,.slot i,.key i{font-style:italic}
+sup{font-size:.6em;line-height:0}
+sub{font-size:.6em;vertical-align:-.32em;line-height:0;font-style:normal;font-family:var(--f-math)}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.08;font-size:.8em;margin-inline:.06em}
+.frac>span:first-child{border-bottom:.075em solid currentColor;padding-inline:.12em}
+.isg{font-family:"Noto Sans Math","STIX Two Text","Cambria Math",serif;font-size:1.18em;line-height:1;margin-right:.02em}
+.op{margin-left:.04em}
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:.14em .2em;line-height:1.35;min-width:0}
+.eq.big{font-size:clamp(24px,6.6vw,36px)}
+.eq.mid{font-size:clamp(18px,4.8vw,25px)}
+.eq.sm{font-size:clamp(15px,3.9vw,19px)}
+.t{display:inline-flex;align-items:center;white-space:nowrap}
+.tk{display:inline-block;white-space:nowrap;line-height:1.2}
+.eqs{margin-inline:.18em}
+.hug{margin-left:-.12em}
+
+/* decode */
+.sym{appearance:none;border:0;background:none;padding:.04em .12em;border-radius:8px;cursor:help;font:inherit;color:inherit;display:inline-flex;align-items:center;white-space:nowrap}
+.sym:hover,.sym.on{background:color-mix(in srgb,var(--a) 16%,transparent)}
+.decode{display:flex;gap:14px;align-items:center;min-height:62px;padding:10px 14px;border-radius:12px;background:var(--faint)}
+.decode .dsym{font-family:var(--f-math);font-size:28px;min-width:2.2em;text-align:center;color:var(--a);flex:none}
+.decode .hint{color:var(--muted)}
+.decode p{margin:0;font-size:15px;line-height:1.4}
+.sayI{margin:0;font-weight:700}
+
+/* exercises */
+.slot{appearance:none;min-width:1.8em;min-height:1.55em;border:2px dashed var(--line);border-radius:10px;background:transparent;padding:.04em .22em;display:inline-flex;align-items:center;justify-content:center;font-size:inherit;cursor:pointer;color:var(--ink);transition:background-color .15s,border-color .15s}
+.slot.sel{border-color:var(--a);background:color-mix(in srgb,var(--a) 8%,transparent)}
+.slot.hot{border-color:var(--a);border-style:solid;background:color-mix(in srgb,var(--a) 14%,transparent)}
+.slot.ok{border:2px solid transparent;background:color-mix(in srgb,var(--a) 15%,transparent);cursor:default}
+.slot.bad{border-color:var(--bad);border-style:solid;animation:shake .35s}
+.slot.wrong{border:2px solid var(--bad);color:var(--bad)}
+.bank{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:14px;border-radius:14px;background:var(--faint);min-height:80px;align-items:center}
+.tile{appearance:none;font-size:clamp(20px,5.4vw,26px);min-width:52px;min-height:52px;padding:4px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);box-shadow:0 2px 0 var(--line);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;display:inline-flex;align-items:center;justify-content:center;color:var(--ink);transition:transform .1s,border-color .15s}
+.tile:hover{border-color:var(--a)}
+.tile.lift{opacity:.35}
+.tile.spent{opacity:.35;cursor:default}
+.tile.bad{border-color:var(--bad);animation:shake .35s}
+.tile.eqt{font-size:clamp(15px,4vw,19px);padding:8px 12px}
+.dghost{position:fixed;left:0;top:0;margin:0;pointer-events:none;z-index:100;box-shadow:0 10px 28px rgba(0,0,0,.22);border-color:var(--a)!important}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.fb{margin:0;min-height:1.5em;font-weight:700;text-align:center}
+.fb.ok{color:var(--ok)}
+.fb.bad{color:var(--bad)}
+.ex-rows{display:flex;flex-direction:column;gap:14px;align-items:center}
+.exrow{justify-content:center}
+.lvl{display:flex;justify-content:space-between;align-items:center;gap:10px;font:600 12px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dots{display:flex;gap:6px}
+.dots i{width:22px;height:6px;border-radius:3px;background:var(--faint);border:1px solid var(--line)}
+.dots i.on{background:var(--a);border-color:var(--a)}
+
+/* visuals */
+.vis{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}
+.vis canvas{display:block;width:100%;height:auto;touch-action:none;cursor:default;max-width:100%}
+.vis canvas:focus-visible{outline-offset:-3px}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px 14px;padding:12px 14px;border-top:1px solid var(--line);align-items:center}
+.read{display:flex;flex-wrap:wrap;gap:8px 22px;flex:1 1 auto}
+.kv{display:flex;flex-direction:column;gap:2px}
+.kv span{font:600 11px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.kv b{font:600 20px/1.2 var(--f-mono);font-variant-numeric:tabular-nums;color:var(--a)}
+.kv b i{font-family:var(--f-math)}
+.vhint{margin:0;font-size:13px;color:var(--muted);flex-basis:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted);flex-basis:100%}
+.legend i.sw{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.seg{display:inline-flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.seg button{appearance:none;border:0;background:transparent;border-radius:999px;padding:7px 14px;min-height:36px;font:700 14px/1 var(--f-body);cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.atab{display:grid;gap:4px;flex-basis:100%;font-size:14px}
+.atab div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--faint)}
+.atab div.sum{border-bottom:0;font-weight:700}
+.atab b{font:600 16px/1.2 var(--f-mono);white-space:nowrap}
+.astat{margin:0;font-weight:700;flex-basis:100%}
+.astat.ok{color:var(--ok)}
+.astat.bad{color:var(--bad)}
+input[type=range]{accent-color:var(--a);width:160px;max-width:100%}
+.rng{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+
+/* hook */
+.hook{gap:22px;padding-top:10px}
+.four{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.four li{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;padding:12px 0;border-bottom:1px solid var(--line)}
+.four li:last-child{border-bottom:0}
+.four .nm{font:700 13px/1.2 var(--f-mono);letter-spacing:.04em;color:var(--a);text-transform:uppercase}
+.byline{margin:0;font-size:13px;color:var(--muted)}
+
+/* quiz */
+.qtop{display:flex;align-items:center;gap:12px;font:600 12px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.qbar{flex:1;height:6px;border-radius:3px;background:var(--faint);overflow:hidden}
+.qbar i{display:block;height:100%;width:0;background:var(--ink);transition:width .3s}
+.qbody{display:flex;flex-direction:column;gap:14px;min-width:0}
+.qq{margin:0;font:700 19px/1.35 var(--f-body);text-wrap:balance;outline:none}
+.tag{display:inline-block;font:600 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;background:var(--faint);color:var(--muted);margin-right:8px;vertical-align:3px}
+.opts{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.opt{appearance:none;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;cursor:pointer;min-height:52px;color:var(--ink);min-width:0}
+.opt:hover{border-color:var(--muted)}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.opt[disabled]{cursor:default}
+.spotrow{justify-content:center}
+.spotb{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:.06em .2em;font:inherit;color:inherit;cursor:pointer;display:inline-flex;align-items:center;min-height:1.5em}
+.spotb:hover{border-color:var(--muted)}
+.spotb.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--surface))}
+.spotb.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.fix{display:flex;flex-direction:column;gap:6px;align-items:center;padding:10px;border-radius:12px;background:var(--faint)}
+.qnext{display:flex;justify-content:center}
+.qhead{justify-content:center;padding:6px 0}
+
+/* pattern */
+.grid4{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:stretch}
+.gh{text-align:center;font:600 22px/1 var(--f-math);padding:4px 0}
+.gr{display:flex;flex-direction:column;justify-content:center;font:600 12px/1.25 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding-right:4px}
+.gr b{font:600 24px/1 var(--f-math);color:var(--ink);text-transform:none}
+.slot.g{min-height:84px;width:100%;font-size:clamp(13px,3.4vw,18px);flex-direction:column;gap:4px;padding:8px 6px;line-height:1.3}
+.slot.g .eq{justify-content:center}
+.slot.g small{font:600 11px/1.2 var(--f-mono);letter-spacing:.03em;color:var(--muted);text-transform:uppercase}
+.sym4{width:100%;border-collapse:collapse;font-size:15px}
+.sym4 th,.sym4 td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.sym4 th{font:600 11px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sym4 td.m{font-size:19px;white-space:nowrap}
+.sym4 tr:last-child td{border-bottom:0}
+.sym4 .small{font-family:var(--f-body);font-size:13px;white-space:normal}
+.tbl{overflow-x:auto}
+.notes{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+
+/* match / map */
+.mrow{display:flex;flex-direction:column;gap:8px;align-items:stretch;padding:10px 0;border-bottom:1px solid var(--faint)}
+.mrow:last-child{border-bottom:0}
+.slot.wide{width:100%;min-height:52px;font-size:clamp(15px,4vw,19px);justify-content:center}
+.map{display:flex;flex-direction:column;gap:12px}
+.map .pair{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.map .arr{font:600 13px/1 var(--f-mono);color:var(--muted)}
+.thm{font-size:clamp(17px,4.4vw,22px);justify-content:center;padding:6px 0}
+
+/* test */
+.lines{display:flex;flex-direction:column;gap:10px}
+.line{display:flex;flex-wrap:wrap;align-items:center;gap:.12em .18em;min-height:58px;padding:8px 12px;border:2px solid var(--line);border-radius:12px;background:var(--surface);font-family:var(--f-math);font-size:clamp(19px,5vw,26px);cursor:text;position:relative}
+.line.act{border-color:var(--ink)}
+.line .ph{font:400 14px/1 var(--f-body);color:var(--muted)}
+.line.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,var(--surface))}
+.line.wrong{border-color:var(--bad)}
+.line .mk{margin-left:auto;font:700 13px/1 var(--f-body);padding-left:8px}
+.line.right .mk{color:var(--ok)}
+.line.wrong .mk{color:var(--bad)}
+.should{margin:-4px 0 4px;padding:8px 12px;border-radius:10px;background:var(--faint);font-size:14px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.kbd{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:14px;background:var(--faint)}
+.krow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.key{appearance:none;min-width:48px;min-height:48px;padding:4px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);box-shadow:0 2px 0 var(--line);font-size:clamp(18px,4.8vw,22px);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--ink)}
+.key:active{transform:translateY(1px)}
+.key.txt{font:700 14px/1 var(--f-body)}
+.chk{display:flex;gap:10px;align-items:center;font-weight:700;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--ink)}
+.result{border-width:2px;border-color:var(--ink);gap:16px}
+.score{margin:0;font:600 15px/1.3 var(--f-mono);color:var(--muted)}
+.score b{font:800 40px/1 var(--f-display);color:var(--ink)}
+
+/* bonus */
+.wsteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
+.wsteps li{display:flex;flex-direction:column;gap:8px;animation:in .3s ease both}
+.wsteps p{margin:0}
+.cval{font:700 clamp(22px,6vw,32px)/1.1 var(--f-mono);font-variant-numeric:tabular-nums}
+
+@media (min-width:640px){
+  .opts.two{grid-template-columns:1fr 1fr}
+  .card{padding:22px}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* primer: field playground and check */
+.presets{display:flex;flex-wrap:wrap;gap:6px;flex-basis:100%}
+.presets .btn{min-height:38px;padding:7px 12px;font-size:14px}
+.kv b.w{font-size:17px}
+.mopts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mopt{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:var(--ink);font:700 14px/1.2 var(--f-body);min-width:0}
+.mopt:hover{border-color:var(--muted)}
+.mopt canvas,.qfig canvas{width:100%;max-width:130px;aspect-ratio:1/1;display:block}
+.mopt.right,.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.mopt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.mopt[disabled]{cursor:default}
+.qgrid{display:grid;grid-template-columns:minmax(0,130px) minmax(0,1fr);gap:12px;align-items:center}
+.qgrid .opts{gap:8px}
+.qgrid .opt{min-height:44px;padding:8px 12px;font-weight:700}
+.qfig{border:1px solid var(--line);border-radius:12px;padding:4px}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="top">
+    <div class="brand">Maxwell by Heart</div>
+    <div class="pbar" aria-hidden="true"><i id="pfill"></i></div>
+    <div id="plabel"><span id="pname">Start</span><span id="pcount"></span></div>
+  </header>
+  <main id="stage" tabindex="-1"></main>
+  <nav class="nav" aria-label="Steps">
+    <button type="button" class="btn ghost" id="back">Back</button>
+    <button type="button" class="btn primary" id="next">Next</button>
+  </nav>
+  <p class="sr" id="live" aria-live="polite"></p>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+function btn(label,cls){const b=el('button',cls||'btn sm');b.type='button';b.textContent=label;return b}
+const setT=(e,s)=>{if(e.textContent!==s)e.textContent=s};
+const setH=(e,s)=>{if(e._h!==s){e._h=s;e.innerHTML=s}};
+function flash(e,c){e.classList.remove(c);void e.offsetWidth;e.classList.add(c);setTimeout(()=>e.classList.remove(c),450)}
+function say(s){const l=$('#live');l.textContent='';setTimeout(()=>{l.textContent=s},30)}
+
+/* ---------- storage (optional) ---------- */
+const KEY='maxwell-by-heart-v2';
+const store={get(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){return{}}},set(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}};
+const saved=store.get();
+const S={i:0,done:new Set(Array.isArray(saved.done)?saved.done:[]),miss:[0,0,0,0],best:saved.best||0};
+function persist(){store.set({i:S.i,done:[...S.done],best:S.best})}
+
+/* ---------- tokens ---------- */
+const sub=s=>`<sub>${s}</sub>`,V=s=>`<b class="v">${s}</b>`,I_=s=>`<i>${s}</i>`;
+const FR=(a,b)=>`<span class="frac"><span>${a}</span><span>${b}</span></span>`;
+const BIG=s=>`<span class="isg">${s}</span>`;
+const T={
+ div:{h:'∇<span class="op">·</span>',n:'Divergence: spread',d:'Net outflow from a tiny region around a point, per unit volume (per unit area in the 2-D primer).',a:'divergence, del dot'},
+ curl:{h:'∇<span class="op">×</span>',n:'Curl: swirl',d:'Circulation around a tiny loop at a point, per unit area: the component normal to that loop. A paddle wheel spins at ½ of it.',a:'curl, del cross'},
+ E:{h:V('E'),n:'Electric field',d:'Force per unit charge on a charge at rest. Unit V/m.',a:'E'},
+ B:{h:V('B'),n:'Magnetic field',d:'Magnetic flux density. Unit T (tesla).',a:'B'},
+ eq:{h:'=',n:'',d:'',a:'equals'},
+ rho:{h:I_('ρ'),n:'Charge density',d:'Charge per volume. Unit C/m³.',a:'rho'},
+ oe0:{h:'/'+I_('ε')+sub('0'),n:'Divide by ε₀',d:'ε₀ = 8.8541878128 × 10⁻¹² F/m (CODATA 2018), the vacuum permittivity.',a:'over epsilon zero'},
+ om0:{h:'/'+I_('μ')+sub('0'),n:'Divide by μ₀',d:'μ₀ is the magnetic constant.',a:'over mu zero'},
+ zero:{h:'0',n:'Zero',d:'No source. No magnetic charge has ever been found.',a:'zero'},
+ minus:{h:'−',n:'The minus sign',d:'Lenz’s law. The induced E, and any current it drives, opposes the change in flux.',a:'minus'},
+ plus:{h:'+',n:'Plus',d:'The two causes add.',a:'plus'},
+ dBdt:{h:FR('∂'+V('B'),'∂'+I_('t')),n:'Change of B',d:'How fast B changes in time, at one point.',a:'partial B by partial t'},
+ dEdt:{h:FR('∂'+V('E'),'∂'+I_('t')),n:'Change of E',d:'How fast E changes. ε₀ ∂E/∂t is the displacement current density.',a:'partial E by partial t'},
+ mu0J:{h:I_('μ')+sub('0')+V('J'),n:'μ₀ times J',d:'J is current density, A/m². μ₀ = 1.25663706212 × 10⁻⁶ H/m (CODATA 2018), ≈ 4π × 10⁻⁷.',a:'mu zero J'},
+ mu0e0:{h:I_('μ')+sub('0')+I_('ε')+sub('0'),n:'μ₀ε₀',d:'μ₀ε₀ = 1/c². ε₀ ∂E/∂t, the displacement current, carries the current across a capacitor gap and through empty space. In a good conductor it is negligible next to J.',a:'mu zero epsilon zero'},
+ oiint:{h:BIG('∯')+sub('S'),n:'Closed-surface integral',d:'Add up over a closed surface S, like a bubble.',a:'closed surface integral'},
+ oint:{h:BIG('∮')+sub('C'),n:'Closed-loop integral',d:'Add up around a closed loop C.',a:'closed loop integral'},
+ EdA:{h:V('E')+'·d'+V('A'),n:'E through a patch',d:'dA is a small patch of the surface. It points outward.',a:'E dot dA'},
+ BdA:{h:V('B')+'·d'+V('A'),n:'B through a patch',d:'dA is a small patch of the surface. It points outward.',a:'B dot dA'},
+ Edl:{h:V('E')+'·d'+V('l'),n:'E along a step',d:'dl is a small step along the loop. ∮E·dl is the EMF.',a:'E dot dl'},
+ Bdl:{h:V('B')+'·d'+V('l'),n:'B along a step',d:'dl is a small step along the loop.',a:'B dot dl'},
+ Qenc:{h:I_('Q')+sub('enc'),n:'Enclosed charge',d:'All the charge inside the closed surface.',a:'Q enclosed'},
+ mu0Ienc:{h:I_('μ')+sub('0')+I_('I')+sub('enc'),n:'μ₀ times enclosed current',d:'I_enc is the current through the surface S bounded by the loop.',a:'mu zero I enclosed'},
+ ddt:{h:FR('d','d'+I_('t')),n:'Rate of change',d:'How fast the flux changes in time (loop held still).',a:'d by d t'},
+ iintBdA:{h:BIG('∬')+sub('S')+V('B')+'·d'+V('A'),n:'Magnetic flux Φ_B',d:'Flux of B through any surface S whose edge is the loop C. dA follows C by the right-hand rule.',a:'flux of B through S'},
+ iintEdA:{h:BIG('∬')+sub('S')+V('E')+'·d'+V('A'),n:'Electric flux Φ_E',d:'Flux of E through S, the same surface used for I_enc (its edge is the loop C). Only the sum μ₀I_enc + μ₀ε₀ dΦ_E/dt is the same for every S.',a:'flux of E through S'}
+};
+Object.keys(T).forEach(k=>{if(k!=='eq')T[k].h=`<span class="tk">${T[k].h}</span>`});
+const EQ=[
+ {k:0,col:'--c1',full:'Gauss’s law for E',short:'Gauss E',
+  say:'Charge makes E spread out (∇·).',
+  sayI:'Flux out of a closed surface = charge inside ÷ ε₀.',
+  d:[['div','E','eq','rho','oe0']],
+  i:[['oiint','EdA','eq','Qenc','oe0']],
+  hide:[3,4,0,1],hideI:[0,3],dis:['curl','B','zero','om0','mu0J']},
+ {k:1,col:'--c2',full:'Gauss’s law for B',short:'Gauss B',
+  say:'B never spreads out (∇· = 0). Its lines never start or end.',
+  sayI:'Flux out of any closed surface is zero.',
+  d:[['div','B','eq','zero']],
+  i:[['oiint','BdA','eq','zero']],
+  hide:[3,0,1],hideI:[0,3],dis:['curl','E','rho','oe0']},
+ {k:2,col:'--c3',full:'Faraday’s law',short:'Faraday',
+  say:'A changing B makes E swirl (∇×), against the change.',
+  sayI:'EMF around a fixed loop = minus the rate of change of B-flux through it.',
+  d:[['curl','E','eq','minus','dBdt']],
+  i:[['oint','Edl','eq','minus','ddt','iintBdA']],
+  hide:[3,4,0,1],hideI:[0,3],dis:['div','plus','dEdt','B']},
+ {k:3,col:'--c4',full:'Ampère–Maxwell law',short:'Ampère–Maxwell',
+  say:'Current and a changing E make B swirl (∇×).',
+  sayI:'B around a loop = μ₀ × (current + displacement current), both through the same surface S.',
+  d:[['curl','B','eq','mu0J','plus','mu0e0','dEdt'],['curl','B','eq','mu0e0','dEdt','plus','mu0J']],
+  i:[['oint','Bdl','eq','mu0Ienc','plus','mu0e0','ddt','iintEdA'],['oint','Bdl','eq','mu0e0','ddt','iintEdA','plus','mu0Ienc']],
+  hide:[6,3,5,0,1,4],hideI:[0,7],dis:['div','minus','dBdt','E','rho']}
+];
+const D=k=>EQ[k].d[0], IF=k=>EQ[k].i[0];
+const tokSpan=t=>`<span class="t${t==='eq'?' eqs':''}${t==='oe0'||t==='om0'?' hug':''}">${T[t].h}</span>`;
+const eqInner=seq=>seq.map(tokSpan).join('');
+const eqAria=seq=>seq.map(t=>T[t].a).join(' ');
+function symRow(seq){return seq.map(t=>t==='eq'?tokSpan(t):`<button type="button" class="sym${t==='oe0'?' hug':''}" data-t="${t}" aria-label="${T[t].a}: ${T[t].n}">${T[t].h}</button>`).join('')}
+function levels(q){const n=q.hide.length;return [...new Set([1,2,3,n].filter(x=>x<=n))]}
+function miss(k){if(k!=null)S.miss[k]++}
+
+/* ---------- drag + place engine (tap, drag, keyboard) ---------- */
+function enableDrag(t,onDrop){
+  t.addEventListener('click',e=>{if(t._noclick){e.stopImmediatePropagation();e.preventDefault()}},true);
+  t.addEventListener('pointerdown',e=>{
+    if(e.button!==0||t.hidden)return;
+    const id=e.pointerId,sx=e.clientX,sy=e.clientY;let g=null,hot=null,ox=0,oy=0;
+    const mv=ev=>{
+      if(ev.pointerId!==id)return;
+      if(!g){
+        if(Math.hypot(ev.clientX-sx,ev.clientY-sy)<7)return;
+        const r=t.getBoundingClientRect();ox=sx-r.left;oy=sy-r.top;
+        g=t.cloneNode(true);g.removeAttribute('id');g.classList.add('dghost');g.setAttribute('aria-hidden','true');
+        g.style.width=r.width+'px';g.style.height=r.height+'px';
+        const host=t.closest('.screen')||document.body;g.style.setProperty('--a',getComputedStyle(t).getPropertyValue('--a'));
+        document.body.appendChild(g);t.classList.add('lift');
+      }
+      ev.preventDefault();
+      g.style.transform=`translate(${ev.clientX-ox}px,${ev.clientY-oy}px)`;
+      const u=document.elementFromPoint(ev.clientX,ev.clientY);const s=u&&u.closest?u.closest('.slot'):null;
+      if(s!==hot){if(hot)hot.classList.remove('hot');hot=s;if(hot)hot.classList.add('hot')}
+    };
+    const done=ev=>{
+      if(ev.pointerId!==id)return;
+      removeEventListener('pointermove',mv);removeEventListener('pointerup',done);removeEventListener('pointercancel',done);
+      if(g){
+        g.remove();t.classList.remove('lift');if(hot)hot.classList.remove('hot');
+        t._noclick=true;setTimeout(()=>{t._noclick=false},120);
+        if(ev.type==='pointerup')onDrop(document.elementFromPoint(ev.clientX,ev.clientY));
+      }
+    };
+    addEventListener('pointermove',mv,{passive:false});addEventListener('pointerup',done);addEventListener('pointercancel',done);
+  });
+}
+function placer({slots,tiles,accept,onPlace,onDone,fill}){
+  let sel=null;
+  const empty=()=>slots.find(s=>!s.filled);
+  const select=s=>{sel=s||null;slots.forEach(x=>x.el.classList.toggle('sel',x===sel))};
+  slots.forEach(s=>{s.el._slot=s;s.el.addEventListener('click',()=>{if(!s.filled)select(s)})});
+  function place(tile,slot){
+    if(!slot||slot.filled||tile.used)return;
+    const ok=accept(slot,tile.val);
+    if(ok){
+      const hadFocus=document.activeElement===tile.el;
+      slot.filled=true;slot.val=tile.val;tile.used=true;tile.el.hidden=true;
+      if(fill)fill(slot,tile);else slot.el.innerHTML=tile.el.innerHTML;
+      slot.el.classList.add('ok');slot.el.setAttribute('aria-label',(tile.el.getAttribute('aria-label')||'')+', placed');
+      const n=empty();select(n);
+      if(onPlace)onPlace(true,slot,tile);
+      if(hadFocus){const nt=tiles.find(x=>!x.used);if(nt)nt.el.focus({preventScroll:true})}
+      if(!n&&onDone)onDone();
+    }else{
+      flash(tile.el,'bad');flash(slot.el,'bad');
+      if(onPlace)onPlace(false,slot,tile);
+    }
+  }
+  tiles.forEach(t=>{
+    enableDrag(t.el,target=>{const se=target&&target.closest?target.closest('.slot'):null;if(se&&se._slot&&slots.includes(se._slot))place(t,se._slot)});
+    t.el.addEventListener('click',()=>place(t,sel||empty()));
+  });
+  select(empty());
+  return {place};
+}
+function spent(bank){const left=$$('.tile',bank).filter(t=>!t.hidden);if(!left.length)bank.hidden=true;else left.forEach(t=>{t.disabled=true;t.classList.add('spent')})}
+function fixedOk(row,seq){return seq.every((t,i)=>row.hidden.has(i)||t===row.seqs[0][i])}
+function consistent(row,pos,val){return row.seqs.some(seq=>fixedOk(row,seq)&&seq[pos]===val&&row.slots.every(s=>!s.filled||seq[s.pos]===s.val))}
+function expected(s){const r=s.row;const q=r.seqs.find(seq=>fixedOk(r,seq)&&r.slots.every(x=>!x.filled||seq[x.pos]===x.val))||r.seqs[0];return q[s.pos]}
+const PAIRH={
+ 'div|curl':'Spread, not swirl. Use ∇·','curl|div':'Swirl, not spread. Use ∇×',
+ 'minus|plus':'Faraday needs the minus. The change is opposed.','plus|minus':'Here the two causes add: +',
+ 'dBdt|dEdt':'Here a changing B is the cause.','dEdt|dBdt':'Here a changing E is the cause.',
+ 'E|B':'This law is about E.','B|E':'This law is about B.','oe0|om0':'Electric law, electric constant: ε₀.',
+ 'zero|rho':'B has no charge to start from: 0.','rho|zero':'E does start on charge: ρ.','zero|oe0':'B has no source at all: 0.',
+ 'Qenc|mu0Ienc':'A closed surface holds charge: Q_enc.','mu0Ienc|Qenc':'A loop links current: μ₀I_enc.',
+ 'oiint|oint':'A closed surface: ∯.','oint|oiint':'A closed loop: ∮.',
+ 'iintEdA|iintBdA':'Maxwell’s term uses the flux of E.','iintBdA|iintEdA':'Faraday uses the flux of B.'
+};
+function hint(exp,got,row){
+  if(PAIRH[exp+'|'+got])return PAIRH[exp+'|'+got];
+  if(row.seqs[0].includes(got))return 'Right piece, wrong place.';
+  return 'Not this one. Try again.';
+}
+/* rows: [{seqs,hidden:Set,k,col}] */
+function exercise(box,rows,palette,opt){
+  opt=opt||{};
+  const rowsEl=$('.ex-rows',box),bank=$('.bank',box),fb=$('.fb',box);
+  rowsEl.innerHTML='';bank.innerHTML='';fb.textContent='';fb.className='fb';
+  const slots=[];let n=0;
+  rows.forEach(r=>{
+    const d=el('div','eq '+(opt.size||'big')+' exrow');if(r.col)d.style.setProperty('--a',`var(${r.col})`);
+    r.slots=[];
+    r.seqs[0].forEach((t,i)=>{
+      if(r.hidden.has(i)){const b=el('button','slot');b.type='button';b.setAttribute('aria-label','Empty box '+(++n));const s={el:b,pos:i,row:r,filled:false};r.slots.push(s);slots.push(s);d.appendChild(b)}
+      else d.insertAdjacentHTML('beforeend',tokSpan(t));
+    });
+    rowsEl.appendChild(d);
+  });
+  let pal=shuffle(palette);
+  const canon=slots.map(s=>s.row.seqs[0][s.pos]).join();
+  for(let i=0;i<6&&pal.join()===canon&&pal.length>1;i++)pal=shuffle(palette);
+  const tiles=pal.map(v=>{const b=el('button','tile',T[v].h);b.type='button';b.setAttribute('aria-label',T[v].a);bank.appendChild(b);return{el:b,val:v}});
+  placer({slots,tiles,accept:(s,v)=>consistent(s.row,s.pos,v),
+    onPlace:(ok,s,t)=>{if(ok){fb.className='fb';fb.textContent=''}else{fb.className='fb bad';fb.textContent=hint(expected(s),t.val,s.row);miss(s.row.k)}},
+    onDone:()=>{spent(bank);if(opt.onDone)opt.onDone(fb)}});
+}
+
+/* ---------- canvas plumbing ---------- */
+let VIS=[];
+const P={};
+function readPal(){const cs=getComputedStyle(document.documentElement);['ink','muted','line','faint','surface','bg','c1','c2','c3','c4','ok','bad','focus'].forEach(k=>{P[k]=cs.getPropertyValue('--'+k).trim()||'#888888'});VIS.forEach(v=>v.o.dirty=true)}
+function rgba(hex,a){let h=hex.replace('#','').trim();if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
+function mkCanvas(box,W,H,label,narrow){
+  const cv=el('canvas');cv.tabIndex=0;cv.setAttribute('role','application');cv.setAttribute('aria-label',label);
+  cv.style.aspectRatio=W+' / '+H;box.prepend(cv);
+  const o={cv,ctx:cv.getContext('2d'),W,H,s:1,k:1,dirty:true};
+  o.X0=0;o.X1=W;o.VW=W;
+  o.fit=()=>{const w=cv.clientWidth||W;const nar=!!narrow&&w<520;o.X0=nar?narrow[0]:0;o.X1=nar?narrow[1]:W;o.VW=o.X1-o.X0;const ar=o.VW+' / '+H;if(cv.style.aspectRatio!==ar)cv.style.aspectRatio=ar;
+    const d=Math.min(2,window.devicePixelRatio||1);o.s=w/o.VW;o.k=o.s*d;cv.width=Math.max(1,Math.round(w*d));cv.height=Math.max(1,Math.round(w*H/o.VW*d));o.dirty=true};
+  o.ro=new ResizeObserver(o.fit);o.ro.observe(cv);o.fit();
+  o.begin=()=>{o.ctx.setTransform(o.k,0,0,o.k,-o.X0*o.k,0);o.ctx.clearRect(o.X0,0,o.VW,H)};
+  o.pt=e=>{const r=cv.getBoundingClientRect();return{x:o.X0+(e.clientX-r.left)*o.VW/r.width,y:(e.clientY-r.top)*H/r.height}};
+  o.tol=px=>px/Math.max(.2,o.s);
+  o.fs=px=>Math.min(px/Math.max(.2,o.s),px*2);
+  o.font=(px,w)=>`${w||600} ${o.fs(px)}px "IBM Plex Mono",ui-monospace,monospace`;
+  cv.addEventListener('focus',()=>{o.dirty=true});cv.addEventListener('blur',()=>{o.dirty=true});
+  return o;
+}
+function dragOn(o,{pick,move,end}){
+  let cur=null;
+  o.cv.addEventListener('pointerdown',e=>{const p=o.pt(e);cur=pick(p);if(cur){try{o.cv.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();o.cv.style.cursor='grabbing'}});
+  o.cv.addEventListener('pointermove',e=>{const p=o.pt(e);if(cur){move(cur,p);o.dirty=true}else if(e.pointerType==='mouse')o.cv.style.cursor=pick(p,true)?'grab':'default'});
+  const up=()=>{if(cur){if(end)end(cur);cur=null;o.cv.style.cursor='default';o.dirty=true}};
+  o.cv.addEventListener('pointerup',up);o.cv.addEventListener('pointercancel',up);
+}
+function keysOn(o,h){
+  o.cv.addEventListener('keydown',e=>{
+    const st=e.shiftKey?30:10;let used=true;
+    if(e.key==='ArrowLeft')h.move&&h.move(-st,0);else if(e.key==='ArrowRight')h.move&&h.move(st,0);
+    else if(e.key==='ArrowUp')h.move&&h.move(0,-st);else if(e.key==='ArrowDown')h.move&&h.move(0,st);
+    else if((e.key===' '||e.key==='Enter')&&h.next)h.next();
+    else if((e.key==='+'||e.key==='=')&&h.size)h.size(10);else if(e.key==='-'&&h.size)h.size(-10);
+    else used=false;
+    if(used){e.preventDefault();o.dirty=true}
+  });
+}
+function arrow(ctx,x1,y1,x2,y2,hd){
+  const a=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hd*Math.cos(a-.5),y2-hd*Math.sin(a-.5));ctx.lineTo(x2-hd*Math.cos(a+.5),y2-hd*Math.sin(a+.5));ctx.closePath();ctx.fill();
+}
+function head(ctx,x,y,a,hd){ctx.beginPath();ctx.moveTo(x+hd*Math.cos(a),y+hd*Math.sin(a));ctx.lineTo(x-hd*Math.cos(a-.6),y-hd*Math.sin(a-.6));ctx.lineTo(x-hd*Math.cos(a+.6),y-hd*Math.sin(a+.6));ctx.closePath();ctx.fill()}
+function ctrlRow(box){const c=el('div','ctrl');box.appendChild(c);return c}
+function tag(o,s){const x=o.ctx;x.font=o.font(10.5,600);x.textAlign='left';x.textBaseline='top';x.fillStyle=P.muted;x.fillText(s,o.X0+o.fs(10),o.fs(9));x.textBaseline='alphabetic'}
+function readout(parent,items){const w=el('div','read');const m={};items.forEach(([lab,id])=>{const d=el('div','kv',`<span>${lab}</span><b></b>`);w.appendChild(d);m[id]=d.querySelector('b')});parent.appendChild(w);return m}
+function seg(parent,opts,cur,on,label){
+  const s=el('div','seg');s.setAttribute('role','group');if(label)s.setAttribute('aria-label',label);
+  opts.forEach(([v,l])=>{const b=el('button');b.type='button';b.textContent=l;b.setAttribute('aria-pressed',String(v===cur));b.addEventListener('click',()=>{$$('button',s).forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');on(v)});s.appendChild(b)});
+  parent.appendChild(s);return s;
+}
+function sign(n,d){const v=Number(n.toFixed(d));if(Math.abs(v)<Math.pow(10,-d)/2)return(0).toFixed(d);return(v>0?'+':'−')+Math.abs(v).toFixed(d)}
+
+/* ---------- visual 1: Gauss E ---------- */
+function visGaussE(box){
+  const W=600,H=330;
+  const o=mkCanvas(box,W,H,'Three charges and a closed surface. Drag a charge, or drag the circle. Drag the circle edge to resize. Keys: arrows move, Space picks the next item, plus and minus resize.',[90,510]);
+  const Q=[{x:175,y:150,q:1},{x:480,y:95,q:1},{x:360,y:245,q:-1}];
+  const Sf={x:205,y:165,r:92};let sel=0;
+  const c=ctrlRow(box);const ro=readout(c,[['Charge inside','q'],['Net flux out','f']]);
+  c.appendChild(el('p','vhint','Drag charges in and out. Drag the circle or its edge. 2-D slice: each dot is a line charge, q per metre; flux is per metre.'));
+  const F=(x,y,s)=>{let ex=0,ey=0;for(const p of Q){const dx=x-p.x,dy=y-p.y,r2=dx*dx+dy*dy+s;ex+=p.q*dx/r2;ey+=p.q*dy/r2}return[ex,ey]};
+  function flux(){let f=0;const N=1440;for(let i=0;i<N;i++){const th=i*2*Math.PI/N,nx=Math.cos(th),ny=Math.sin(th);const[ex,ey]=F(Sf.x+Sf.r*nx,Sf.y+Sf.r*ny,.25);f+=ex*nx+ey*ny}return f*Sf.r/N}
+  dragOn(o,{pick:p=>{
+      for(let i=0;i<3;i++)if(Math.hypot(p.x-Q[i].x,p.y-Q[i].y)<o.tol(24))return{i,dx:Q[i].x-p.x,dy:Q[i].y-p.y};
+      const d=Math.hypot(p.x-Sf.x,p.y-Sf.y);if(Math.abs(d-Sf.r)<o.tol(14))return{i:'r'};
+      if(d<Sf.r)return{i:'s',dx:Sf.x-p.x,dy:Sf.y-p.y};return null},
+    end:()=>snap(),
+    move:(g,p)=>{if(g.i==='r')Sf.r=clamp(Math.hypot(p.x-Sf.x,p.y-Sf.y),30,190);else if(g.i==='s'){Sf.x=clamp(p.x+g.dx,o.X0,o.X1);Sf.y=clamp(p.y+g.dy,0,H)}else{Q[g.i].x=clamp(p.x+g.dx,o.X0+14,o.X1-14);Q[g.i].y=clamp(p.y+g.dy,14,H-14)}}});
+  /* a line charge exactly on the surface gives half its flux; keep charges clearly inside or outside so the two readouts agree */
+  const ins=()=>Q.map(p=>Math.hypot(p.x-Sf.x,p.y-Sf.y)<Sf.r);
+  function snap(was){Q.forEach((p,i)=>{const dx=p.x-Sf.x,dy=p.y-Sf.y,d=Math.hypot(dx,dy)||1;if(Math.abs(d-Sf.r)<16){const inside=was?!was[i]:d<Sf.r;const t=(inside?Math.max(0,Sf.r-16):Sf.r+16)/d;p.x=clamp(Sf.x+dx*t,o.X0+14,o.X1-14);p.y=clamp(Sf.y+dy*t,14,H-14)}});o.dirty=true}
+  keysOn(o,{move:(dx,dy)=>{const w=ins();if(sel<3){Q[sel].x=clamp(Q[sel].x+dx,o.X0+14,o.X1-14);Q[sel].y=clamp(Q[sel].y+dy,14,H-14)}else{Sf.x=clamp(Sf.x+dx,o.X0,o.X1);Sf.y=clamp(Sf.y+dy,0,H)}snap(w)},next:()=>{sel=(sel+1)%4},size:d=>{const w=ins();Sf.r=clamp(Sf.r+d,30,190);snap(w)}});
+  function draw(){
+    o.begin();const x=o.ctx;
+    for(let gy=15;gy<H;gy+=30)for(let gx=15;gx<W;gx+=30){
+      const[ex,ey]=F(gx,gy,40);const m=Math.hypot(ex,ey);if(m<1e-6)continue;
+      const L=clamp(5+m*480,5,13),al=clamp(m*75,.16,.85);x.strokeStyle=rgba(P.muted,al);x.fillStyle=rgba(P.muted,al);x.lineWidth=1.3;
+      arrow(x,gx-ex/m*L/2,gy-ey/m*L/2,gx+ex/m*L/2,gy+ey/m*L/2,4);
+    }
+    x.fillStyle=rgba(P.c1,.07);x.beginPath();x.arc(Sf.x,Sf.y,Sf.r,0,7);x.fill();
+    const N=56;
+    for(let i=0;i<N;i++){const th=i*2*Math.PI/N,nx=Math.cos(th),ny=Math.sin(th),px=Sf.x+Sf.r*nx,py=Sf.y+Sf.r*ny;const[ex,ey]=F(px,py,9);const en=ex*nx+ey*ny;const L=clamp(en*1000,-17,17);
+      if(Math.abs(L)<1.2)continue;x.strokeStyle=L>0?P.c1:rgba(P.muted,.9);x.fillStyle=x.strokeStyle;x.lineWidth=2;arrow(x,px,py,px+nx*L,py+ny*L,3.5)}
+    x.setLineDash([7,5]);x.strokeStyle=P.c1;x.lineWidth=2.2;x.beginPath();x.arc(Sf.x,Sf.y,Sf.r,0,7);x.stroke();x.setLineDash([]);
+    const ha=-Math.PI/4;x.fillStyle=P.surface;x.strokeStyle=P.c1;x.lineWidth=2;x.beginPath();x.arc(Sf.x+Sf.r*Math.cos(ha),Sf.y+Sf.r*Math.sin(ha),6,0,7);x.fill();x.stroke();
+        let qin=0;
+    Q.forEach((p,i)=>{const inside=Math.hypot(p.x-Sf.x,p.y-Sf.y)<Sf.r;if(inside)qin+=p.q;
+      if(inside){x.strokeStyle=rgba(p.q>0?P.c1:P.ink,.35);x.lineWidth=5;x.beginPath();x.arc(p.x,p.y,18,0,7);x.stroke()}
+      x.fillStyle=p.q>0?P.c1:P.ink;x.beginPath();x.arc(p.x,p.y,13,0,7);x.fill();
+      x.strokeStyle=P.surface;x.lineWidth=2.6;x.beginPath();x.moveTo(p.x-6,p.y);x.lineTo(p.x+6,p.y);if(p.q>0){x.moveTo(p.x,p.y-6);x.lineTo(p.x,p.y+6)}x.stroke();
+      if(document.activeElement===o.cv&&sel===i){x.strokeStyle=P.focus;x.lineWidth=2;x.setLineDash([3,3]);x.beginPath();x.arc(p.x,p.y,23,0,7);x.stroke();x.setLineDash([])}});
+    if(document.activeElement===o.cv&&sel===3){x.strokeStyle=P.focus;x.lineWidth=2;x.setLineDash([3,3]);x.beginPath();x.arc(Sf.x,Sf.y,Sf.r+8,0,7);x.stroke();x.setLineDash([])}
+    tag(o,'2-D SLICE · LINE CHARGES');
+    setH(ro.q,qin===0?'0':(qin>0?'+':'−')+Math.abs(qin)+' <i>q</i>');
+    setH(ro.f,sign(flux(),1)+' <i>q</i>/<i>ε</i><sub>0</sub>');
+  }
+  return{o,draw,destroy:()=>o.ro.disconnect()};
+}
+
+/* ---------- visual 2: Gauss B ---------- */
+function visGaussB(box){
+  const W=600,H=330,yc=165,hh=40;
+  const o=mkCanvas(box,W,H,'A bar magnet with its field lines and a closed surface. Drag the circle or its edge. Keys: arrows move, plus and minus resize.',[100,500]);
+  const Sf={x:405,y:165,r:72};let cut=false,wires=[],lines=[],mags=[],scale=1;
+  const c=ctrlRow(box);const ro=readout(c,[['Flux out','o'],['Flux in','i'],['Net flux','n']]);
+  const b=btn('Cut the magnet');c.appendChild(b);
+  c.appendChild(el('p','vhint','Drag the circle. Try to trap a north pole. 2-D cross-section of a magnet very long into the screen; its top and bottom faces carry the bound surface current. Flux in arbitrary units.'));
+  b.addEventListener('click',()=>{cut=!cut;b.textContent=cut?'Join it again':'Cut the magnet';build();say(cut?'Two magnets. Each still has N and S.':'One magnet.')});
+  const Bf=(x,y)=>{let bx=0,by=0;for(const w of wires){const dx=x-w.x,dy=y-w.y,r2=dx*dx+dy*dy+16;bx+=-w.I*dy/r2;by+=w.I*dx/r2}return[bx,by]};
+  function build(){
+    mags=cut?[{x:246,L:88},{x:354,L:88}]:[{x:300,L:180}];
+    wires=[];for(const m of mags){const n=Math.round(m.L/14);for(let i=0;i<n;i++){const x=m.x-m.L/2+(i+.5)*m.L/n;wires.push({x,y:yc-hh/2,I:-1},{x,y:yc+hh/2,I:1})}}
+    let f=0;for(let i=0;i<40;i++){const y=yc-hh/2+(i+.5)*hh/40;f+=Bf(mags[0].x,y)[0]*hh/40}scale=10/f;
+    lines=[];
+    for(const m of mags)for(const off of [-17,-13,-9,9,13,17]){
+      const sx=m.x,sy=yc+off;const pts=[[sx,sy]];let px=sx,py=sy;
+      for(let i=0;i<5000;i++){let[bx,by]=Bf(px,py);let n=Math.hypot(bx,by)||1e-9;const mx=px+1.5*bx/n,my=py+1.5*by/n;[bx,by]=Bf(mx,my);n=Math.hypot(bx,by)||1e-9;px+=3*bx/n;py+=3*by/n;pts.push([px,py]);
+        if(i>25&&Math.hypot(px-sx,py-sy)<3.2){pts.push([sx,sy]);break}if(px<-700||px>1300||py<-700||py>1030)break}
+      lines.push(pts);
+    }
+    o.dirty=true;
+  }
+  build();
+  function flux(){let fo=0,fi=0;const N=1440;for(let i=0;i<N;i++){const th=i*2*Math.PI/N,nx=Math.cos(th),ny=Math.sin(th);const[bx,by]=Bf(Sf.x+Sf.r*nx,Sf.y+Sf.r*ny);const bn=(bx*nx+by*ny)*Sf.r*2*Math.PI/N;if(bn>0)fo+=bn;else fi-=bn}return[fo*scale,fi*scale]}
+  dragOn(o,{pick:p=>{const d=Math.hypot(p.x-Sf.x,p.y-Sf.y);if(Math.abs(d-Sf.r)<o.tol(14))return{i:'r'};if(d<Sf.r)return{i:'s',dx:Sf.x-p.x,dy:Sf.y-p.y};return null},
+    move:(g,p)=>{if(g.i==='r')Sf.r=clamp(Math.hypot(p.x-Sf.x,p.y-Sf.y),24,190);else{Sf.x=clamp(p.x+g.dx,o.X0,o.X1);Sf.y=clamp(p.y+g.dy,0,H)}}});
+  keysOn(o,{move:(dx,dy)=>{Sf.x=clamp(Sf.x+dx,o.X0,o.X1);Sf.y=clamp(Sf.y+dy,0,H)},size:d=>{Sf.r=clamp(Sf.r+d,24,190)}});
+  function draw(){
+    o.begin();const x=o.ctx;
+    for(const m of mags){const x0=m.x-m.L/2,y0=yc-hh/2;x.fillStyle=rgba(P.muted,.22);x.fillRect(x0,y0,m.L/2,hh);x.fillStyle=rgba(P.c2,.30);x.fillRect(m.x,y0,m.L/2,hh);x.strokeStyle=rgba(P.ink,.5);x.lineWidth=1;x.strokeRect(x0,y0,m.L,hh);
+      x.font=o.font(13,700);x.textAlign='center';x.textBaseline='middle';x.fillStyle=P.ink;x.fillText('S',x0+m.L/4,yc);x.fillText('N',m.x+m.L/4,yc);x.textBaseline='alphabetic'}
+    x.strokeStyle=rgba(P.c2,.62);x.fillStyle=rgba(P.c2,.8);x.lineWidth=1.5;
+    for(const pts of lines){x.beginPath();x.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)x.lineTo(pts[i][0],pts[i][1]);x.stroke();
+      let acc=0;for(let i=1;i<pts.length;i++){const dx=pts[i][0]-pts[i-1][0],dy=pts[i][1]-pts[i-1][1];acc+=Math.hypot(dx,dy);if(acc>95){acc=0;const px=pts[i][0],py=pts[i][1];if(px>0&&px<W&&py>0&&py<H)head(x,px,py,Math.atan2(dy,dx),5)}}}
+    x.fillStyle=rgba(P.c2,.07);x.beginPath();x.arc(Sf.x,Sf.y,Sf.r,0,7);x.fill();
+    const N=56;for(let i=0;i<N;i++){const th=i*2*Math.PI/N,nx=Math.cos(th),ny=Math.sin(th),px=Sf.x+Sf.r*nx,py=Sf.y+Sf.r*ny;const[bx,by]=Bf(px,py);const L=clamp((bx*nx+by*ny)*45,-16,16);if(Math.abs(L)<1.2)continue;x.strokeStyle=L>0?P.c2:rgba(P.muted,.9);x.fillStyle=x.strokeStyle;x.lineWidth=2;arrow(x,px,py,px+nx*L,py+ny*L,3.5)}
+    x.setLineDash([7,5]);x.strokeStyle=P.c2;x.lineWidth=2.2;x.beginPath();x.arc(Sf.x,Sf.y,Sf.r,0,7);x.stroke();x.setLineDash([]);
+    const ha=-Math.PI/4;x.fillStyle=P.surface;x.strokeStyle=P.c2;x.lineWidth=2;x.beginPath();x.arc(Sf.x+Sf.r*Math.cos(ha),Sf.y+Sf.r*Math.sin(ha),6,0,7);x.fill();x.stroke();
+    if(document.activeElement===o.cv){x.strokeStyle=P.focus;x.lineWidth=2;x.setLineDash([3,3]);x.beginPath();x.arc(Sf.x,Sf.y,Sf.r+8,0,7);x.stroke();x.setLineDash([])}
+    tag(o,'2-D CROSS-SECTION · MAGNET LONG INTO THE SCREEN');
+    const[fo,fi]=flux();setT(ro.o,fo.toFixed(1));setT(ro.i,fi.toFixed(1));setT(ro.n,sign(fo-fi,1));
+  }
+  return{o,draw,destroy:()=>o.ro.disconnect()};
+}
+
+/* ---------- loop geometry (side view of a ring in the y-z plane) ---------- */
+const KP=.3;
+const lp=(xc,yc,R,th)=>[xc-KP*R*Math.cos(th),yc-R*Math.sin(th)];
+function arc(x,xc,yc,R,a0,a1){x.beginPath();for(let i=0;i<=40;i++){const[px,py]=lp(xc,yc,R,a0+(a1-a0)*i/40);i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke()}
+
+/* ---------- visual 3: Faraday ---------- */
+function visFaraday(box){
+  const W=600,H=340,xl=360,yl=118,R=72,ML=110,MH=32;
+  const o=mkCanvas(box,W,H,'A magnet and a wire loop. Drag the magnet left or right through the loop. Keys: left and right arrows move the magnet.',[160,560]);
+  let xm=200,xt=200,xp=200,vs=0,sg=1,auto=false,t=0,phi=0,emf=0,ph=0;const hist=[];
+  /* on-axis dipole flux through a loop of radius a=70: Φ ∝ (1+u²)^-1.5, u=(x−x_loop)/a; EMF = −dΦ/dt = −(dΦ/dx)·v */
+  const Phi=xx=>sg/Math.pow(1+((xx-xl)/70)**2,1.5);phi=Phi(xm);
+  const dPhi=xx=>{const u=(xx-xl)/70;return -3*u*sg/(70*Math.pow(1+u*u,2.5))};
+  const c=ctrlRow(box);
+  const bf=btn('Flip magnet'),ba=btn('Auto: oscillate');ba.setAttribute('aria-pressed','false');
+  c.append(bf,ba);
+  c.appendChild(el('div','legend',`<span><i class="sw" style="background:var(--muted)"></i>B from magnet, at the loop</span><span><i class="sw" style="background:var(--a)"></i>Induced current (dots) and its B</span>`));
+  c.appendChild(el('p','vhint','Drag the magnet through the loop. Side view, schematic; Φ and EMF in arbitrary units.'));
+  bf.addEventListener('click',()=>{sg=-sg;phi=Phi(xm);o.dirty=true});
+  ba.addEventListener('click',()=>{auto=!auto;ba.setAttribute('aria-pressed',String(auto));t=Math.asin(clamp((xm-xl)/190,-1,1))*3.2/(2*Math.PI)});
+  dragOn(o,{pick:p=>(Math.abs(p.x-xm)<ML/2+o.tol(10)&&Math.abs(p.y-yl)<MH/2+o.tol(16))?{dx:xm-p.x}:null,move:(g,p)=>{auto=false;ba.setAttribute('aria-pressed','false');xt=clamp(p.x+g.dx,o.X0+30,o.X1-30)}});
+  keysOn(o,{move:(dx)=>{auto=false;ba.setAttribute('aria-pressed','false');xt=clamp(xt+dx*1.5,o.X0+30,o.X1-30)}});
+  function step(dt){
+    let v;const w=2*Math.PI/3.2;
+    if(auto){t+=dt;xm=xt=xl+190*Math.sin(w*t);v=vs=190*w*Math.cos(w*t)}
+    else{xm+=(xt-xm)*Math.min(1,dt*12);vs+=((xm-xp)/Math.max(dt,1e-3)-vs)*Math.min(1,dt*14);v=vs} /* the magnet eases toward the pointer, so v is smooth */
+    xp=xm;const p=Phi(xm);phi=p;emf=-dPhi(xm)*v;ph+=emf*2.2*dt;
+    hist.push([p,emf]);if(hist.length>300)hist.shift();o.dirty=true;
+  }
+  function draw(){
+    o.begin();const x=o.ctx;
+    x.strokeStyle=rgba(P.muted,.35);x.lineWidth=1;x.setLineDash([4,6]);x.beginPath();x.moveTo(o.X0,yl);x.lineTo(o.X1,yl);x.stroke();x.setLineDash([]);
+    const dots=[];for(let i=0;i<12;i++)dots.push(ph+i*Math.PI/6);
+    x.strokeStyle=rgba(P.c3,.45);x.lineWidth=4;arc(x,xl,yl,R,-Math.PI/2,Math.PI/2);
+    const dot=th=>{const[px,py]=lp(xl,yl,R,th);x.beginPath();x.arc(px,py,3.6,0,7);x.fill()};
+    const ia=clamp(Math.abs(emf)/1.2,0,1);
+    x.fillStyle=rgba(P.c3,.25+.6*ia);dots.filter(th=>Math.cos(th)>=0).forEach(dot);
+    const x0=xm-ML/2,y0=yl-MH/2;const nRight=sg>0;
+    x.fillStyle=rgba(P.muted,.35);x.fillRect(nRight?x0:xm,y0,ML/2,MH);x.fillStyle=rgba(P.c3,.45);x.fillRect(nRight?xm:x0,y0,ML/2,MH);
+    x.strokeStyle=rgba(P.ink,.55);x.lineWidth=1;x.strokeRect(x0,y0,ML,MH);
+    x.font=o.font(13,700);x.textAlign='center';x.textBaseline='middle';x.fillStyle=P.ink;x.fillText(nRight?'S':'N',x0+ML/4,yl);x.fillText(nRight?'N':'S',xm+ML/4,yl);x.textBaseline='alphabetic';
+    if(document.activeElement===o.cv){x.strokeStyle=P.focus;x.lineWidth=2;x.setLineDash([3,3]);x.strokeRect(x0-6,y0-6,ML+12,MH+12);x.setLineDash([])}
+    x.strokeStyle=P.c3;x.lineWidth=5;arc(x,xl,yl,R,Math.PI/2,3*Math.PI/2);
+    x.fillStyle=rgba(P.c3,.35+.65*ia);dots.filter(th=>Math.cos(th)<0).forEach(dot);
+    const ay1=yl-R-16,ay2=yl+R+16;
+    const Lb=phi*70;if(Math.abs(Lb)>3){x.strokeStyle=P.muted;x.fillStyle=P.muted;x.lineWidth=3;arrow(x,xl-Lb/2,ay1,xl+Lb/2,ay1,8)}
+    const Li=clamp(emf*22,-80,80);if(Math.abs(Li)>3){x.strokeStyle=P.c3;x.fillStyle=P.c3;x.lineWidth=3.5;arrow(x,xl-Li/2,ay2,xl+Li/2,ay2,9)}
+    const py0=290,ph2=30;x.strokeStyle=rgba(P.muted,.35);x.lineWidth=1;const PX=o.X0+26;x.beginPath();x.moveTo(PX,py0);x.lineTo(o.X1-14,py0);x.stroke();
+    const n=hist.length,sx=(o.VW-40)/300;
+    x.strokeStyle=rgba(P.muted,.9);x.lineWidth=1.6;x.beginPath();hist.forEach((h,i)=>{const px=PX+(300-n+i)*sx,py=py0-h[0]*ph2;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();
+    x.strokeStyle=P.c3;x.lineWidth=2.6;x.beginPath();hist.forEach((h,i)=>{const px=PX+(300-n+i)*sx,py=py0-clamp(h[1]/4.6,-1.15,1.15)*ph2;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();
+    tag(o,'SIDE VIEW · SCHEMATIC');
+    x.font=o.font(11,600);x.textAlign='left';x.fillStyle=P.muted;x.fillText('Φ',PX,py0-ph2-o.fs(4));x.fillStyle=P.c3;x.fillText('EMF = −dΦ/dt',PX+o.fs(26),py0-ph2-o.fs(4));
+  }
+  return{o,step,draw,destroy:()=>o.ro.disconnect()};
+}
+
+/* ---------- visual 4: Ampere-Maxwell ---------- */
+function visAmpere(box){
+  const W=600,H=250,yc=125,xL=262,xR=338,PH=58,R=84;
+  const o=mkCanvas(box,W,H,'A wire charges a capacitor. A loop with a surface sits on the wire. Drag the loop. Keys: left and right arrows move the loop.',[100,500]);
+  let xs=150,mode='flat',mx=true,play=!RM,t=0.6,wph=0;
+  const c=ctrlRow(box);
+  seg(c,[['flat','Flat surface'],['bag','Bag surface']],'flat',v=>{mode=v;o.dirty=true},'Surface shape');
+  const bm=btn('Maxwell’s term: on');bm.setAttribute('aria-pressed','true');
+  const bp=btn(play?'Pause':'Play');c.append(bm,bp);
+  const tab=el('div','atab',`<div><span>Wire current through surface</span><b id="aw"></b></div><div><span>Displacement current ε₀ dΦ<sub>E</sub>/dt</span><b id="ad"></b></div><div class="sum"><span>Total = ∮<b class="v" style="font:inherit">B</b>·dl ÷ μ₀</span><b id="at"></b></div>`);
+  c.appendChild(tab);const st=el('p','astat');st.setAttribute('aria-live','polite');c.appendChild(st);
+  c.appendChild(el('div','legend',`<span><i class="sw" style="background:var(--ink)"></i>Conventional current</span><span><i class="sw" style="background:var(--muted)"></i>E between the plates</span><span>○ Displacement current ε₀∂E/∂t (no charge crosses)</span><span><i class="sw" style="background:var(--a)"></i>B around the loop</span>`));
+  c.appendChild(el('p','vhint','Drag the loop along the wire and into the gap. Try both surfaces. Side view; values in units of the wire current I.'));
+  bm.addEventListener('click',()=>{mx=!mx;bm.textContent='Maxwell’s term: '+(mx?'on':'off');bm.setAttribute('aria-pressed',String(mx));o.dirty=true});
+  bp.addEventListener('click',()=>{play=!play;bp.textContent=play?'Pause':'Play'});
+  dragOn(o,{pick:p=>(Math.abs(p.x-xs)<KP*R+o.tol(22)&&Math.abs(p.y-yc)<R+o.tol(12))?{dx:xs-p.x}:null,move:(g,p)=>{xs=clamp(p.x+g.dx,o.X0+30,o.X1-30)}});
+  keysOn(o,{move:dx=>{xs=clamp(xs+dx,o.X0+30,o.X1-30)}});
+  const inGap=x=>x>xL&&x<xR;
+  function step(dt){if(play){t+=dt;wph+=Math.sin(2*Math.PI*t/4)*55*dt;o.dirty=true}}
+  function draw(){
+    o.begin();const x=o.ctx;const I=Math.sin(2*Math.PI*t/4),Q=-Math.cos(2*Math.PI*t/4);
+    const xe=inGap(xs)?(xs-130<o.X0+20?xs+130:xs-130):(xL+xR)/2;
+    const atX=mode==='flat'?xs:xe;const cond=!inGap(atX),disp=inGap(atX);
+    x.fillStyle=rgba(P.c4,.12);x.strokeStyle=rgba(P.c4,.55);x.lineWidth=1.4;
+    if(mode==='flat'){x.beginPath();x.ellipse(xs,yc,KP*R,R,0,0,7);x.fill()}
+    else{const dir=Math.sign(xe-xs)||1,r2=R*.8,mid=Math.abs(xe-xs)*.5;x.beginPath();x.moveTo(xs,yc-R);x.bezierCurveTo(xs+dir*mid,yc-R,xe-dir*14,yc-r2,xe,yc-r2);x.ellipse(xe,yc,KP*r2,r2,0,-Math.PI/2,Math.PI/2,dir<0);x.bezierCurveTo(xe-dir*14,yc+r2,xs+dir*mid,yc+R,xs,yc+R);x.ellipse(xs,yc,KP*R,R,0,Math.PI/2,-Math.PI/2,dir<0);x.closePath();x.fill();x.setLineDash([5,4]);x.stroke();x.setLineDash([])}
+    x.strokeStyle=rgba(P.c4,.45);x.lineWidth=3;arc(x,xs,yc,R,-Math.PI/2,Math.PI/2);
+    x.strokeStyle=P.ink;x.lineWidth=3;x.beginPath();x.moveTo(0,yc);x.lineTo(xL-3,yc);x.moveTo(xR+3,yc);x.lineTo(W,yc);x.stroke();
+    const off=((wph%30)+30)%30;
+    for(let px=off;px<W;px+=30){if(px<xL-6||px>xR+6){x.fillStyle=P.ink;x.beginPath();x.arc(px,yc,3.4,0,7);x.fill()}else if(px>xL+4&&px<xR-4){x.strokeStyle=rgba(P.c4,.3+.7*Math.abs(I));x.lineWidth=2;x.beginPath();x.arc(px,yc,4,0,7);x.stroke()}}
+    if(Math.abs(Q)>.08){x.strokeStyle=rgba(P.muted,.75);x.fillStyle=x.strokeStyle;x.lineWidth=1.6;[-44,-20,20,44].forEach(dy=>{const L=22*Q;arrow(x,300-L,yc+dy,300+L,yc+dy,5)})}
+    x.fillStyle=P.ink;x.fillRect(xL-4,yc-PH,6,2*PH);x.fillRect(xR-2,yc-PH,6,2*PH);
+    const nq=Math.round(Math.abs(Q)*4);x.font=o.font(12,700);x.textAlign='center';x.textBaseline='middle';
+    for(let i=0;i<nq;i++){const y=yc-PH+(i+.5)*(2*PH/nq);x.fillStyle=P.c1;x.fillText(Q>0?'+':'−',xL+9,y);x.fillText(Q>0?'−':'+',xR-9,y)}x.textBaseline='alphabetic';
+    x.strokeStyle=P.c4;x.lineWidth=3.5;arc(x,xs,yc,R,Math.PI/2,3*Math.PI/2);
+    const sz=4+7*Math.abs(I);x.fillStyle=rgba(P.c4,.3+.7*Math.abs(I));
+    for(let i=0;i<6;i++){const th=Math.PI/6+i*Math.PI/3;const[px,py]=lp(xs,yc,R,th);const tx=KP*R*Math.sin(th)*Math.sign(I||1),ty=-R*Math.cos(th)*Math.sign(I||1);head(x,px,py,Math.atan2(ty,tx),sz)}
+    if(document.activeElement===o.cv){x.strokeStyle=P.focus;x.lineWidth=2;x.setLineDash([3,3]);x.strokeRect(xs-KP*R-10,yc-R-8,2*KP*R+20,2*R+16);x.setLineDash([])}
+    x.font=o.font(11,600);x.textAlign='center';x.fillStyle=P.c4;x.fillText('B',xs+KP*R+o.fs(12),yc-R+o.fs(6));
+    tag(o,'SIDE VIEW');
+    const aw=$('#aw',box),ad=$('#ad',box),at=$('#at',box);
+    setT(aw,cond?'I':'0');setT(ad,mx?(disp?'I':'0'):'ignored');
+    const tot=cond||(mx&&disp);setT(at,tot?'I':'0');
+    const ok=tot;st.className='astat '+(ok?'ok':'bad');
+    setT(st,ok?'Same total for any surface. B is consistent.':'Total is 0, but B still swirls. Ampère alone fails here.');
+  }
+  return{o,step,draw,destroy:()=>o.ro.disconnect()};
+}
+
+/* ---------- visual 5: the two theorems ---------- */
+function visThm(box,onMode){
+  const W=360,H=330,X0=40,Y0=25,SZ=280;
+  const o=mkCanvas(box,W,H,'A square region cut into small cells. Inner edges cancel; only the outer edge is left.');o.cv.style.maxWidth='420px';o.cv.style.margin='0 auto';
+  let n=3,mode='div';
+  const c=ctrlRow(box);
+  seg(c,[['div','Spread → ∯'],['curl','Swirl → ∮']],'div',v=>{mode=v;o.dirty=true;onMode(v)},'Theorem');
+  const rg=el('label','rng',`Pieces <input type="range" id="thn" min="1" max="6" value="3" aria-label="Number of pieces per side"> <b id="thv">3 × 3</b>`);c.appendChild(rg);
+  $('input',rg).addEventListener('input',e=>{n=+e.target.value;setT($('#thv',rg),n+' × '+n);o.dirty=true});
+  function draw(){
+    o.begin();const x=o.ctx;const cs=SZ/n;const hd=clamp(cs*.12,4,8);
+    x.fillStyle=rgba(P.ink,.04);x.fillRect(X0,Y0,SZ,SZ);
+    x.strokeStyle=rgba(P.muted,.35);x.lineWidth=1;for(let i=1;i<n;i++){x.beginPath();x.moveTo(X0+i*cs,Y0);x.lineTo(X0+i*cs,Y0+SZ);x.moveTo(X0,Y0+i*cs);x.lineTo(X0+SZ,Y0+i*cs);x.stroke()}
+    x.strokeStyle=P.ink;x.lineWidth=2.5;x.strokeRect(X0,Y0,SZ,SZ);
+    const faint=rgba(P.muted,.55),bold=P.ink;
+    for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+      const x0=X0+i*cs,y0=Y0+j*cs,x1=x0+cs,y1=y0+cs,cx=x0+cs/2,cy=y0+cs/2;
+      x.strokeStyle=faint;x.fillStyle=faint;x.lineWidth=1.3;
+      if(mode==='curl'){const r=cs*.16,a=.35;x.beginPath();x.arc(cx,cy,r,a+.25,a+5.2);x.stroke();head(x,cx+r*Math.cos(a),cy+r*Math.sin(a),Math.atan2(-Math.cos(a),Math.sin(a)),hd*.8)}
+      else{const r=cs*.14;x.beginPath();x.arc(cx,cy,2.2,0,7);x.fill();for(let q=0;q<4;q++){const a=q*Math.PI/2+Math.PI/4;arrow(x,cx+Math.cos(a)*3,cy+Math.sin(a)*3,cx+Math.cos(a)*r,cy+Math.sin(a)*r,hd*.6)}}
+      const E=[[x1,y0,x0,y0,j===0,0,-1],[x0,y0,x0,y1,i===0,-1,0],[x0,y1,x1,y1,j===n-1,0,1],[x1,y1,x1,y0,i===n-1,1,0]];
+      for(const[ax,ay,bx,by,bd,nx,ny]of E){
+        const mx=(ax+bx)/2,my=(ay+by)/2,L=cs*.22;
+        if(mode==='curl'){
+          const ux=(bx-ax)/cs,uy=(by-ay)/cs,ins=bd?0:5;
+          x.strokeStyle=bd?bold:faint;x.fillStyle=x.strokeStyle;x.lineWidth=bd?2.6:1.3;
+          const ox=-nx*ins,oy=-ny*ins;arrow(x,mx-ux*L+ox,my-uy*L+oy,mx+ux*L+ox,my+uy*L+oy,bd?hd+2:hd);
+        }else{
+          const ux=(bx-ax)/cs,uy=(by-ay)/cs,sh=bd?0:cs*.12;
+          x.strokeStyle=bd?bold:faint;x.fillStyle=x.strokeStyle;x.lineWidth=bd?2.6:1.3;
+          const bx0=mx+ux*sh,by0=my+uy*sh,len=bd?clamp(cs*.3,12,26):cs*.16;
+          arrow(x,bx0-nx*(bd?0:len*.2),by0-ny*(bd?0:len*.2),bx0+nx*len,by0+ny*len,bd?hd+2:hd);
+        }
+      }
+    }
+  }
+  return{o,draw,destroy:()=>o.ro.disconnect()};
+}
+
+/* ---------- visual 6: light wave ---------- */
+function visWave(box,c0){
+  const W=600,H=240,yc=120;
+  const o=mkCanvas(box,W,H,'An electromagnetic wave. E is vertical and B is perpendicular to it, toward you when E points up; the wave travels to the right. Use the slider to put it in a dielectric.');
+  let t=0,er=1;
+  const c=ctrlRow(box);
+  const rg=el('label','rng',`Relative permittivity <i style="font-family:var(--f-math)">ε</i><sub>r</sub> <input type="range" min="1" max="4" step="0.05" value="1" aria-label="Relative permittivity"> <b></b>`);c.appendChild(rg);
+  const ro=readout(c,[['Wave speed v = c/√ε<sub>r</sub>','v']]);
+  c.appendChild(el('p','vhint','ε<sub>r</sub> = 1 is vacuum. In a lossless, non-magnetic dielectric the wave slows and λ shrinks at the same frequency; |B| = |E|/v grows.'));
+  const inp=$('input',rg),lab=$('b',rg);
+  const upd=()=>{er=+inp.value;setT(lab,er.toFixed(2));setT(ro.v,Math.round(c0/Math.sqrt(er)).toLocaleString('en-US')+' m/s');o.dirty=true};
+  inp.addEventListener('input',upd);upd();
+  function step(dt){if(!RM){t+=dt;o.dirty=true}}
+  function draw(){
+    o.begin();const x=o.ctx;const n=Math.sqrt(er),k=2*Math.PI/220*n,w=2*Math.PI/1.6;
+    if(er>1.001){x.fillStyle=rgba(P.c2,.07);x.fillRect(0,0,W,H)}
+    x.strokeStyle=rgba(P.muted,.5);x.lineWidth=1;x.fillStyle=rgba(P.muted,.5);arrow(x,20,yc,W-20,yc,7);
+    for(let px=30;px<W-30;px+=10){const v=Math.sin(k*px-w*t);
+      x.strokeStyle=rgba(P.c1,.75);x.lineWidth=1.6;x.beginPath();x.moveTo(px,yc);x.lineTo(px,yc-v*62);x.stroke();
+      x.strokeStyle=rgba(P.c2,.75);x.beginPath();x.moveTo(px,yc);x.lineTo(px+v*22*n,yc+v*20*n);x.stroke()}
+    x.font=o.font(13,700);x.textAlign='left';x.fillStyle=P.c1;x.fillText('E',36,o.fs(16)+8);x.fillStyle=P.c2;x.fillText('B (toward you when E is up)',36,H-o.fs(8));x.fillStyle=P.muted;x.textAlign='right';x.fillText('E × B → v',W-22,yc+o.fs(22));
+  }
+  return{o,step,draw,destroy:()=>o.ro.disconnect()};
+}
+
+/* ---------- primer: 2-D field playground ---------- */
+/* Maths coords: x right, y up; 1 unit = 100 canvas px. Every field carries its exact divergence and curl (z). */
+const VA=.3;
+const FLD={
+ source:{n:'Source',f:(x,y)=>{const d=1+x*x+y*y;return[x/d,y/d]},dv:(x,y)=>2/(1+x*x+y*y)**2,cu:()=>0},
+ sink:{n:'Sink',f:(x,y)=>{const d=1+x*x+y*y;return[-x/d,-y/d]},dv:(x,y)=>-2/(1+x*x+y*y)**2,cu:()=>0},
+ uniform:{n:'Uniform',f:()=>[.6,0],dv:()=>0,cu:()=>0},
+ swirl:{n:'Swirl',f:(x,y)=>{const d=1+x*x+y*y;return[-.8*y/d,.8*x/d]},dv:()=>0,cu:(x,y)=>1.6/(1+x*x+y*y)**2},
+ saddle:{n:'Saddle',f:(x,y)=>[.35*x,-.35*y],dv:()=>0,cu:()=>0},
+ shear:{n:'Shear',f:(x,y)=>[.8+.45*y,0],dv:()=>0,cu:()=>-.45},
+ vortex:{n:'Vortex 1/r',f:(x,y)=>{const s=.4/Math.max(x*x+y*y,VA*VA);return[-y*s,x*s]},dv:()=>0,cu:(x,y)=>x*x+y*y<VA*VA?.8/(VA*VA):0}
+};
+const PRESETS=['source','sink','uniform','swirl','saddle','shear','vortex'];
+function fieldArrows(x,F,toC,x0,x1,H,step,sc,maxL,al){
+  const c0=toC(0,0);
+  for(let gy=c0[1]-step*Math.floor(c0[1]/step);gy<=H;gy+=step)for(let gx=c0[0]-step*Math.floor((c0[0]-x0)/step);gx<=x1;gx+=step){
+    const mx=(gx-c0[0])/sc,my=(c0[1]-gy)/sc;const[fx,fy]=F(mx,my);const m=Math.hypot(fx,fy);if(m<1e-4)continue;
+    const L=clamp(m*maxL[0],2.5,maxL[1]),ux=fx/m,uy=-fy/m,a=clamp(al[0]+m*al[1],al[0],al[2]);
+    x.strokeStyle=rgba(P.muted,a);x.fillStyle=x.strokeStyle;arrow(x,gx-ux*L/2,gy-uy*L/2,gx+ux*L/2,gy+uy*L/2,clamp(L*.38,2.5,5));
+  }
+}
+function visField(box,mode,init,onPreset){
+  const W=600,H=340,CX=300,CY=170,SC=100,isDiv=mode==='div';
+  const RMIN=isDiv?.1:.15,RMAX=isDiv?1.2:.8;
+  const o=mkCanvas(box,W,H,(isDiv?'A 2-D flow with a probe circle':'A 2-D flow with a paddle wheel')+'. Drag it, or tap to move it there. Arrow keys move it; plus and minus resize it.',[150,450]);
+  let fid=init,F=FLD[fid],phi=0,M={fo:0,fi:0,net:0,circ:0,avg:0};
+  const pr=isDiv?{x:.9,y:.35,r:.6}:{x:.6,y:.3,r:.42};
+  const toC=(x,y)=>[CX+SC*x,CY-SC*y],toM=p=>[(p.x-CX)/SC,(CY-p.y)/SC];
+  const c=ctrlRow(box);
+  const pw=el('div','presets');pw.setAttribute('role','group');pw.setAttribute('aria-label','Field');
+  PRESETS.forEach(id=>{const b=btn(FLD[id].n);b.dataset.f=id;b.setAttribute('aria-pressed',String(id===fid));b.addEventListener('click',()=>setF(id));pw.appendChild(b)});
+  c.appendChild(pw);
+  const ro=readout(c,isDiv?[['Flow out','o'],['Flow in','i'],['(Out − in) ÷ area','r'],['∇· at centre, exact','x']]:[['Circulation ∮','o'],['÷ area','r'],['∇× at centre, exact','x'],['Wheel','w']]);
+  if(!isDiv)ro.w.classList.add('w');
+  const rg=el('label','rng',`${isDiv?'Circle':'Wheel'} size <input type="range" min="${Math.round(RMIN*100)}" max="${Math.round(RMAX*100)}" value="${Math.round(pr.r*100)}" aria-label="${isDiv?'Circle':'Wheel'} radius">`);c.appendChild(rg);
+  const inp=$('input',rg);inp.addEventListener('input',()=>{pr.r=inp.value/100;o.dirty=true});
+  const sync=()=>{inp.value=Math.round(pr.r*100)};
+  c.appendChild(el('p','vhint',isDiv?'Drag the circle, or its edge. As it shrinks, (out − in) ÷ area becomes ∇· at the centre.':'Drag the wheel, or its edge. It turns at ½ × circulation ÷ area; as it shrinks, that becomes ½ ∇×.'));
+  const PN=RM?0:150,pts=[],TS=2;
+  function spawn(p){p.x=(o.X0+Math.random()*o.VW-CX)/SC;p.y=(CY-Math.random()*H)/SC;p.a=0;p.L=2+Math.random()*3}
+  function seed(){pts.length=0;for(let i=0;i<PN;i++){const p={};spawn(p);p.a=Math.random()*p.L;pts.push(p)}}
+  seed();
+  function setF(id){fid=id;F=FLD[id];$$('button',pw).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.f===id)));seed();o.dirty=true;say(FLD[id].n+' field.');if(onPreset)onPreset(id)}
+  function clampP(){pr.x=clamp(pr.x,(o.X0-CX)/SC+.05,(o.X1-CX)/SC-.05);pr.y=clamp(pr.y,-1.65,1.65)}
+  dragOn(o,{pick:(p,hover)=>{const[mx,my]=toM(p);const d=Math.hypot(mx-pr.x,my-pr.y)*SC;
+      if(Math.abs(d-pr.r*SC)<o.tol(14))return{k:'r'};
+      if(d<pr.r*SC)return{k:'m',dx:pr.x-mx,dy:pr.y-my};
+      if(hover)return null;pr.x=mx;pr.y=my;clampP();o.dirty=true;return{k:'m',dx:0,dy:0}},
+    move:(g,p)=>{const[mx,my]=toM(p);if(g.k==='r'){pr.r=clamp(Math.hypot(mx-pr.x,my-pr.y),RMIN,RMAX);sync()}else{pr.x=mx+g.dx;pr.y=my+g.dy;clampP()}}});
+  keysOn(o,{move:(dx,dy)=>{pr.x+=dx/SC;pr.y-=dy/SC;clampP()},size:d=>{pr.r=clamp(pr.r+d/200,RMIN,RMAX);sync()}});
+  function measure(){
+    const N=720,dl=2*Math.PI*pr.r/N;let fo=0,fi=0,ci=0;
+    for(let i=0;i<N;i++){const th=(i+.5)*2*Math.PI/N,nx=Math.cos(th),ny=Math.sin(th);const[fx,fy]=F.f(pr.x+pr.r*nx,pr.y+pr.r*ny);const fn=fx*nx+fy*ny;if(fn>0)fo+=fn*dl;else fi-=fn*dl;ci+=(-fx*ny+fy*nx)*dl}
+    const A=Math.PI*pr.r*pr.r;M={fo,fi,net:(fo-fi)/A,circ:ci,avg:ci/A};
+  }
+  function step(dt){
+    if(RM)return;
+    for(const p of pts){const[fx,fy]=F.f(p.x,p.y);p.x+=fx*dt*TS;p.y+=fy*dt*TS;p.a+=dt;const[cx,cy]=toC(p.x,p.y);
+      if(p.a>p.L||cx<o.X0||cx>o.X1||cy<0||cy>H||(fid==='sink'&&p.x*p.x+p.y*p.y<.004))spawn(p)}
+    if(!isDiv)phi+=clamp(.5*M.avg*TS,-12,12)*dt; /* fluid parcels and the wheel share one time scale TS */
+    o.dirty=true;
+  }
+  function draw(){
+    o.begin();const x=o.ctx;clampP();measure();
+    x.lineWidth=1.3;fieldArrows(x,F.f,toC,o.X0,o.X1,H,30,SC,[36,22],[.22,.9,.8]);
+    for(const p of pts){const[cx,cy]=toC(p.x,p.y);x.fillStyle=rgba(P.ink,.55*Math.sin(Math.PI*clamp(p.a/p.L,0,1)));x.beginPath();x.arc(cx,cy,1.9,0,7);x.fill()}
+    const[pcx,pcy]=toC(pr.x,pr.y),R=pr.r*SC;
+    if(isDiv){
+      x.fillStyle=rgba(P.ink,.06);x.beginPath();x.arc(pcx,pcy,R,0,7);x.fill();
+      const N=Math.max(12,Math.round(R/6));
+      for(let i=0;i<N;i++){const th=i*2*Math.PI/N,nx=Math.cos(th),ny=Math.sin(th);const[fx,fy]=F.f(pr.x+pr.r*nx,pr.y+pr.r*ny);const fn=fx*nx+fy*ny;const L=clamp(fn*60,-22,22);
+        if(Math.abs(L)<4)continue;const bx=pcx+R*nx,by=pcy-R*ny;x.strokeStyle=L>0?P.ink:rgba(P.muted,.95);x.fillStyle=x.strokeStyle;x.lineWidth=2;arrow(x,bx,by,bx+nx*L,by-ny*L,Math.min(5,Math.abs(L)*.4))}
+      x.setLineDash([7,5]);x.strokeStyle=P.ink;x.lineWidth=2;x.beginPath();x.arc(pcx,pcy,R,0,7);x.stroke();x.setLineDash([]);
+    }else{
+      const N=12;
+      for(let i=0;i<N;i++){const th=(i+.5)*2*Math.PI/N,tx=-Math.sin(th),ty=Math.cos(th);const[fx,fy]=F.f(pr.x+pr.r*Math.cos(th),pr.y+pr.r*Math.sin(th));const ft=fx*tx+fy*ty;const L=clamp(ft*40,-16,16);
+        if(Math.abs(L)<1.5)continue;const bx=pcx+(R+9)*Math.cos(th),by=pcy-(R+9)*Math.sin(th);x.strokeStyle=rgba(P.ink,.6);x.fillStyle=x.strokeStyle;x.lineWidth=1.8;arrow(x,bx-tx*L/2,by+ty*L/2,bx+tx*L/2,by-ty*L/2,3.5)}
+      x.fillStyle=rgba(P.surface,.55);x.beginPath();x.arc(pcx,pcy,R,0,7);x.fill();
+      x.strokeStyle=P.ink;x.lineWidth=2.2;x.beginPath();x.arc(pcx,pcy,R,0,7);x.stroke();
+      x.lineWidth=3;x.lineCap='round';
+      for(let q=0;q<4;q++){const a=phi+q*Math.PI/2,ex=Math.cos(a),ey=-Math.sin(a);x.beginPath();x.moveTo(pcx+ex*R*.18,pcy+ey*R*.18);x.lineTo(pcx+ex*R*.92,pcy+ey*R*.92);x.stroke();
+        const px=pcx+ex*R*.92,py=pcy+ey*R*.92,qx=-ey,qy=ex;x.beginPath();x.moveTo(px-qx*R*.16,py-qy*R*.16);x.lineTo(px+qx*R*.16,py+qy*R*.16);x.stroke()}
+      x.lineCap='butt';x.fillStyle=P.ink;x.beginPath();x.arc(pcx,pcy,4,0,7);x.fill();
+    }
+    const ha=Math.PI/4;x.fillStyle=P.surface;x.strokeStyle=P.ink;x.lineWidth=2;x.beginPath();x.arc(pcx+R*Math.cos(ha),pcy-R*Math.sin(ha),6,0,7);x.fill();x.stroke();
+    if(document.activeElement===o.cv){x.strokeStyle=P.focus;x.lineWidth=2;x.setLineDash([3,3]);x.beginPath();x.arc(pcx,pcy,R+(isDiv?8:26),0,7);x.stroke();x.setLineDash([])}
+    tag(o,'2-D FIELD · ARBITRARY UNITS');
+    if(isDiv){setT(ro.o,M.fo.toFixed(2));setT(ro.i,M.fi.toFixed(2));setT(ro.r,sign(M.net,2));setT(ro.x,sign(F.dv(pr.x,pr.y),2))}
+    else{setT(ro.o,sign(M.circ,2));setT(ro.r,sign(M.avg,2));setT(ro.x,sign(F.cu(pr.x,pr.y),2));setT(ro.w,Math.abs(M.avg)<.02?'still':(M.avg>0?'↺ anticlockwise':'↻ clockwise'))}
+  }
+  return{o,step,draw,setF,pr,place:(px,py,r)=>{pr.x=px;pr.y=py;if(r)pr.r=r;clampP();sync();o.dirty=true},destroy:()=>o.ro.disconnect()};
+}
+/* small static field picture for the check questions */
+function miniField(cv,fid,wheel){
+  const o={cv,ctx:cv.getContext('2d'),dirty:true,k:1};
+  const fit=()=>{const w=cv.clientWidth||110;const d=Math.min(2,window.devicePixelRatio||1);cv.width=Math.round(w*d);cv.height=Math.round(w*d);o.k=w*d/200;o.dirty=true};
+  o.ro=new ResizeObserver(fit);o.ro.observe(cv);fit();
+  const SCm=200/3.4,toC=(x,y)=>[100+SCm*x,100-SCm*y];
+  function draw(){const x=o.ctx;x.setTransform(o.k,0,0,o.k,0,0);x.clearRect(0,0,200,200);x.lineWidth=2.2;
+    fieldArrows(x,FLD[fid].f,toC,0,200,200,28,SCm,[34,21],[.7,.4,1]);
+    if(wheel){const[cx,cy]=toC(wheel[0],wheel[1]),R=20;x.fillStyle=rgba(P.surface,.8);x.beginPath();x.arc(cx,cy,R,0,7);x.fill();x.strokeStyle=P.ink;x.lineWidth=2.4;x.beginPath();x.arc(cx,cy,R,0,7);x.stroke();
+      for(let q=0;q<4;q++){const a=q*Math.PI/2+.4;x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+Math.cos(a)*R*.9,cy-Math.sin(a)*R*.9);x.stroke()}}
+  }
+  return{o,draw,destroy:()=>o.ro.disconnect()};
+}
+
+/* ---------- screens ---------- */
+const SCR=[];
+SCR.push({id:'hook',label:'Start',render:renderHook});
+SCR.push({id:'spread',label:'Primer · Spread',render:(e,s)=>renderPrimer(e,s,'div')});
+SCR.push({id:'swirl',label:'Primer · Swirl',render:(e,s)=>renderPrimer(e,s,'curl')});
+SCR.push({id:'check',label:'Primer · Check',gate:true,render:renderCheck});
+EQ.forEach(q=>{
+  SCR.push({id:'see'+q.k,label:q.full+' · Meaning',col:q.col,render:(e,s)=>renderSee(e,q,s)});
+  SCR.push({id:'build'+q.k,label:q.full+' · Build',col:q.col,gate:true,render:(e,s)=>renderBuild(e,q,s)});
+  SCR.push({id:'recall'+q.k,label:q.full+' · Recall',col:q.col,gate:true,render:(e,s)=>renderRecall(e,q,s)});
+  if(q.k===1)SCR.push({id:'revA',label:'Quick review',gate:true,render:(e,s)=>renderQuiz(e,s,itemsA(),'Quick review','Two laws so far. Mixed up.')});
+  if(q.k===3)SCR.push({id:'revB',label:'Quick review',gate:true,render:(e,s)=>renderQuiz(e,s,itemsB(),'Quick review','All four. Mixed up.')});
+});
+SCR.push({id:'pattern',label:'The pattern',gate:true,render:renderPattern});
+SCR.push({id:'thm',label:'Point to region',render:renderThm});
+SCR.push({id:'match',label:'Integral forms · Match',gate:true,render:renderMatch});
+SCR.push({id:'irecall',label:'Integral forms · Recall',gate:true,render:renderIRecall});
+SCR.push({id:'revC',label:'Mixed practice',gate:true,render:(e,s)=>renderQuiz(e,s,itemsC(),'Mixed practice','Every law, both forms. Missed items come back.')});
+SCR.push({id:'test',label:'Final test',render:renderTest});
+SCR.push({id:'bonus',label:'Bonus · Light',render:renderBonus});
+const IDX=id=>SCR.findIndex(s=>s.id===id);
+
+function markDone(s){S.done.add(s.id);persist();updateNav()}
+function updateNav(){
+  const s=SCR[S.i],nb=$('#next'),bb=$('#back');
+  bb.hidden=S.i===0;
+  nb.hidden=S.i===0||S.i===SCR.length-1;
+  const done=!s.gate||S.done.has(s.id);
+  nb.textContent=done?'Next':'Skip';nb.className='btn '+(done?'primary':'ghost');
+}
+function go(i,focus){
+  i=clamp(i,0,SCR.length-1);
+  VIS.forEach(v=>v.destroy&&v.destroy());VIS=[];
+  $$('.dghost').forEach(g=>g.remove());
+  S.i=i;persist();
+  const s=SCR[i],st=$('#stage');
+  st.innerHTML='';
+  const col=s.col?`var(${s.col})`:'var(--ink)';
+  $('#pfill').style.width=(i/(SCR.length-1)*100)+'%';$('#pfill').style.background=col;
+  setT($('#pname'),s.label);setT($('#pcount'),(i+1)+' / '+SCR.length);
+  s.render(st,s);updateNav();
+  window.scrollTo(0,0);
+  if(focus!==false){const h=$('h1,h2',st);if(h)h.focus({preventScroll:true})}
+}
+$('#next').addEventListener('click',()=>go(S.i+1));
+$('#back').addEventListener('click',()=>go(S.i-1));
+
+/* hook */
+function fourList(form){return `<ol class="four">${EQ.map(q=>`<li style="--a:var(${q.col})"><span class="nm">${q.full}</span><span class="eq ${form==='d'?'big':'mid'}" aria-label="${eqAria(q[form][0])}">${eqInner(q[form][0])}</span></li>`).join('')}</ol>`}
+function renderHook(e){
+  const resume=saved.i>0&&saved.i<SCR.length;
+  e.innerHTML=`<section class="screen hook">
+    <div class="head"><p class="kicker" style="color:var(--muted)">Four equations. Classical electromagnetism.</p><h1 tabindex="-1">Maxwell by Heart</h1></div>
+    <p class="lede">In 15 minutes you will write these from memory.</p>
+    <div id="hseg"></div>
+    <div id="hlist">${fourList('d')}</div>
+    <div class="row"><button type="button" class="btn primary lg" id="start">Start</button>${resume?`<button type="button" class="btn lg" id="resume">Resume at step ${saved.i+1}</button>`:''}<button type="button" class="btn ghost" id="skipp">I know ∇· and ∇×</button></div>
+    <p class="small">Tap, drag or use the keys. SI units; fields in vacuum with their charges and currents.</p>
+    <p class="byline">Made by Ben Hardy, RF and EM engineer · <a href="https://benjhardy.github.io/" style="color:inherit">benjhardy.github.io</a></p>
+  </section>`;
+  seg($('#hseg',e),[['d','Differential'],['i','Integral']],'d',v=>{$('#hlist',e).innerHTML=fourList(v)},'Form');
+  $('#start',e).addEventListener('click',()=>go(1));
+  $('#skipp',e).addEventListener('click',()=>go(IDX('see0')));
+  if(resume)$('#resume',e).addEventListener('click',()=>go(saved.i));
+}
+function headHTML(q,stage){return `<div class="head"><p class="kicker">Law ${q.k+1} of 4<span class="stg">${['Meaning','Build','Recall'].map(x=>`<span${x===stage?' class="on"':''}>${x}</span>`).join('')}</span></p><h2 tabindex="-1">${q.full}</h2><p class="say">${q.say}</p></div>`}
+function wireDecode(e){
+  const dec=$('.decode',e);
+  const show=b=>{$$('.sym.on',e).forEach(x=>x.classList.remove('on'));b.classList.add('on');const t=T[b.dataset.t];dec.innerHTML=`<span class="dsym">${t.h}</span><p><b>${t.n}.</b> ${t.d}</p>`};
+  $$('.sym',e).forEach(b=>{b.addEventListener('click',()=>show(b));b.addEventListener('focus',()=>show(b));b.addEventListener('mouseenter',()=>show(b))});
+}
+function renderSee(e,q){
+  e.innerHTML=`<section class="screen" style="--a:var(${q.col})">${headHTML(q,'Meaning')}
+    <div class="vis" id="vis"></div>
+    <div class="card">
+      <p class="lbl">At every point</p><div class="eq big">${symRow(D(q.k))}</div>
+      <p class="lbl">Over a closed ${q.k<2?'surface':'loop'}</p><div class="eq mid">${symRow(IF(q.k))}</div>
+      <p class="sayI">${q.sayI}</p>
+      <div class="decode" aria-live="polite"><span class="hint">Tap any symbol to decode it.</span></div>
+    </div></section>`;
+  wireDecode(e);
+  VIS.push([visGaussE,visGaussB,visFaraday,visAmpere][q.k]($('#vis',e)));
+}
+function exCard(extra){return `<div class="card ex">${extra||''}<div class="ex-rows"></div><div class="bank" role="group" aria-label="Pieces"></div><p class="fb" aria-live="polite"></p></div>`}
+function renderBuild(e,q,s){
+  e.innerHTML=`<section class="screen" style="--a:var(${q.col})">${headHTML(q,'Build')}${exCard('<p class="inst">Tap or drag the pieces into place.</p>')}</section>`;
+  const seq=D(q.k),hidden=new Set(seq.map((t,i)=>i).filter(i=>seq[i]!=='eq'));
+  exercise($('.ex',e),[{seqs:q.d,hidden,k:q.k,col:q.col}],[...hidden].map(i=>seq[i]),{onDone:fb=>{fb.className='fb ok';fb.textContent='Built. Say it out loud once.';say('Built.');markDone(s)}});
+}
+function renderRecall(e,q,s){
+  const L=levels(q);let li=0;
+  e.innerHTML=`<section class="screen" style="--a:var(${q.col})">${headHTML(q,'Recall')}${exCard(`<div class="lvl"><span>Level <b id="lvn">1</b> of ${L.length}</span><span class="dots">${L.map(()=>'<i></i>').join('')}</span></div><p class="inst" id="lvi"></p>`)}</section>`;
+  const box=$('.ex',e);
+  function run(){
+    const n=L[li],hidden=new Set(q.hide.slice(0,n));const last=n===q.hide.length;
+    setT($('#lvn',e),String(li+1));$$('.dots i',e).forEach((d,j)=>d.classList.toggle('on',j<=li));
+    setT($('#lvi',e),last?'All blank. Write it from memory.':(n===1?'One piece is missing.':n+' pieces are missing.'));
+    const pal=[...hidden].map(i=>D(q.k)[i]).concat(shuffle(q.dis).slice(0,li<2?2:3));
+    exercise(box,[{seqs:q.d,hidden,k:q.k,col:q.col}],pal,{onDone:fb=>{
+      fb.className='fb ok';
+      if(li<L.length-1){fb.textContent='Yes. Harder now.';li++;setTimeout(run,RM?200:750)}
+      else{fb.textContent='From memory. Well done.';say('Done. You wrote it from memory.');markDone(s)}
+    }});
+  }
+  run();
+}
+
+/* primer: spread and swirl */
+function renderPrimer(e,s,mode){
+  const d=mode==='div';
+  const tries=d?[['Source, then shrink the circle','source',[1.05,.3,1.1]],['Saddle: arrows in and out','saddle',[.7,-.45,.7]],['Swirl: goes round','swirl',[.5,.3,.6]]]
+              :[['Shear: no swirl in sight','shear',[.3,.25,.45]],['Vortex, away from the centre','vortex',[1.05,.45,.4]],['Vortex, on its core','vortex',[0,0,.4]]];
+  e.innerHTML=`<section class="screen" style="--a:var(--ink)"><div class="head"><p class="kicker" style="color:var(--muted)">Primer · ${d?1:2} of 3</p><h2 tabindex="-1" style="color:var(--ink)">${d?'Spread: ∇·':'Swirl: ∇×'}</h2><p class="say">${d?'More flow out of a tiny circle than in: the point is a source.':'Put a paddle wheel in the flow. If it turns, the flow has curl.'}</p></div>
+  <div class="vis" id="vis"></div>
+  <div class="card"><p class="lbl">Try</p><div class="row" id="try"></div></div></section>`;
+  const v=visField($('#vis',e),mode,d?'source':'shear');VIS.push(v);
+  tries.forEach(([l,id,p])=>{const b=btn(l);b.addEventListener('click',()=>{v.setF(id);v.place(p[0],p[1],p[2])});$('#try',e).appendChild(b)});
+}
+function renderCheck(e,s){
+  const same='The flow goes round, but it is slower on the outer side. The two effects cancel: ∇× = 0 there.';
+  const Q=[
+   {q:'Which one spreads out?',sym:'∇· ≠ 0',opts:['swirl','source','shear'],ans:'source',yes:'Yes. More flows out of a small circle than in.',no:{swirl:'Swirl only goes round: ∇· = 0.',shear:'Shear only slides: as much flows in as out. ∇· = 0.'}},
+   {q:'Which one swirls?',sym:'∇× ≠ 0',opts:['saddle','uniform','shear'],ans:'shear',yes:'Yes. Faster above than below, so a wheel turns ↻.',no:{saddle:'A wheel in a saddle does not turn: ∇× = 0.',uniform:'Uniform flow pushes every side equally: ∇× = 0.'}},
+   {q:'This wheel sits in the 1/r vortex, away from the centre. Does it turn?',fig:['vortex',[.95,.45]],txt:[['acw','↺ Anticlockwise'],['cw','↻ Clockwise'],['no','It stays still']],ans:'no',yes:'Yes. Away from its core, the 1/r vortex has ∇× = 0.',no:{acw:same,cw:same}}
+  ];
+  e.innerHTML=`<section class="screen" style="--a:var(--ink)"><div class="head"><p class="kicker" style="color:var(--muted)">Primer · 3 of 3</p><h2 tabindex="-1" style="color:var(--ink)">Spread or swirl?</h2></div><div id="qs" class="lines"></div></section>`;
+  let right=0;
+  Q.forEach((q,qi)=>{
+    const c=el('div','card');c.innerHTML=`<p class="qq">${qi+1}. ${q.q}${q.sym?` <span class="tag">${q.sym}</span>`:''}</p>`;
+    let box;
+    if(q.opts){box=el('div','mopts');shuffle(q.opts).forEach(id=>{const b=el('button','mopt');b.type='button';b.dataset.v=id;b.setAttribute('aria-label',FLD[id].n+' field');const cv=el('canvas');cv.setAttribute('aria-hidden','true');b.append(cv,document.createTextNode(FLD[id].n));box.appendChild(b);VIS.push(miniField(cv,id))})}
+    else{box=el('div','qgrid');const f=el('div','qfig');const cv=el('canvas');cv.setAttribute('role','img');cv.setAttribute('aria-label','The 1/r vortex, with a paddle wheel up and to the right of the centre');f.appendChild(cv);const op=el('div','opts');q.txt.forEach(([v,l])=>{const b=el('button','opt');b.type='button';b.dataset.v=v;b.textContent=l;op.appendChild(b)});box.append(f,op);VIS.push(miniField(cv,q.fig[0],q.fig[1]))}
+    const fb=el('p','fb');fb.setAttribute('aria-live','polite');
+    c.append(box,fb);$('#qs',e).appendChild(c);
+    $$('button',box).forEach(b=>b.addEventListener('click',()=>{
+      const ok=b.dataset.v===q.ans;
+      if(ok){$$('button',box).forEach(x=>{x.disabled=true;if(x.dataset.v===q.ans)x.classList.add('right')});fb.className='fb ok';fb.textContent=q.yes;right++;if(right===Q.length){say('All three right.');markDone(s)}}
+      else{b.classList.add('wrong');b.disabled=true;fb.className='fb bad';fb.textContent=q.no[b.dataset.v];say(fb.textContent)}
+    }));
+  });
+}
+
+/* quiz */
+const pick=(q,opts,ans,why,k,extra)=>Object.assign({type:'pick',q,opts:opts.map((seq,j)=>({seq,ok:j===ans})),why,k},extra||{});
+const fill=(seq,pos,opts,why,k)=>({type:'fill',seq,pos,opts,why,k});
+const spot=(seq,pos,fix,why,k)=>({type:'spot',seq,pos,fix,why,k});
+function itemsA(){return[
+  pick('Which one says there are no magnetic monopoles?',[D(0),D(1)],1,'∇·B = 0. Nothing is a source of B.',1),
+  fill(D(0),3,['rho','zero','mu0J','dEdt'],'E spreads from charge density ρ.',0),
+  spot(['div','E','eq','rho','om0'],4,'oe0','Electric law, electric constant: ε₀.',0),
+  fill(D(1),3,['zero','rho','mu0J'],'B has no source, so it is 0.',1)
+]}
+function itemsB(){return[
+  pick('A changing B makes E swirl. Which one?',[D(0),D(1),D(2),D(3)],2,'Faraday: ∇×E = −∂B/∂t.',2),
+  spot(['curl','E','eq','plus','dBdt'],3,'minus','Faraday has a minus. That is Lenz’s law.',2),
+  fill(D(3),6,['dEdt','dBdt','mu0J','rho'],'Maxwell’s term is μ₀ε₀ ∂E/∂t.',3),
+  pick('Which one says charge is a source of field?',[D(0),D(1),D(2),D(3)],0,'Gauss E: ∇·E = ρ/ε₀.',0),
+  fill(D(2),3,['minus','plus','zero'],'Minus: the induced E opposes the change.',2)
+]}
+function itemsC(){
+  const it=[
+    pick('No magnetic monopoles. Which one?',[D(0),D(1),D(2),D(3)],1,'∇·B = 0.',1),
+    pick('Same law in integral form?',[IF(2),IF(3),IF(0)],0,'∇× becomes ∮ around a fixed loop. ∂B/∂t becomes d/dt of B-flux.',2,{head:D(2)}),
+    spot(['curl','B','eq','mu0J','minus','mu0e0','dEdt'],4,'plus','Both causes add: +.',3),
+    fill(IF(0),3,['Qenc','mu0Ienc','zero','iintEdA'],'The charge inside the surface: Q_enc.',0),
+    pick('Maxwell added ∂E/∂t to which one?',[D(0),D(1),D(2),D(3)],3,'Ampère–Maxwell: ∇×B = μ₀J + μ₀ε₀ ∂E/∂t.',3),
+    spot(['curl','E','eq','minus','dEdt'],4,'dBdt','Faraday: a changing B makes E swirl.',2),
+    pick('Same law in integral form?',[IF(1),IF(0),IF(3)],0,'∇· becomes ∯ over a closed surface.',1,{head:D(1)}),
+    pick('EMF around a loop = minus the rate of change of flux. Which one?',[IF(0),IF(1),IF(2),IF(3)],2,'Faraday, integral form.',2),
+    spot(['oint','Bdl','eq','mu0Ienc','plus','mu0e0','ddt','iintBdA'],7,'iintEdA','Displacement current comes from the flux of E.',3),
+    fill(IF(3),3,['mu0Ienc','Qenc','zero','minus'],'Current through the loop: μ₀I_enc.',3),
+    pick('Which one makes transformers work?',[D(0),D(1),D(2),D(3)],2,'Faraday: the changing B from the primary drives a swirling E, an EMF in the secondary.',2),
+    pick('Same law in integral form?',[IF(0),IF(1),IF(2)],0,'Integrate ρ over the volume and you get Q_enc.',0,{head:D(0)}),
+    pick('Flux out of any closed surface is zero. Which one?',[IF(0),IF(1),IF(2),IF(3)],1,'Gauss B, integral form.',1)
+  ];
+  const top=S.miss.indexOf(Math.max(...S.miss));
+  if(S.miss[top]>0){const q=EQ[top],p=q.hide[0];it.splice(1,0,fill(D(top),p,[D(top)[p]].concat(shuffle(q.dis).slice(0,3)),'You missed this one before. Here it is again.',top))}
+  return it;
+}
+function renderQuiz(e,s,items,title,sub){
+  e.innerHTML=`<section class="screen"><div class="head"><p class="kicker" style="color:var(--muted)">Retrieval practice</p><h2 tabindex="-1" style="color:var(--ink)">${title}</h2><p class="say">${sub}</p></div>
+  <div class="card"><div class="qtop"><span id="qc"></span><span class="qbar"><i></i></span></div><div class="qbody"></div></div></section>`;
+  const queue=items.map(x=>Object.assign({},x,{tries:0}));const total=queue.length;let doneN=0,first=0;
+  const body=$('.qbody',e);
+  const upd=()=>{setT($('#qc',e),Math.min(doneN+1,total)+' of '+total);$('.qbar i',e).style.width=(doneN/total*100)+'%'};
+  function next(){
+    if(!queue.length){finish();return}
+    const it=queue.shift();upd();
+    renderItem(body,it,ok=>{
+      if(ok){doneN++;if(!it.tries)first++}
+      else{it.tries++;miss(it.k);if(it.tries<=2)queue.splice(Math.min(2,queue.length),0,Object.assign({},it,{again:true}));else doneN++}
+      next();
+    });
+  }
+  function finish(){
+    $('.qbar i',e).style.width='100%';setT($('#qc',e),'Done');
+    body.innerHTML=`<p class="qq" tabindex="-1">${first} of ${total} right first time.</p><p class="small">${first===total?'Clean run.':'The ones you missed came back until you got them.'}</p>`;
+    $('.qq',body).focus({preventScroll:true});say(first+' of '+total+' right first time.');markDone(s);
+  }
+  next();
+}
+function renderItem(box,it,cb){
+  const tag=it.again?'<span class="tag">Again</span>':'';
+  const nextBtn=(ok)=>{const n=$('.qnext',box);const b=btn('Continue','btn primary');n.appendChild(b);b.addEventListener('click',()=>cb(ok));b.focus({preventScroll:true})};
+  const resolve=(ok,fb)=>{fb.className='fb '+(ok?'ok':'bad');fb.textContent=ok?'Right.':'No. '+it.why;say(fb.textContent);if(ok)setTimeout(()=>cb(true),RM?500:900);else nextBtn(false)};
+  if(it.type==='pick'){
+    const wide=it.opts.some(o=>o.seq.length>7||o.seq[0]==='oint'||o.seq[0]==='oiint');
+    box.innerHTML=`<p class="qq" tabindex="-1">${tag}${it.q}</p>${it.head?`<div class="eq mid qhead" aria-label="${eqAria(it.head)}">${eqInner(it.head)}</div>`:''}<div class="opts ${wide?'':'two'}"></div><p class="fb" aria-live="polite"></p><div class="qnext"></div>`;
+    const oc=$('.opts',box),fb=$('.fb',box);
+    shuffle(it.opts).forEach(o=>{const b=el('button','opt');b.type='button';b.innerHTML=`<span class="eq ${wide?'sm':'mid'}">${eqInner(o.seq)}</span>`;b.setAttribute('aria-label',eqAria(o.seq));b._ok=o.ok;oc.appendChild(b);
+      b.addEventListener('click',()=>{$$('.opt',oc).forEach(x=>{x.disabled=true;if(x._ok)x.classList.add('right')});if(!o.ok)b.classList.add('wrong');resolve(o.ok,fb)})});
+    $('.opt',oc).focus({preventScroll:true});
+  }else if(it.type==='fill'){
+    box.innerHTML=`<p class="qq" tabindex="-1">${tag}Fill the gap.</p><div class="eq big exrow" style="--a:var(${EQ[it.k].col})"></div><div class="bank"></div><p class="fb" aria-live="polite"></p><div class="qnext"></div>`;
+    const r=$('.exrow',box),bank=$('.bank',box),fb=$('.fb',box);let slot;
+    it.seq.forEach((t,i)=>{if(i===it.pos){const b=el('button','slot');b.type='button';b.setAttribute('aria-label','Empty box');slot={el:b,filled:false};r.appendChild(b)}else r.insertAdjacentHTML('beforeend',tokSpan(t))});
+    const tiles=shuffle(it.opts).map(v=>{const b=el('button','tile',T[v].h);b.type='button';b.setAttribute('aria-label',T[v].a);bank.appendChild(b);return{el:b,val:v}});
+    placer({slots:[slot],tiles,accept:()=>true,onDone:()=>{
+      const ok=slot.val===it.seq[it.pos];tiles.forEach(t=>{t.el.disabled=true});
+      if(!ok){slot.el.classList.remove('ok');slot.el.classList.add('wrong');const f=el('div','fix',`<span class="lbl">Correct</span><span class="eq mid">${eqInner(it.seq)}</span>`);fb.after(f)}
+      resolve(ok,fb)}});
+    tiles[0].el.focus({preventScroll:true});
+  }else{
+    box.innerHTML=`<p class="qq" tabindex="-1">${tag}One piece is wrong. Tap it.</p><div class="eq big spotrow" style="--a:var(${EQ[it.k].col})"></div><p class="fb" aria-live="polite"></p><div class="qnext"></div>`;
+    const r=$('.spotrow',box),fb=$('.fb',box);
+    it.seq.forEach((t,i)=>{if(t==='eq'){r.insertAdjacentHTML('beforeend',tokSpan(t));return}const b=el('button','spotb',T[t].h);b.type='button';b.setAttribute('aria-label',T[t].a);b._i=i;r.appendChild(b);
+      b.addEventListener('click',()=>{const ok=i===it.pos;$$('.spotb',r).forEach(x=>{x.disabled=true;if(x._i===it.pos)x.classList.add('right')});if(!ok)b.classList.add('wrong');
+        const good=it.seq.slice();good[it.pos]=it.fix;fb.insertAdjacentElement('afterend',el('div','fix',`<span class="lbl">Correct</span><span class="eq mid">${eqInner(good)}</span>`));resolve(ok,fb)})});
+    $('.spotb',r).focus({preventScroll:true});
+  }
+}
+
+/* pattern */
+function renderPattern(e,s){
+  const cell=k=>`<button type="button" class="slot g" data-k="${k}" style="--a:var(${EQ[k].col})" aria-label="Empty cell: ${['E, spread','B, spread','E, swirl','B, swirl'][k]}"></button>`;
+  e.innerHTML=`<section class="screen"><div class="head"><p class="kicker" style="color:var(--muted)">The pattern</p><h2 tabindex="-1" style="color:var(--ink)">Two spread. Two swirl.</h2><p class="say">Sort the four laws into the grid.</p></div>
+  <div class="card ex"><div class="grid4"><span></span><span class="gh"><b class="v">E</b></span><span class="gh"><b class="v">B</b></span>
+    <span class="gr"><b>∇·</b>Spread</span>${cell(0)}${cell(1)}<span class="gr"><b>∇×</b>Swirl</span>${cell(2)}${cell(3)}</div>
+    <div class="bank" role="group" aria-label="Laws"></div><p class="fb" aria-live="polite"></p></div>
+  <div class="card" id="reveal" hidden>
+    <p class="lbl">What drives each field</p>
+    <div class="tbl"><table class="sym4"><thead><tr><th></th><th>E</th><th>B</th></tr></thead><tbody>
+      <tr><th>Charge (∇·)</th><td class="m" style="color:var(--c1)">${eqInner(['rho','oe0'])}</td><td class="m" style="color:var(--c2)">0 <span class="small">no magnetic charge</span></td></tr>
+      <tr><th>Other field changing (∇×)</th><td class="m" style="color:var(--c3)">${eqInner(['minus','dBdt'])}</td><td class="m" style="color:var(--c4)">${eqInner(['plus','mu0e0','dEdt'])}</td></tr>
+      <tr><th>Current (∇×)</th><td class="m" style="color:var(--c3)">0 <span class="small">no magnetic current</span></td><td class="m" style="color:var(--c4)">${eqInner(['mu0J'])}</td></tr>
+    </tbody></table></div>
+    <p class="small">Right sides in order: <b>charge, nothing, minus B-change, current plus E-change.</b></p>
+  </div></section>`;
+  const slots=$$('.slot.g',e).map(b=>({el:b,k:+b.dataset.k,filled:false}));
+  const bank=$('.bank',e),fb=$('.fb',e);
+  const tiles=shuffle([0,1,2,3]).map(k=>{const b=el('button','tile eqt',`<span class="eq">${eqInner(D(k))}</span>`);b.type='button';b.style.setProperty('--a',`var(${EQ[k].col})`);b.setAttribute('aria-label',EQ[k].full+': '+eqAria(D(k)));bank.appendChild(b);return{el:b,val:k}});
+  const cap=['charge','nothing','−(B change)','current + (E change)'];
+  placer({slots,tiles,accept:(sl,v)=>sl.k===v,fill:(sl,t)=>{sl.el.innerHTML=`<span class="eq">${eqInner(D(t.val))}</span><small>${cap[t.val]}</small>`},
+    onPlace:(ok,sl,t)=>{if(ok){fb.className='fb';fb.textContent=''}else{fb.className='fb bad';const isDiv=t.val<2,wantDiv=sl.k<2;fb.textContent=isDiv!==wantDiv?(isDiv?'That one spreads (∇·). It goes in the top row.':'That one swirls (∇×). It goes in the bottom row.'):'Right row. Check which field it is about.';miss(t.val)}},
+    onDone:()=>{spent(bank);fb.className='fb ok';fb.textContent='Sorted.';$('#reveal',e).hidden=false;say('Sorted. A table of what drives each field is now shown.');markDone(s)}});
+}
+
+/* theorems */
+function renderThm(e){
+  const F=V('F');
+  const TH={div:{f:`${BIG('∭')}${sub('V')} (∇·${F}) d<i>V</i> <span class="eqs">=</span> ${BIG('∯')}${sub('S')} ${F}·d${V('A')}`,say:'Add up the spread in every small cell. Inner faces cancel. Only flux out of the skin is left.',pairs:[0,1]},
+            curl:{f:`${BIG('∬')}${sub('S')} (∇×${F})·d${V('A')} <span class="eqs">=</span> ${BIG('∮')}${sub('C')} ${F}·d${V('l')}`,say:'Add up the swirl in every small cell. Inner edges cancel. Only the rim is left.',pairs:[2,3]}};
+  e.innerHTML=`<section class="screen"><div class="head"><p class="kicker" style="color:var(--muted)">From point to region</p><h2 tabindex="-1" style="color:var(--ink)">Two theorems link the forms</h2><p class="say" id="thsay"></p></div>
+    <div class="vis" id="vis"></div>
+    <div class="card"><p class="lbl" id="thname"></p><div class="eq thm" id="thf"></div><div class="map" id="thmap"></div>
+    <p class="small">∭<i>ρ</i> d<i>V</i> = <i>Q</i><sub>enc</sub> · ∬<b>J</b>·d<b>A</b> = <i>I</i><sub>enc</sub> · ∬<b>F</b>·d<b>A</b> = flux Φ</p></div></section>`;
+  const set=m=>{const t=TH[m];setT($('#thname',e),m==='div'?'Divergence theorem':'Stokes’ theorem');$('#thf',e).innerHTML=`<span class="tk">${t.f}</span>`;setT($('#thsay',e),t.say);
+    $('#thmap',e).innerHTML=t.pairs.map(k=>`<div class="pair" style="--a:var(${EQ[k].col})"><span class="eq sm" style="color:var(--a)">${eqInner(D(k))}</span><span class="arr">becomes</span><span class="eq sm">${eqInner(IF(k))}</span></div>`).join('')};
+  set('div');
+  VIS.push(visThm($('#vis',e),set));
+}
+
+/* match differential to integral */
+function renderMatch(e,s){
+  e.innerHTML=`<section class="screen"><div class="head"><p class="kicker" style="color:var(--muted)">Integral forms</p><h2 tabindex="-1" style="color:var(--ink)">Match each law to its integral form</h2><p class="say">∇· goes with ∯. ∇× goes with ∮.</p></div>
+  <div class="card ex"><div id="mrows"></div><div class="bank" role="group" aria-label="Integral forms"></div><p class="fb" aria-live="polite"></p></div></section>`;
+  const rows=$('#mrows',e);
+  EQ.forEach(q=>rows.insertAdjacentHTML('beforeend',`<div class="mrow" style="--a:var(${q.col})"><span class="eq mid" style="color:var(--a)" aria-label="${eqAria(D(q.k))}">${eqInner(D(q.k))}</span><button type="button" class="slot wide" data-k="${q.k}" aria-label="Empty box for ${q.full}"></button></div>`));
+  const slots=$$('.slot',rows).map(b=>({el:b,k:+b.dataset.k,filled:false}));
+  const bank=$('.bank',e),fb=$('.fb',e);
+  const tiles=shuffle([0,1,2,3]).map(k=>{const b=el('button','tile eqt',`<span class="eq">${eqInner(IF(k))}</span>`);b.type='button';b.setAttribute('aria-label',eqAria(IF(k)));bank.appendChild(b);return{el:b,val:k}});
+  placer({slots,tiles,accept:(sl,v)=>sl.k===v,onPlace:(ok,sl,t)=>{if(ok){fb.className='fb';fb.textContent=''}else{fb.className='fb bad';fb.textContent=(sl.k<2)!==(t.val<2)?(sl.k<2?'∇· needs a closed surface ∯.':'∇× needs a closed loop ∮.'):'Right shape. Check the field and the right side.';miss(sl.k)}},
+    onDone:()=>{spent(bank);fb.className='fb ok';fb.textContent='All four matched.';say('All four matched.');markDone(s)}});
+}
+function renderIRecall(e,s){
+  e.innerHTML=`<section class="screen"><div class="head"><p class="kicker" style="color:var(--muted)">Integral forms</p><h2 tabindex="-1" style="color:var(--ink)">Fill the integral forms</h2><p class="say">Closed surface or closed loop? Then the right side.</p></div>${exCard()}</section>`;
+  const rows=EQ.map(q=>({seqs:q.i,hidden:new Set(q.hideI),k:q.k,col:q.col}));
+  const pal=[];EQ.forEach(q=>q.hideI.forEach(i=>pal.push(IF(q.k)[i])));pal.push('iintBdA','plus','rho');
+  exercise($('.ex',e),rows,pal,{size:'mid',onDone:fb=>{fb.className='fb ok';fb.textContent='All four integral forms done.';say('Done.');markDone(s)}});
+}
+
+/* final test */
+const KD=['div','curl','E','B','eq','rho','oe0','om0','zero','minus','plus','dBdt','dEdt','mu0J','mu0e0'];
+const KI=['oiint','oint','EdA','BdA','Edl','Bdl','Qenc','mu0Ienc','ddt','iintBdA','iintEdA'];
+/* accepted: the listed orderings, each also with its two sides swapped */
+function variants(seqs){const out=[];seqs.forEach(sq=>{out.push(sq);const j=sq.indexOf('eq');if(j>0)out.push(sq.slice(j+1).concat(['eq'],sq.slice(0,j)))});return out}
+function lev(a,b){const m=a.length,n=b.length,d=[];for(let i=0;i<=m;i++){d[i]=[i];for(let j=1;j<=n;j++)d[i][j]=i?Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)):j}return d[m][n]}
+function renderTest(e,s){
+  e.innerHTML=`<section class="screen"><div class="head"><p class="kicker" style="color:var(--muted)">Final test</p><h2 tabindex="-1" style="color:var(--ink)">Write all four</h2><p class="say">From memory. Any order. No hints.</p><p class="small">Either side of = may come first.</p></div>
+  <div class="card">
+    <div class="lines" id="lnD"></div>
+    <label class="chk"><input type="checkbox" id="bonusI"> Add the integral forms too (bonus)</label>
+    <div class="lines" id="lnI" hidden></div>
+    <div class="kbd" role="group" aria-label="Equation keys"><div class="krow" id="kD"></div><div class="krow" id="kI" hidden></div>
+      <div class="krow"><button type="button" class="key txt" id="kBk" aria-label="Delete last piece">⌫ Delete</button><button type="button" class="key txt" id="kNl">Next line ↵</button></div></div>
+    <button type="button" class="btn primary lg" id="check">Check my answers</button>
+  </div><div id="result"></div></section>`;
+  const t0=performance.now();
+  const lines=[[],[],[],[],[],[],[],[]];let act=0,bonus=false,graded=false;
+  const lnD=$('#lnD',e),lnI=$('#lnI',e);
+  for(let i=0;i<8;i++){const d=el('div','line');d.tabIndex=0;d.setAttribute('role','button');d.dataset.i=i;(i<4?lnD:lnI).appendChild(d);
+    d.addEventListener('click',()=>{act=i;paint()});d.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();act=i;paint()}})}
+  function paint(){
+    $$('.line',e).forEach(d=>{const i=+d.dataset.i,ln=lines[i];d.classList.toggle('act',i===act);
+      d.innerHTML=ln.length?eqInner(ln):`<span class="ph">${i<4?'Law '+(i+1):'Integral form '+(i-3)}</span>`;
+      d.setAttribute('aria-label',(i<4?'Line '+(i+1):'Integral line '+(i-3))+(i===act?', active':'')+': '+(ln.length?eqAria(ln):'empty'))});
+    $$('.should',e).forEach(x=>x.remove());if(graded){graded=false;$$('.line',e).forEach(d=>d.classList.remove('right','wrong'))}
+  }
+  const mkKeys=(host,ks)=>ks.forEach(k=>{const b=el('button','key',T[k].h);b.type='button';b.setAttribute('aria-label','Add '+T[k].a);host.appendChild(b);b.addEventListener('click',()=>{if(lines[act].length<12)lines[act].push(k);paint()})});
+  mkKeys($('#kD',e),KD);mkKeys($('#kI',e),KI);
+  $('#kBk',e).addEventListener('click',()=>{lines[act].pop();paint()});
+  $('#kNl',e).addEventListener('click',()=>{const max=bonus?8:4;act=(act+1)%max;paint()});
+  $('#bonusI',e).addEventListener('change',ev=>{bonus=ev.target.checked;lnI.hidden=!bonus;$('#kI',e).hidden=!bonus;if(!bonus&&act>3)act=0;paint()});
+  e.querySelector('.card').addEventListener('keydown',ev=>{if(ev.target.tagName==='INPUT')return;if(ev.key==='Backspace'){ev.preventDefault();lines[act].pop();paint()}});
+  paint();
+  function grade(){
+    const res={d:0,i:0,missing:[]};
+    const out=[];
+    ['d','i'].forEach(form=>{
+      if(form==='i'&&!bonus)return;
+      const base=form==='d'?0:4,used=new Set(),bad=[];
+      for(let li=base;li<base+4;li++){const ln=lines[li];let hit=-1;
+        for(const q of EQ){if(used.has(q.k))continue;if(variants(q[form]).some(sq=>sq.join()===ln.join())){hit=q.k;break}}
+        if(hit>=0){used.add(hit);res[form]++;out.push({li,ok:true,k:hit})}else bad.push(li)}
+      bad.forEach(li=>{let best=-1,bd=1e9;EQ.forEach(q=>{if(used.has(q.k))return;const dd=lev(lines[li],q[form][0]);if(dd<bd){bd=dd;best=q.k}});if(best>=0){used.add(best);out.push({li,ok:false,k:best,form})}});
+      EQ.forEach(q=>{if(!used.has(q.k)&&form==='d')res.missing.push(q.k)});
+      out.filter(o=>!o.ok&&o.form==='d').forEach(o=>res.missing.push(o.k));
+    });
+    return{res,out};
+  }
+  $('#check',e).addEventListener('click',()=>{
+    const{res,out}=grade();graded=true;
+    $$('.should',e).forEach(x=>x.remove());
+    out.forEach(o=>{const d=$(`.line[data-i="${o.li}"]`,e);d.classList.add(o.ok?'right':'wrong');d.insertAdjacentHTML('beforeend',`<span class="mk">${o.ok?'✓ '+EQ[o.k].short:'✗'}</span>`);
+      if(!o.ok){const form=o.li<4?'d':'i';d.insertAdjacentElement('afterend',el('div','should',`<span class="lbl">${EQ[o.k].short}</span><span class="eq sm">${eqInner(EQ[o.k][form][0])}</span>`))}});
+    const secs=Math.round((performance.now()-t0)/1000),tm=Math.floor(secs/60)+':'+String(secs%60).padStart(2,'0');
+    const all=res.d===4;S.best=Math.max(S.best,res.d);persist();
+    const miss=[...new Set(res.missing)];
+    $('#result',e).innerHTML=`<div class="card result"><p class="kicker" style="color:var(--muted)">Your result</p>
+      <h3 tabindex="-1">${all?'You know Maxwell’s equations.':res.d+' of 4. One more pass.'}</h3>
+      <p class="score"><b>${res.d}</b>/4 laws${bonus?` · <b>${res.i}</b>/4 integral bonus`:''}</p>
+      ${fourList('d')}${bonus||all?fourList('i'):''}
+      <p class="small">Written from memory in ${tm}.</p>
+      ${miss.length?`<div class="row"><span class="small">Practise:</span>${miss.map(k=>`<button type="button" class="btn sm" data-go="recall${k}" style="--a:var(${EQ[k].col})">${EQ[k].full}</button>`).join('')}</div>`:''}
+      <div class="row"><button type="button" class="btn" id="retry">Try again</button><button type="button" class="btn primary" id="tobonus">Bonus: light falls out</button></div></div>`;
+    $$('[data-go]',e).forEach(b=>b.addEventListener('click',()=>go(IDX(b.dataset.go))));
+    $('#retry',e).addEventListener('click',()=>go(S.i));
+    $('#tobonus',e).addEventListener('click',()=>go(IDX('bonus')));
+    const h=$('#result h3',e);h.focus({preventScroll:true});h.scrollIntoView({behavior:RM?'auto':'smooth',block:'center'});
+    say(all?'You know Maxwell’s equations.':res.d+' of 4 correct.');
+  });
+}
+
+/* bonus */
+function renderBonus(e){
+  const mu0=1.25663706212e-6,e0=8.8541878128e-12,c=1/Math.sqrt(mu0*e0);
+  const d2E=FR('∂²'+V('E'),'∂'+I_('t')+'²');
+  e.innerHTML=`<section class="screen"><div class="head"><p class="kicker" style="color:var(--muted)">Bonus</p><h2 tabindex="-1" style="color:var(--ink)">Light falls out</h2><p class="say">Remove all charge and current. A wave is left.</p></div>
+  <div class="vis" id="vis"></div>
+  <div class="card"><ol class="wsteps">
+    <li><p>Empty space: <span class="m"><i>ρ</i> = 0</span> and <span class="m"><b class="v">J</b> = 0</span>.</p><div class="eq sm">${eqInner(['div','E','eq','zero'])}<span class="t">&emsp;</span>${eqInner(['div','B','eq','zero'])}</div><div class="eq sm">${eqInner(['curl','E','eq','minus','dBdt'])}<span class="t">&emsp;</span>${eqInner(['curl','B','eq','mu0e0','dEdt'])}</div></li>
+    <li hidden><p>Take the curl of Faraday. Put in Ampère–Maxwell.</p><div class="eq sm"><span class="t">∇×(∇×${V('E')})</span><span class="eqs">=</span><span class="t">−${FR('∂','∂'+I_('t'))}(∇×${V('B')})</span><span class="eqs">=</span><span class="t">−${T.mu0e0.h}${d2E}</span></div><p class="small">Also <span class="m">∇×(∇×<b class="v">E</b>) = ∇(∇·<b class="v">E</b>) − ∇²<b class="v">E</b> = −∇²<b class="v">E</b></span>, because <span class="m">∇·<b class="v">E</b> = 0</span>.</p></li>
+    <li hidden><p>A wave equation:</p><div class="eq mid"><span class="t">∇²${V('E')}</span><span class="eqs">=</span><span class="t">${T.mu0e0.h}${d2E}</span></div><p>Its speed:</p><div class="eq mid"><span class="t"><i>c</i></span><span class="eqs">=</span><span class="t">1/√(${T.mu0e0.h})</span><span class="eqs">=</span><span class="cval">${Math.round(c).toLocaleString('en-US')} m/s</span></div><p class="small">From <span class="m"><i>μ</i><sub>0</sub> = 1.25663706212 × 10<sup>−6</sup></span> H/m and <span class="m"><i>ε</i><sub>0</sub> = 8.8541878128 × 10<sup>−12</sup></span> F/m (CODATA 2018). Today this is a consistency check: <i>c</i> has been exact since 1983, μ<sub>0</sub> has been measured since the 2019 SI revision, and ε<sub>0</sub> = 1/(μ<sub>0</sub><i>c</i>²).</p><p><b>Maxwell (1862) put in the measured ratio of electric to magnetic units (Weber and Kohlrausch, 1856), got this speed, and saw that it matched light. Light is an electromagnetic wave.</b></p></li>
+  </ol><div class="row"><button type="button" class="btn primary" id="wnext">Next step</button><button type="button" class="btn" id="again">Start over</button></div></div>
+  </section>`;
+  let k=0;const lis=$$('.wsteps li',e);
+  $('#wnext',e).addEventListener('click',ev=>{k++;if(k<lis.length)lis[k].hidden=false;if(k>=lis.length-1){ev.target.hidden=true;say('The speed is '+Math.round(c)+' metres per second, the speed of light.')}});
+  $('#again',e).addEventListener('click',()=>go(0));
+  VIS.push(visWave($('#vis',e),c));
+}
+
+/* ---------- boot ---------- */
+readPal();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',readPal);
+new MutationObserver(readPal).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class','style']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>VIS.forEach(v=>v.o.dirty=true));
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;for(const v of VIS){try{if(v.step)v.step(dt);if(v.o.dirty){v.o.dirty=false;v.draw()}}catch(err){console.error(err)}}requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+{const j=IDX(location.hash.slice(1));go(j>=0?j:0,false)}
+addEventListener('hashchange',()=>{const j=IDX(location.hash.slice(1));if(j>=0&&j!==S.i)go(j)});
+})();
+</script>
+</body>
+</html>
