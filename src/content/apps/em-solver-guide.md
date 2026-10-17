@@ -24,6 +24,7 @@ The guide explains how FDTD, FEM and MoM work and when to use each one.
 - **Picker:** set the size, frequency and problem type, and the method ranking and the first tools to look at update live.
 - **Tools:** data for 62 commercial, open-source and free tools, with paper counts from OpenAlex.
 - **Companion page, [Rays, PO or Hata?](/em-solver-guide/asymptotic.html):** ray tracing, physical optics, diffraction (UTD and knife-edge), SBR and empirical planning models, each with a live demo checked against an exact reference.
+- **Companion page, [Meshing for FEM](/em-solver-guide/meshing.html):** Delaunay insertion, advancing front, Ruppert refinement, size fields, 3-D slivers and an adaptive FEM loop on the L-shaped benchmark, from the original papers.
 
 **Tech:** one self-contained HTML file with three.js. The meshes come from Gmsh scripts in the repo.
 
