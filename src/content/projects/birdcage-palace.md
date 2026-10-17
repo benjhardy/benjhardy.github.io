@@ -10,16 +10,16 @@ seo:
     alt: '16-rung birdcage coil in its RF shield next to the uniform k = 1 quadrature B1+ map and the k = 2 map with a null at the centre'
 ---
 
-**[Code on GitHub](https://github.com/benjhardy/birdcage-palace)**
-
 A birdcage coil with N rungs has about N resonant modes, and only one of them, the k = 1 pair, makes the uniform
 transverse B1 field used for imaging. birdcage-palace builds the coil in Gmsh, solves its eigenmodes with the
 open-source [Palace](https://github.com/awslabs/palace) finite-element solver, labels every mode from its
 rung-current pattern and field map, and retunes the capacitors until the homogeneous pair sits on the Larmor
 frequency. Everything on this page is simulated; nothing is measured.
 
-![16-rung birdcage coil with the k = 1 and k = 2 field maps](/2026/birdcage-palace/birdcage-palace-hero.png)
-*The tuned 16-rung low-pass coil in its shield, with the uniform k = 1 quadrature B1+ map and the k = 2 map, which has a null at the centre (simulated).*
+<figure>
+<img class="full" src="/2026/birdcage-palace/birdcage-palace-hero.png" alt="16-rung birdcage coil with the k = 1 and k = 2 field maps">
+<figcaption>The tuned 16-rung low-pass coil in its shield, with the uniform k = 1 quadrature B1+ map and the k = 2 map, which has a null at the centre (simulated).</figcaption>
+</figure>
 
 ## The design
 
@@ -70,11 +70,15 @@ of the lumped value, and L_eff = 511 nH against 553 nH from the ladder model.
 | 7 | 264.1 | 250.4 | 327.3 | 294.9 |
 | 8 | 265.6 | 251.9 | 329.1 | 296.6 |
 
-![Mode spectrum, ladder model vs Palace](/2026/birdcage-palace/spectrum_compare.png)
-*Mode spectrum at the ladder first guess (a) and after retuning in Palace (b). Open circles are the ladder model, filled dots are Palace eigenmodes; the orange dot is the homogeneous k = 1 pair (simulated).*
+<figure>
+<img class="wide" src="/2026/birdcage-palace/spectrum_compare.png" alt="Mode spectrum, ladder model vs Palace">
+<figcaption>Mode spectrum at the ladder first guess (a) and after retuning in Palace (b). Open circles are the ladder model, filled dots are Palace eigenmodes; the orange dot is the homogeneous k = 1 pair (simulated).</figcaption>
+</figure>
 
-![B1 maps per mode](/2026/birdcage-palace/b1_maps.png)
-*Transverse |B| on the axial and coronal planes. Only k = 1 fills the region of interest uniformly; k = 2 has a null at the centre (simulated).*
+<figure>
+<img class="wide" src="/2026/birdcage-palace/b1_maps.png" alt="B1 maps per mode">
+<figcaption>Transverse |B| on the axial and coronal planes. Only k = 1 fills the region of interest uniformly; k = 2 has a null at the centre (simulated).</figcaption>
+</figure>
 
 <figure>
 <video controls playsinline preload="metadata" poster="/2026/birdcage-palace/birdcage_modes_poster.png" style="display: block; width: 100%; max-width: 480px; margin: 0 auto; border-radius: 8px;">
