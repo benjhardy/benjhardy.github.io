@@ -88,8 +88,20 @@ of the lumped value, and L_eff = 511 nH against 553 nH from the ladder model.
 </figure>
 
 **Solve cost.** Each production solve has 1.12 M unknowns (order-2 elements) and takes 14 to 20 minutes on 4 MPI
-ranks with about 16 GB of RAM. The last mesh refinement moved k = 1 by about 0.4 %, so expect the production numbers
-to carry about that much discretisation error.
+ranks with about 16 GB of RAM. A later convergence study (eighth-symmetry models up to the equivalent of about 8 M
+unknowns) shows the production mesh puts k = 1 about 0.7 % high: the extrapolated k = 1 at 1.83 pF is about 126.9 MHz,
+so landing exactly on 127.7 MHz needs about 1.79 pF. The error comes from the strip edges and shrinks slowly with mesh size.
+
+**Symmetry planes.** For one k = 1 member, the plane across which the rung currents are antisymmetric is a perfect-electric
+(PEC) plane and the other is a perfect-magnetic (PMC) plane, which is Palace's default boundary. A quarter model gives
+127.61 MHz with 0.30 M unknowns, 3.7 GB and about 1 minute, against 127.73 MHz, 1.12 M unknowns, 16.6 GB and 11 minutes
+for the full coil. Each PEC/PMC combination keeps only some modes; the four combinations together reproduce all 20 modes
+of the full model within 0.11 %.
+
+**Port tuning in circuitRF.** The 16 capacitor gaps become ports; four symmetric eighth-model sweeps rebuild the full
+16-port S-matrix, and circuitRF (open source) tunes the capacitors and a capacitive-divider feed: 1.844 pF unloaded and
+1.632 pF with a saline phantom, with |S11|, |S22| and |S21| at or below −20 dB. A Palace eigen solve with the tuned values
+reproduces the predicted shift to 1 kHz. Capacitor ESR (0.68 Ω) is an assumption, since the conductors are lossless.
 
 **Limits.** Simulation only. The conductors are lossless and the capacitors ideal; cables, baluns, matching and the
 drive ports are not modelled, and the quadrature map is a superposition of the two eigenmodes, not a driven two-port
