@@ -16,6 +16,10 @@ open-source [Palace](https://github.com/awslabs/palace) finite-element solver, l
 rung-current pattern and field map, and retunes the capacitors until the homogeneous pair sits on the Larmor
 frequency. Everything on this page is simulated; nothing is measured.
 
+**[Open the birdcage builder →](/birdcage-builder/)** Set the specs of a low-pass, high-pass or band-pass coil in
+the browser, see the ladder-model spectrum and the first-guess capacitor, and download a package that builds, solves
+and tunes the coil with this code.
+
 <figure>
 <img class="full" src="/2026/birdcage-palace/birdcage-palace-hero.png" alt="16-rung birdcage coil with the k = 1 and k = 2 field maps">
 <figcaption>The tuned 16-rung low-pass coil in its shield, with the uniform k = 1 quadrature B1+ map and the k = 2 map, which has a null at the centre (simulated).</figcaption>
