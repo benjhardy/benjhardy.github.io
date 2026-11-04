@@ -25,6 +25,11 @@ RF Bench is a set of small interactive benches for the ideas RF engineers use ev
 - **Coupled resonators:** mode splitting, the coupling coefficient k, external Q from the tap, and electric vs magnetic coupling.
 - **Filter order:** how many poles a bandpass filter needs, and what each extra pole costs in loss.
 - **Low-pass filter:** a guided 60-minute lesson, from the prototype ladder to a stepped-impedance layout.
+- **Square wave:** how a pulse becomes harmonics, the two envelope corners, and what a faster edge changes.
+- **Signal integrity:** reflections, skin and dielectric loss, and an eye diagram from the same line model, plus target impedance.
+- **Group delay:** the slope of the phase, why it peaks at filter band edges, and what it does to a pulse.
+- **Link budget:** EIRP, path loss, the noise floor, cascaded noise figure and margin.
+- **GaAs vs Si:** band structure, carrier velocity, the Johnson limit, and substrate loss.
 - **Drills:** mixed number drills that come back to the card types you miss.
 
 **How it's meant to be used**

@@ -5,7 +5,7 @@
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const log10 = Math.log10;
 
-  const TOPICS = ["dB and dBm", "Mismatch", "Reactance and λ", "Matching", "Q and coupling", "PA", "Filters"];
+  const TOPICS = ["dB and dBm", "Mismatch", "Reactance and λ", "Matching", "Q and coupling", "PA", "Filters", "Edges and SI", "Link budget", "Delay and materials"];
 
   /* each generator returns { q, ans, unit, tolRel?, tolAbs?, sol: [lines], anchor } */
   const TYPES = [
@@ -173,11 +173,87 @@
     } },
   );
 
+  TYPES.push(
+    { id: "corner", topic: 7, gen() {
+      const [v, u, k, fu] = pick([[50, "µs", 1e-6, "kHz"], [20, "µs", 1e-6, "kHz"], [10, "µs", 1e-6, "kHz"], [100, "ps", 1e-12, "GHz"], [50, "ps", 1e-12, "GHz"], [20, "ps", 1e-12, "GHz"]]);
+      const f = 1 / (Math.PI * v * k) / (fu === "kHz" ? 1e3 : 1e9);
+      return { q: `A trapezoid has a ${v} ${u} rise time. Where is the envelope's second corner?`, ans: f, unit: fu, tolRel: 0.1,
+        sol: [`f₂ = 1/(π·tᵣ) = 1/(π × ${v} ${u}) = ${fmt(f, 3)} ${fu}`], anchor: "50 µs is 6.4 kHz, 20 µs is 16 kHz. Above the corner the envelope falls at 40 dB/decade." };
+    } },
+    { id: "edgelift", topic: 7, gen() {
+      const [a, c] = pick([[50, 20], [100, 50], [100, 10], [40, 10], [60, 20]]);
+      const d = 20 * log10(a / c);
+      return { q: `Rise time goes from ${a} to ${c}. Far above both corners, how much does the envelope rise?`, ans: d, unit: "dB", tolAbs: 0.7,
+        sol: [`20·log₁₀(${a}/${c}) = ${fmt(d, 3)} dB`], anchor: "Twice as fast is +6 dB, 2.5× is +8 dB, 10× is +20 dB. The low harmonics don't change." };
+    } },
+    { id: "nyq", topic: 7, gen() {
+      const r = pick([5, 8, 10, 16, 25, 28, 32, 56]);
+      return { q: `${r} Gb/s NRZ. What's the Nyquist frequency?`, ans: r / 2, unit: "GHz", tolRel: 0.05, sol: [`f_N = bit rate / 2 = ${fmt(r / 2, 3)} GHz`], anchor: "NRZ: half the bit rate. PAM4 sends 2 bits per symbol, so a quarter of the bit rate." };
+    } },
+    { id: "tpd", topic: 7, gen() {
+      const dk = pick([2.25, 3, 3.6, 4, 4.3]), L = pick([25, 50, 100, 150, 300]);
+      const t = (Math.sqrt(dk) / 0.2998) * L;
+      return { q: `${L} mm of trace in Dk ${dk}. What's the delay?`, ans: t, unit: "ps", tolRel: 0.1, sol: [`t = L·√Dk/c = ${L} mm × ${fmt(Math.sqrt(dk) / 0.2998, 3)} ps/mm = ${fmt(t, 3)} ps`], anchor: "Air is 3.3 ps/mm. Dk 4 is 6.7 ps/mm, about 170 ps/in." };
+    } },
+    { id: "dfloss", topic: 7, gen() {
+      const f = pick([1, 5, 10, 14, 28]), df = pick([0.02, 0.01, 0.004, 0.002]), dk = 4;
+      const v = 2.3 * f * df * Math.sqrt(dk);
+      return { q: `${f} GHz, Dk ${dk}, Df ${df}. Dielectric loss per inch?`, ans: v, unit: "dB/in", tolRel: 0.12, sol: [`2.3 × ${f} × ${df} × 2 = ${fmt(v, 3)} dB/in`], anchor: "Dielectric loss goes as f, skin loss as √f. FR-4 at 10 GHz is near 1 dB/in." };
+    } },
+    { id: "ztarget", topic: 7, gen() {
+      const v = pick([0.8, 0.9, 1, 1.2]), r = pick([2, 3, 5]), i = pick([2, 5, 10, 20, 50]);
+      const z = (v * r * 10) / i;
+      return { q: `${v} V rail, ${r} % ripple, ${i} A transient. Target impedance?`, ans: z, unit: "mΩ", tolRel: 0.1, sol: [`Z = V·ripple/ΔI = ${v} × ${r / 100} / ${i} = ${fmt(z, 3)} mΩ`], anchor: "Keep the PDN below this from DC through the switching band." };
+    } },
+    { id: "noisefloor", topic: 8, gen() {
+      const [b0, l] = pick([[1, "1 MHz"], [10, "10 MHz"], [20, "20 MHz"], [100, "100 MHz"], [400, "400 MHz"]]), nf = pick([3, 5, 6, 8, 10]);
+      const n = -174 + 10 * log10(b0 * 1e6) + nf;
+      return { q: `What's the noise floor in ${l} with a ${nf} dB noise figure?`, ans: n, unit: "dBm", tolAbs: 1, sol: [`−174 + 10·log₁₀(${b0}×10⁶) + ${nf} = ${fmt(n, 3)} dBm`], anchor: "−174 dBm/Hz. 1 MHz is +60, 20 MHz is +73, 100 MHz is +80." };
+    } },
+    { id: "fspl", topic: 8, gen() {
+      const f = pick([900, 2400, 5800, 12000, 28000]), d = pick([0.01, 0.1, 1, 10, 100]);
+      const l = 32.45 + 20 * log10(f) + 20 * log10(d);
+      return { q: `Free-space path loss at ${f} MHz over ${d} km?`, ans: l, unit: "dB", tolAbs: 2, sol: [`32.45 + 20·log(${f}) + 20·log(${d}) = ${fmt(l, 4)} dB`], anchor: "2.4 GHz at 100 m is 80 dB. Double the distance is +6 dB." };
+    } },
+    { id: "budget", topic: 8, gen() {
+      const p = pick([10, 20, 30]), gt = pick([0, 6, 12]), l = pick([80, 100, 120]), gr = pick([0, 3, 10]), sens = pick([-90, -95, -100]);
+      const m = p + gt - l + gr - sens;
+      return { q: `${p} dBm, ${gt} dBi Tx, ${l} dB path loss, ${gr} dBi Rx, ${sens} dBm sensitivity. Margin?`, ans: m, unit: "dB", tolAbs: 0.5, sol: [`${p} + ${gt} − ${l} + ${gr} − (${sens}) = ${m} dB`], anchor: "Add it all up in dB, then subtract the sensitivity." };
+    } },
+    { id: "friis", topic: 8, gen() {
+      const f1 = pick([1, 2, 3]), g = pick([10, 15, 20]), f2 = pick([6, 8, 10]);
+      const F = (x) => Math.pow(10, x / 10);
+      const nf = 10 * log10(F(f1) + (F(f2) - 1) / F(g));
+      return { q: `LNA with ${f1} dB NF and ${g} dB gain, then a ${f2} dB NF receiver. Cascaded NF?`, ans: nf, unit: "dB", tolAbs: 0.3, sol: [`F = ${fmt(F(f1), 3)} + (${fmt(F(f2), 3)} − 1)/${fmt(F(g), 3)} = ${fmt(F(f1) + (F(f2) - 1) / F(g), 3)} → ${fmt(nf, 3)} dB`], anchor: "The first stage dominates. Loss before the LNA adds directly to NF." };
+    } },
+    { id: "gdres", topic: 9, gen() {
+      const bw = pick([10, 50, 100, 200, 500]);
+      const t = 1000 / (Math.PI * bw);
+      return { q: `A single resonator with ${bw} MHz 3 dB bandwidth. Group delay at center?`, ans: t, unit: "ns", tolRel: 0.1, sol: [`τg = 1/(π·BW) = 1/(π × ${bw} MHz) = ${fmt(t, 3)} ns`], anchor: "100 MHz is 3.2 ns. Delay goes as 1/BW, and it peaks at a filter's band edges." };
+    } },
+    { id: "gdloss", topic: 9, gen() {
+      const f = pick([2, 5, 10, 20]), t = pick([0.5, 1, 2, 5]), q = pick([100, 200, 300, 500]);
+      const il = (4.343 * 2 * Math.PI * f * t) / q;
+      return { q: `f₀ = ${f} GHz, group delay ${t} ns, Qᵤ = ${q}. Loss estimate?`, ans: il, unit: "dB", tolRel: 0.12, sol: [`IL ≈ 4.343·ω₀·τg/Qᵤ = 4.343 × 2π × ${f} × ${t} / ${q} = ${fmt(il, 3)} dB`], anchor: "Stored energy costs loss. More delay at the same Q means more loss." };
+    } },
+    { id: "ft", topic: 9, gen() {
+      const lg = pick([50, 90, 100, 150, 250, 500]), v = pick([1, 1.5, 2]);
+      const f = (v * 1e5) / (2 * Math.PI * lg * 1e-9) / 1e9;
+      return { q: `v = ${v}×10⁷ cm/s, L_g = ${lg} nm. What's the intrinsic f_T?`, ans: f, unit: "GHz", tolRel: 0.12, sol: [`f_T = v/(2π·L_g) = ${v}×10⁵ m/s / (2π × ${lg} nm) = ${fmt(f, 3)} GHz`], anchor: "1×10⁷ cm/s at 100 nm is about 160 GHz, before parasitics." };
+    } },
+    { id: "gapnm", topic: 9, gen() {
+      const [n, e] = pick([["GaAs", 1.42], ["InP", 1.34], ["GaN", 3.4], ["Si", 1.12]]);
+      return { q: `${n} has a ${e} eV bandgap. What wavelength matches it?`, ans: 1240 / e, unit: "nm", tolRel: 0.05, sol: [`λ = 1240/E_g = ${fmt(1240 / e, 3)} nm`], anchor: "GaAs 873 nm and direct, so it emits. Si 1107 nm and indirect, so it barely does." };
+    } },
+  );
+
   const NAMES = {
     lpfL: "g to nH", lpfC: "g to pF", buttRej: "Butterworth rejection", stepLen: "stepped-impedance length", rip2rl: "ripple to return loss", cohn: "bandpass loss (Cohn)",
     dbm2w: "dBm to watts", w2dbm: "watts to dBm", chain: "gain chains", gamma: "Γ from a load", rl: "return loss from Γ",
     pct: "percent reflected", vswr: "VSWR", xc: "capacitor reactance", xl: "inductor reactance", fres: "LC resonance",
     lambda: "wavelength", qwt: "quarter-wave transformer", lnq: "L-network Q", qbw: "Q from bandwidth",
+    corner: "corner from rise time", edgelift: "envelope lift from a faster edge", nyq: "Nyquist", tpd: "trace delay", dfloss: "dielectric loss", ztarget: "target impedance",
+    noisefloor: "noise floor", fspl: "free-space path loss", budget: "link margin", friis: "cascaded noise figure", gdres: "resonator group delay", gdloss: "loss from delay", ft: "f_T from gate length", gapnm: "bandgap to wavelength",
     qu: "unloaded Q from S21", kmodes: "k from mode frequencies", periph: "periphery to power", ropt: "R_opt from the load line", roptp: "R_opt from power",
   };
 
@@ -187,6 +263,7 @@
     ["1 pF at 10 GHz", "16 Ω"], ["1 nH at 10 GHz", "63 Ω"], ["1 nH + 1 pF", "5.03 GHz"],
     ["λ at 10 GHz", "30 mm in air, ~11 mm on GaAs"], ["λ/4 5 → 50 Ω", "15.8 Ω line"],
     ["L-section 10:1", "Q = 3, ~33 % BW"], ["R_opt", "2(V_DD − V_k)/I_max"], ["GaN", "~5 W/mm at 28 V"],
+    ["tᵣ 50 → 20", "+8 dB above the corner"], ["FR-4", "~170 ps/in"], ["Noise", "−174 dBm/Hz"], ["2.4 GHz, 100 m", "80 dB path loss"], ["GaAs/Si μ", "~6×"],
   ];
 
   RF.register({
