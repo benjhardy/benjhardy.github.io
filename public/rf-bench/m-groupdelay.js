@@ -99,7 +99,7 @@
       const kindSeg = RF.seg(ui.ctl, { labelText: "Response", options: [{ v: "butt", label: "Butterworth" }, { v: "cheb", label: "Chebyshev" }], value: st.kind, onChange: (v) => { st.kind = v; update(); } });
       const nSl = RF.slider(ui.ctl, { id: "gd-n", label: "Poles N", min: 1, max: 9, step: 1, value: st.N, fmt: (v) => String(v), onInput: (v) => { st.N = v; update(); } });
       const f0Sl = RF.slider(ui.ctl, { id: "gd-f0", label: "Center f₀", min: 1, max: 40, step: 0.1, value: st.f0, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.f0 = v; st.bw = Math.min(st.bw, v * 0.6); bwSl.set(st.bw, true); update(); } });
-      const bwSl = RF.slider(ui.ctl, { id: "gd-bw", label: "Bandwidth", min: 0.05, max: 10, log: true, value: st.bw, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.bw = Math.min(v, st.f0 * 0.6); update(); } });
+      const bwSl = RF.slider(ui.ctl, { id: "gd-bw", label: "Bandwidth", min: 0.05, max: 10, log: true, value: st.bw, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.bw = Math.min(v, st.f0 * 0.6); bwSl.set(st.bw, true); update(); } });
       const quSl = RF.slider(ui.ctl, { id: "gd-qu", label: "Unloaded Qᵤ", min: 30, max: 3000, log: true, value: st.Qu, fmt: (v) => fmt(v, 3), onInput: (v) => { st.Qu = v; update(); } });
       const puSl = RF.slider(ui.ctl, { id: "gd-pu", label: "Pulse width (FWHM)", min: 0.2, max: 100, log: true, value: st.pulse, fmt: (v) => fmt(v, 3) + " ns", onInput: (v) => { st.pulse = v; update(); } });
       const set = (o) => {
@@ -149,7 +149,7 @@
         });
         pG.update({
           title: "Group delay: the slope of the phase",
-          subtitle: "It peaks at the band edges. Those frequencies are stored longest, and they also pay the most loss.",
+          subtitle: "With two or more poles, it peaks near the band edges. Those frequencies are stored longest, and they also pay the most loss.",
           height: 230,
           x: { min: za, max: zb, label: "Frequency (GHz)", fmt: (v) => fmt(v, 4) },
           y: { min: 0, max: Math.max(tMax * 1.3, 0.1), label: "τg (ns)" },
@@ -163,14 +163,19 @@
         const outMax = Math.max(...p.out);
         const iPk = p.out.indexOf(outMax);
         const above = p.out.map((v, i) => [i, v]).filter(([, v]) => v >= outMax / 2);
-        const fwhmOut = (above[above.length - 1][0] - above[0][0]) * p.dt;
-        const latency = iPk * p.dt - p.t0;
+        /* interpolate the half-height crossings and the peak, so the readouts aren't limited by the sample step */
+        const half = outMax / 2, i0 = above[0][0], i1 = above[above.length - 1][0];
+        const left = i0 > 0 ? i0 - (p.out[i0] - half) / (p.out[i0] - p.out[i0 - 1]) : i0;
+        const right = i1 < p.out.length - 1 ? i1 + (p.out[i1] - half) / (p.out[i1] - p.out[i1 + 1]) : i1;
+        const fwhmOut = (right - left) * p.dt;
+        const yl = p.out[iPk - 1] ?? outMax, yr = p.out[iPk + 1] ?? outMax, curv = yl - 2 * outMax + yr;
+        const latency = (iPk + (curv ? (0.5 * (yl - yr)) / curv : 0)) * p.dt - p.t0;
         const tEnd = Math.min(p.t[p.t.length - 1], p.t0 + Math.max(3 * st.pulse, 0) + Math.max(tMax * 2.5, st.pulse * 2));
         const stride = Math.max(1, Math.ceil(tEnd / p.dt / 700));
         const shown = p.t.map((_, i) => i).filter((i) => p.t[i] <= tEnd && i % stride === 0);
         pP.update({
           title: "Envelope of a Gaussian pulse at f₀",
-          subtitle: "Spectral width ≈ 0.44/FWHM. Small next to the band: a clean, delayed copy. Near or past the band: it widens and rings.",
+          subtitle: "3 dB spectral width ≈ 0.62/FWHM. Small next to the band: a clean, delayed copy. Near or past the band: it widens and rings.",
           height: 230,
           x: { min: 0, max: tEnd, label: "Time (ns)", fmt: (v) => fmt(v, 3) },
           y: { min: 0, max: 1.1, label: "Envelope" },
@@ -197,7 +202,7 @@
       }
 
       RF.setSay(ui.say, {
-        quote: "Group delay is minus d phi d omega: how long the envelope takes at each frequency. What hurts isn't the delay itself but its variation. A flat delay just arrives late. If it varies across the signal band, the pulse smears, and on a modulated signal that shows up as EVM or a closed eye, even with a flat magnitude. In a filter, delay peaks at the band edges, and loss follows it, because loss is roughly 4.34 omega tau over Q.",
+        quote: "Group delay is minus d phi d omega: how long the envelope takes at each frequency. What hurts isn't the delay itself but its variation. A flat delay just arrives late. If it varies across the signal band, the pulse smears, and on a modulated signal that shows up as EVM or a closed eye, even with a flat magnitude. In a filter, delay peaks near the band edges, and loss follows it, because loss is roughly 4.34 omega tau over Q.",
         bullets: [
           "Phase delay is the carrier's, group delay is the envelope's. They only match in a non-dispersive medium.",
           "Sharper filters cost delay. Chebyshev has a sharper skirt and a bigger edge peak than Butterworth. Bessel trades skirt for flat delay.",

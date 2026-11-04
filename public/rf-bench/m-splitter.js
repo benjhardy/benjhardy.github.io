@@ -141,8 +141,8 @@
       const nSeg = RF.seg(ui.ctl, { labelText: "Ways at this junction", options: [2, 3, 4, 6].map((v) => ({ v, label: `1×${v}` })), value: st.N, onChange: (v) => { st.N = v; update(); } });
       const mSl = RF.slider(ui.ctl, { id: "sp-m", label: "Sections per arm", min: 1, max: 7, step: 1, value: st.M, fmt: (v) => String(v), onInput: (v) => { st.M = v; update(); } });
       const kSeg = RF.seg(ui.ctl, { labelText: "Step profile", options: [{ v: "cheb", label: "Chebyshev" }, { v: "binom", label: "Binomial" }], value: st.kind, onChange: (v) => { st.kind = v; update(); } });
-      const loSl = RF.slider(ui.ctl, { id: "sp-lo", label: "Band low", min: 0.5, max: 30, step: 0.5, value: st.lo, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.lo = Math.min(v, st.hi - 0.5); update(); } });
-      const hiSl = RF.slider(ui.ctl, { id: "sp-hi", label: "Band high", min: 1, max: 40, step: 0.5, value: st.hi, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.hi = Math.max(v, st.lo + 0.5); update(); } });
+      const loSl = RF.slider(ui.ctl, { id: "sp-lo", label: "Band low", min: 0.5, max: 30, step: 0.5, value: st.lo, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.lo = Math.min(v, st.hi - 0.5); loSl.set(st.lo, true); update(); } });
+      const hiSl = RF.slider(ui.ctl, { id: "sp-hi", label: "Band high", min: 1, max: 40, step: 0.5, value: st.hi, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.hi = Math.max(v, st.lo + 0.5); hiSl.set(st.hi, true); update(); } });
       const spSl = RF.slider(ui.ctl, { id: "sp-spec", label: "Return loss spec", min: 10, max: 30, step: 0.5, value: st.spec, fmt: (v) => fmt(v, 3) + " dB", onInput: (v) => { st.spec = v; update(); } });
       const subSeg = RF.seg(ui.ctl, { labelText: "Substrate", options: [{ v: "gaas", label: SUBS.gaas.label }, { v: "ro", label: SUBS.ro.label }], value: st.sub, onChange: (v) => { st.sub = v; update(); } });
       const set = (o) => {

@@ -43,8 +43,11 @@
         const K = st.z0 / (st.z0 + st.rs);
         /* transfer to the far end and the near end at frequency f (Hz); complex, e^(+jωt) */
         const H = (f) => {
-          const a = (alphaC(Math.abs(f)) + alphaD(Math.abs(f))) * L;
-          const th = 2 * Math.PI * f * td;
+          const ac = alphaC(Math.abs(f)) * L, ad = alphaD(Math.abs(f)) * L;
+          const a = ac + ad;
+          /* causal phase to go with the loss: skin effect adds as much phase as attenuation, and Dk falls with
+             log f (Djordjevic-Sarkar form, referenced to 1 GHz) */
+          const th = f === 0 ? 0 : 2 * Math.PI * f * td + Math.sign(f) * (ac - (2 / Math.PI) * ad * Math.log(Math.abs(f) / 1e9));
           const er = Math.exp(-a) * Math.cos(th), ei = -Math.exp(-a) * Math.sin(th);
           const e2r = er * er - ei * ei, e2i = 2 * er * ei;
           const dr = 1 - gs * gl * e2r, di = -gs * gl * e2i, dd = dr * dr + di * di;
@@ -64,8 +67,11 @@
         for (let k = 0; k < N; k++) {
           const f = (k <= N / 2 ? k : k - N) / (N * dt);
           const h = ln.H(f);
-          const e = sinc(f * trS);
-          const hr = (end === "near" ? h.nearR : h.fr) * e, hi = (end === "near" ? h.nearI : h.fi) * e;
+          /* the ramp, delayed by tᵣ/2 so the edge starts at t = 0 */
+          const e = sinc(f * trS), sh = -Math.PI * f * trS;
+          const er = e * Math.cos(sh), ei = e * Math.sin(sh);
+          const h0r = end === "near" ? h.nearR : h.fr, h0i = end === "near" ? h.nearI : h.fi;
+          const hr = h0r * er - h0i * ei, hi = h0r * ei + h0i * er;
           const r = re[k] * hr - im[k] * hi;
           im[k] = re[k] * hi + im[k] * hr;
           re[k] = r;
@@ -77,9 +83,12 @@
       function stepResponse(ln) {
         const trS = st.tr * 1e-12;
         const show = Math.max(10 * ln.td, 8 * trS, 200e-12);
-        const Tw = Math.max(4 * show, 40 * ln.td);
+        /* the period must outlast the ringing, or the falling edge lands inside it */
+        const rho = Math.abs(ln.gs * ln.gl);
+        const settle = rho > 1e-3 ? (2 * ln.td * Math.log(1e-3)) / Math.log(rho) : 0;
+        const Tw = Math.max(4 * show, 40 * ln.td, 2 * (show + settle));
         const want = Math.max(Tw / Math.min(trS / 6, Math.max(ln.td / 8, trS / 40)), 1024);
-        const N = Math.pow(2, Math.min(15, Math.ceil(Math.log2(want))));
+        const N = Math.pow(2, Math.min(17, Math.ceil(Math.log2(want))));
         const dt = Tw / N;
         const x = Array.from({ length: N }, (_, i) => (i < N / 2 ? 1 : 0));
         return { dt, N, show, far: through(x, dt, ln, trS, "far"), near: through(x, dt, ln, trS, "near") };
@@ -92,7 +101,7 @@
         for (const bit of BITS) for (let j = 0; j < SPB; j++) x.push(bit);
         const v = through(x, dt, ln, st.tr * 1e-12, "far");
         const N = v.length;
-        const base = Math.round(ln.td / dt);
+        const base = Math.round((ln.td + (st.tr * 1e-12) / 2) / dt);
         const mean = v.reduce((a, c) => a + c, 0) / N;
         let best = { h: -Infinity, off: base };
         const heightAt = (off) => {
@@ -103,12 +112,25 @@
           });
           return lo1 - hi0;
         };
-        for (let off = base - SPB; off <= base + 3 * SPB; off++) {
+        for (let off = base - SPB; off <= base + 6 * SPB; off++) {
           const h = heightAt(off);
           if (h > best.h) best = { h, off };
         }
+        /* eye width: walk out from the best phase, interpolating where the height crosses zero */
         let width = 0;
-        for (let d = -SPB; d <= SPB; d++) if (heightAt(best.off + d) > 0) width++;
+        if (best.h > 0) {
+          const edge = (dir) => {
+            let d = 0, hNow = best.h;
+            while (Math.abs(d) < SPB) {
+              const hNext = heightAt(best.off + d + dir);
+              if (hNext <= 0) return Math.abs(d) + hNow / (hNow - hNext);
+              d += dir;
+              hNow = hNext;
+            }
+            return SPB;
+          };
+          width = Math.min(1, (edge(-1) + edge(1)) / SPB);
+        }
         const pts = [];
         BITS.forEach((_, i) => {
           for (let j = -SPB; j <= SPB; j++) {
@@ -117,7 +139,7 @@
           }
           pts.push([NaN, NaN]);
         });
-        return { height: best.h, width: width / SPB, pts, mean };
+        return { height: best.h, width, pts, mean };
       }
 
       /* ----- drawing ----- */
@@ -162,7 +184,7 @@
       ]);
       const ro = RF.readouts(ui.ctl, [
         { key: "td", label: "Delay" },
-        { key: "lc", label: "Critical length" },
+        { key: "lc", label: "Terminate above" },
         { key: "nyq", label: "Nyquist" },
         { key: "il", label: "Loss at Nyquist" },
         { key: "over", label: "Overshoot" },
@@ -193,10 +215,10 @@
       const pL = RF.plot(ui.plots, blank);
 
       function lengthPill(ln) {
-        const long = 2 * ln.td > st.tr * 1e-12;
+        const short = 2 * ln.td < (st.tr * 1e-12) / 3;
         const terminated = Math.abs(ln.gs) < 0.1 || Math.abs(ln.gl) < 0.1;
-        if (!long) return el("span", { class: "pill good", text: "Electrically short: the edge hides the echoes" });
-        return el("span", { class: "pill " + (terminated ? "good" : "warn"), text: terminated ? "Electrically long, and terminated at one end" : "Electrically long and unterminated: expect ringing" });
+        if (short) return el("span", { class: "pill good", text: "Electrically short: the edge hides the echoes" });
+        return el("span", { class: "pill " + (terminated ? "good" : "warn"), text: terminated ? "Long enough to matter, and terminated at one end" : "Long enough to ring: both ends reflect" });
       }
 
       function update() {
@@ -259,7 +281,7 @@
         const ilN = ilAt(nyq);
         pL.update({
           title: "Insertion loss: skin effect goes as √f, dielectric as f",
-          subtitle: "Smooth copper, no roughness or via stubs, so real boards are worse. Past a few GHz the dielectric usually wins.",
+          subtitle: "Smooth copper, no roughness or via stubs, so real boards are worse. On FR-4 the dielectric wins above about 2 GHz. On low-loss laminates the conductor dominates to tens of GHz.",
           height: 230,
           x: { min: 0, max: fMax / 1e9, label: "Frequency (GHz)", fmt: (v) => fmt(v, 3) },
           y: { min: -Math.max(ilAt(fMax) * 1.1, 1), max: 0, label: "Loss (dB)" },
@@ -275,7 +297,7 @@
 
         const lc = (st.tr * 1e-12) / (2 * ln.perM) * 1e3;
         ro.update({
-          td: RF.si(ln.td, "s"), lc: [fmt(lc, 3), "mm"], nyq: [fmt(nyq / 1e9, 3), "GHz"], il: [fmt(ilN, 3), "dB"],
+          td: RF.si(ln.td, "s"), lc: [fmt(lc / 3, 3), "mm"], nyq: [fmt(nyq / 1e9, 3), "GHz"], il: [fmt(ilN, 3), "dB"],
           over: [fmt(over, 2), "%"], eh: [fmt(Math.max(ey.height, 0), 2), "V"], ew: [fmt(ey.width, 2), "UI"],
         });
         const perIn = 2.3 * (nyq / 1e9) * st.df * Math.sqrt(st.dk);
@@ -283,22 +305,23 @@
           { name: "Speed and delay", f: `v = c/√Dk,  ${fmt(ln.perM * 1e9, 3)} ps/mm = ${fmt(ln.perM * 25.4e9, 3)} ps/in,  delay ${b(RF.si(ln.td, "s"))}` },
           { name: "Reflection coefficient", f: `Γ = (R − Z₀)/(R + Z₀):  load ${b(fmt(ln.gl, 3))},  source ${b(fmt(ln.gs, 3))}` },
           { name: "Launched into the line, then each echo", f: `V₀ = V·Z₀/(Z₀ + R_s) = ${fmt(ln.K, 3)} V,  far end ${fmt(ln.K * (1 + ln.gl), 3)} V,  next ×Γ_s·Γ_L = ${fmt(ln.gs * ln.gl, 3)}` },
-          { name: "Long when the round trip exceeds the edge", f: `L_crit = tᵣ/(2·t_pd) = ${b(fmt(lc, 3) + " mm")}` },
+          { name: "Ringing is fully developed once the round trip equals the edge. Start terminating at about a third of that", f: `L = tᵣ/(2·t_pd) = ${b(fmt(lc, 3) + " mm")},  terminate above ≈ L/3 = ${b(fmt(lc / 3, 3) + " mm")}` },
           { name: "Nyquist for NRZ, half the bit rate. PAM4 at the same bit rate is half that.", f: `f_N = ${fmt(st.rate, 3)}/2 = ${b(fmt(nyq / 1e9, 3) + " GHz")}` },
+          { name: "Conductor loss, one surface. A wide microstrip with ground loss can reach twice this", f: `α_c ≈ R_s/(2·Z₀·w),  R_s = 2.61×10⁻⁷·√f Ω/sq` },
           { name: "Dielectric loss rule of thumb", f: `≈ 2.3·f(GHz)·Df·√Dk dB/in = ${b(fmt(perIn, 3) + " dB/in")} at Nyquist` },
         ]);
       }
 
       RF.setSay(ui.say, {
-        quote: "I look at it in three parts. Impedance: any change in Z₀ reflects by gamma, and if the round trip is longer than the edge, you see it. Loss: skin effect goes as root f, dielectric as f, and I quote it at Nyquist, half the bit rate for NRZ. Crosstalk and the power rail come after that. Then I look at the eye, because that's what the receiver sees. Loss closes it by smearing bits together, and reflections land as extra lines. On a long channel I'd first look at material and via stubs, then equalization.",
+        quote: "I look at it in three parts. Impedance: any change in Z₀ reflects by gamma, and once the round trip is a real fraction of the edge, you see it. Loss: skin effect goes as root f, dielectric as f, and I quote it at Nyquist, half the bit rate for NRZ. Crosstalk and the power rail come after that. Then I look at the eye, because that's what the receiver sees. Loss closes it by smearing bits together, and reflections land as extra lines. On a long channel I'd first look at material and via stubs, then equalization.",
         bullets: [
-          "Anchors: FR-4 is about 170 ps/in. A 100 ps edge is long at about 0.3 in, or 7.5 mm.",
+          "Anchors: FR-4 is about 170 ps/in. A 100 ps edge rings fully at about 7.5 mm, so start terminating near 2.5 mm.",
           "Termination: series at the source for point to point, so the far end doubles to full swing and the reflection dies at the source. Parallel at the load costs DC power.",
           "Crosstalk: near-end (backward) saturates once the coupled length exceeds half the edge in delay. Far-end grows with length and with faster edges, and it's zero in an ideal homogeneous stripline.",
           "Vias: an unused stub is a quarter-wave notch. A 1 mm stub in Dk 4 notches near 37 GHz, and that's why boards back-drill.",
           "Power integrity: keep the PDN impedance under the target from DC through the switching band. Decaps have a resonance, then act as inductors. The plane and package set the high end.",
           "Standards budget Nyquist loss. PCIe 5.0, for example, allows about 36 dB at 16 GHz, using equalization.",
-          "This bench uses a smooth-copper loss model and ignores dispersion, roughness, vias and crosstalk. Use it for intuition, not sign-off.",
+          "This bench uses a smooth-copper loss model with causal phase, and ignores roughness, vias and crosstalk. Use it for intuition, not sign-off.",
         ],
       });
 
@@ -306,7 +329,7 @@
         { q: "Trace in Dk = 4. Delay per inch?", unit: "ps/in", answer: () => (2 / C0) * 25.4e-3 * 1e12, absTol: 10, apply: () => set({ dk: 4 }), explain: "√4 / c = 6.7 ps/mm, or about 170 ps/in." },
         { q: "28 Gb/s NRZ. Nyquist frequency?", unit: "GHz", answer: () => 14, absTol: 0.5, apply: () => set({ rate: 28, tr: 12, len: 150, z0: 50, rs: 50, rl: 50 }), explain: "Half the bit rate: 14 GHz. PAM4 at 56 Gb/s has the same Nyquist." },
         { q: "A 40 Ω section in a 50 Ω line. Γ going in?", unit: "", answer: () => -10 / 90, absTol: 0.02, apply: () => set({ z0: 50, rs: 50, rl: 40, rate: 10, tr: 30 }), explain: "(40 − 50)/(40 + 50) = −0.11, about 11 %. A step down reflects negative." },
-        { q: "Edge of 100 ps in Dk 4. Critical length, using round trip = edge?", unit: "mm", answer: () => 100 / (2 * 6.67), absTol: 1, apply: () => set({ tr: 100, dk: 4 }), explain: "100 ps / (2 × 6.67 ps/mm) = 7.5 mm." },
+        { q: "Edge of 100 ps in Dk 4. At what length does the round trip equal the edge?", unit: "mm", answer: () => 100 / (2 * 6.67), absTol: 1, apply: () => set({ tr: 100, dk: 4 }), explain: "100 ps / (2 × 6.67 ps/mm) = 7.5 mm. Ringing is fully developed by then, so start terminating at about a third of that." },
         { q: "Open end, R_s = Z₀ = 50 Ω, 1 V source. What's the far-end first arrival?", unit: "V", answer: () => 1, absTol: 0.05, apply: () => set({ rs: 50, z0: 50, rl: 1e5, rate: 2, tr: 100, len: 150 }), explain: "0.5 V launched, Γ = +1 doubles it to 1 V. That's why series termination works." },
         { q: "10 GHz in Dk 4, Df 0.02. Dielectric loss per inch?", unit: "dB/in", answer: () => 2.3 * 10 * 0.02 * 2, absTol: 0.1, explain: "2.3 × 10 × 0.02 × 2 = 0.92 dB/in. At Df 0.003 it's about 0.14." },
       ], "si");

@@ -80,9 +80,9 @@
         { key: "f1", label: "Corner 1, 1/(π·τ)" },
         { key: "fa", label: "Corner 2, edge A" },
         { key: "fb", label: "Corner 2, edge B" },
-        { key: "knee", label: "Knee 0.35/tᵣ, B" },
+        { key: "knee", label: "BW 0.35/t₁₀₋₉₀, B" },
         { key: "lift", label: "Far above both" },
-        { key: "n", label: "Harmonics to knee, B" },
+        { key: "n", label: "Harmonics in that BW" },
       ]);
       const warn = el("div", { class: "presets" });
       const tblBox = el("div", { class: "tscroll" });
@@ -98,7 +98,7 @@
         const c = calc();
         drawBench(c);
         const lift = 20 * Math.log10(c.trA / c.trB);
-        const knee = 0.35 / c.trB;
+        const knee = 0.35 / (0.8 * c.trB);   /* 10 to 90 % of a linear ramp is 0.8 of it */
         ro.update({
           f1: si(c.f1, "Hz"), fa: si(c.f2A, "Hz"), fb: si(c.f2B, "Hz"), knee: si(knee, "Hz"),
           lift: [(lift >= 0 ? "+" : "−") + fmt(Math.abs(lift), 3), "dB"], n: fmt(knee / st.f0, 3),
@@ -199,7 +199,7 @@
           { name: "First corner: from the pulse width. Above it, −20 dB/decade", f: `f₁ = 1/(π·τ) = 1/(π × ${si(c.tau, "s")}) = ${b(si(c.f1, "Hz"))}` },
           { name: "Second corner: from the edge. Above it, −40 dB/decade", f: `f₂ = 1/(π·tᵣ):  A ${b(si(c.f2A, "Hz"))},  B ${b(si(c.f2B, "Hz"))}` },
           { name: "How much the envelope lifts above both corners", f: `20·log₁₀(tᵣA/tᵣB) = 20·log₁₀(${fmt(c.trA / c.trB, 3)}) = ${b(fmt(lift, 3) + " dB")}` },
-          { name: "Bandwidth rule of thumb for a 10 to 90 % edge", f: `BW ≈ 0.35/tᵣ = ${b(si(knee, "Hz"))} for edge B` },
+          { name: "Bandwidth rule of thumb, using the 10 to 90 % edge (0.8 of the ramp)", f: `BW ≈ 0.35/t₁₀₋₉₀ = 0.35/${si(0.8 * c.trB, "s")} = ${b(si(knee, "Hz"))} for edge B` },
           { name: "Ideal square wave, 50 % duty: odd harmonics only", f: `cₙ = 2A/(n·π):  fundamental ${fmt(RF.db20((2 * st.A) / Math.PI), 3)} dB, third is 1/3 of it, −9.5 dBc` },
         ]);
       }
@@ -210,7 +210,7 @@
           "Anchors for 50 % duty: third harmonic −9.5 dBc, fifth −14 dBc. Even harmonics vanish, and any duty error brings them back.",
           "The ratio is what matters: 50 to 20 is +8 dB in any time unit. Corners: 50 µs is 6.4 kHz and 20 µs is 16 kHz. 50 ps is 6.4 GHz and 20 ps is 16 GHz.",
           "Why it matters: crosstalk and reflections respond to the edge. Slowing an edge is often the cheapest EMI fix, if timing allows.",
-          "Check the definition: 0.35/tᵣ assumes a 10 to 90 % edge through a single-pole response. The corner above uses the full linear ramp.",
+          "Check the definition: 0.35/t₁₀₋₉₀ assumes a single-pole response. The corners above use the full linear ramp. Johnson and Graham's \"knee\" is a different rule, 0.5/t₁₀₋₉₀.",
           "Energy barely moves: the pulse's RMS is nearly the same. What changes is a small amount of energy at much higher frequencies.",
         ],
       });
@@ -220,7 +220,7 @@
         { q: "Where is the second corner for a 50 µs edge?", unit: "kHz", answer: () => 1 / (Math.PI * 50e-6) / 1e3, absTol: 0.5, apply: () => set({ f0: 1e3, trA: 50e-6, trB: 20e-6, duty: 0.5 }), explain: "1/(π × 50 µs) = 6.4 kHz. At 20 µs it moves to 16 kHz." },
         { q: "In the same change, how many dB does the 1 kHz fundamental move?", unit: "dB", answer: () => 20 * Math.log10(sinc(0.02) / sinc(0.05)), absTol: 0.1, apply: () => set({ f0: 1e3, trA: 50e-6, trB: 20e-6, duty: 0.5 }), explain: "About 0.03 dB, so effectively nothing. The fundamental is far below the corner." },
         { q: "Third harmonic of an ideal 50 % square wave, relative to the fundamental?", unit: "dBc", answer: () => -20 * Math.log10(3), absTol: 0.7, explain: "1/3 in voltage is −9.5 dB. The fifth is −14 dB." },
-        { q: "A 10 to 90 % edge of 20 ps. How much bandwidth, by the 0.35 rule?", unit: "GHz", answer: () => 17.5, absTol: 1, apply: () => set({ f0: 1e9, trA: 50e-12, trB: 20e-12, duty: 0.5 }), explain: "0.35/20 ps = 17.5 GHz, even though the clock is only 1 GHz." },
+        { q: "A 10 to 90 % edge of 20 ps. How much bandwidth, by the 0.35 rule?", unit: "GHz", answer: () => 17.5, absTol: 1, apply: () => set({ f0: 1e9, trA: 62.5e-12, trB: 25e-12, duty: 0.5 }), explain: "0.35/20 ps = 17.5 GHz, even though the clock is only 1 GHz. On this bench that edge is a 25 ps ramp." },
       ], "spectrum");
 
       update();

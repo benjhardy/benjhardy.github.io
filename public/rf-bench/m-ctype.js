@@ -39,7 +39,7 @@
           // capacitor C
           const my = (TY + GY) / 2;
           k.push(W(`M${cX} ${TY}V${my - 5}M${cX - 14} ${my - 5}H${cX + 14}M${cX - 14} ${my + 5}H${cX + 14}M${cX} ${my + 5}V${GY}`));
-          k.push(T(cX + (side < 0 ? -20 : 20), my + 4, "C", { fill: "var(--ink)" }, { "text-anchor": side < 0 ? "end" : "start" }));
+          k.push(T(cX + (side < 0 ? -20 : 20), my + 4, "C − Cm", { fill: "var(--ink)" }, { "text-anchor": side < 0 ? "end" : "start" }));
           // inductor L
           let coil = `M${lX} ${TY}V${TY + 30}`;
           for (let i = 0; i < 5; i++) coil += `a6 ${9.2} 0 1 ${side < 0 ? 1 : 0} 0 ${17.6}`;
@@ -65,7 +65,7 @@
         k.push(s("path", { d: `M226 ${TY + 70}Q280 ${TY + 104} 334 ${TY + 70}`, "stroke-dasharray": "2 5" }, { fill: "none", stroke: "var(--gold)", strokeWidth: mw, strokeLinecap: "round" }));
         k.push(T(280, TY + 118, `Lm/L = ${fmt(st.km, 3)}`, { fill: "var(--ink)", fontSize: "11.5px" }, { "text-anchor": "middle" }));
         // what each coupling does in this mode
-        const cLine = odd ? "Cm sees 2V across it: C → C + Cm (frequency down)" : "Both ends at +V: Cm carries nothing, C → C − Cm (frequency up)";
+        const cLine = odd ? "Cm sees 2V across it, so the node sees C + Cm (frequency down)" : "Both ends at +V: Cm carries nothing, leaving C − Cm (frequency up)";
         const lLine = odd ? "Currents oppose: L → L − Lm (frequency up)" : "Currents aid: L → L + Lm (frequency down)";
         k.push(T(280, GY + 34, cLine, { fontSize: "11.5px" }, { "text-anchor": "middle" }));
         k.push(T(280, GY + 52, lLine, { fontSize: "11.5px" }, { "text-anchor": "middle" }));
@@ -107,7 +107,7 @@
       RF.slider(fit, { id: "ct-err", label: "Error in the f₀ solve", min: 0, max: 0.5, step: 0.001, value: 0, fmt: (v) => fmt(v, 2) + " %", onInput: (v) => { st.err = v; update(); } });
       const fitOut = el("div", { class: "mono", style: "font-size:13px;white-space:pre-wrap" });
       const fitPill = el("div");
-      fit.append(el("div", { class: "muted", style: "font-size:12.5px", text: "Inputs are f_e, f_m and f₀ from one resonator solved alone. The slider nudges f₀ the way mesh noise would. Try 0.004 %, 0.01 %, then the 0.35 % the eigenmode runs had. Rule: the error must stay well below k_E·k_M/2." }), fitOut, fitPill);
+      fit.append(el("div", { class: "muted", style: "font-size:12.5px", text: "Inputs are f_e, f_m and f₀ from one resonator solved alone. The slider nudges f₀ the way mesh noise would. Try 0.004 %, 0.01 %, then the 0.35 % the eigenmode runs had. Rule: the error must stay well below k_E·k_M/2. C here includes Cm, so a resonator solved alone can read slightly high." }), fitOut, fitPill);
       ui.ctl.append(fit);
 
       /* ----- plots ----- */
@@ -192,7 +192,7 @@
           { name: "From the two peaks alone, k is always positive: its size can't give the type", f: `k = (f₂² − f₁²)/(f₂² + f₁²) = ${b(fmt(k, 3))}   ≈ |Cm/C − Lm/L| = ${fmt(Math.abs(net), 3)}` },
           { name: "Signed net k, once you know which mode is which (convention here: f_e = odd, f_m = even)", f: `k_net = (f_m² − f_e²)/(f_m² + f_e²) = ${b((kS >= 0 ? "+" : "−") + fmt(Math.abs(kS), 3))}   positive = net electric, negative = net magnetic` },
           { name: "The rule", f: `lower mode = ${b(net >= 0 ? "odd → electric" : "even → magnetic")}` },
-          { name: "Pure cases (exact for lumped LC)", f: `electric: odd 1/(2π√(L(C+Cm))), even 1/(2π√(L(C−Cm)))    magnetic: odd 1/(2π√((L−Lm)C)), even 1/(2π√((L+Lm)C))` },
+          { name: "Pure cases (exact for lumped LC, where C = shunt capacitor + Cm)", f: `electric: odd 1/(2π√(L(C+Cm))), even 1/(2π√(L(C−Cm)))    magnetic: odd 1/(2π√((L−Lm)C)), even 1/(2π√((L+Lm)C))` },
         ]);
       }
 
@@ -210,7 +210,7 @@
       RF.predict(ui.predict, [
         { q: "Pure electric coupling, Cm/C = 0.02, f₀ = 10 GHz. Where is the odd mode?", unit: "GHz", answer: () => 10 / Math.sqrt(1.02), absTol: 0.02, apply: () => set({ ke: 0.02, km: 0, f0: 10, view: "odd" }), explain: "The odd mode sees C + Cm: 10/√1.02 = 9.90 GHz, and the even mode goes up to 10.10." },
         { q: "Pure magnetic coupling, Lm/L = 0.03, f₀ = 10 GHz. Where is the lower mode?", unit: "GHz", answer: () => 10 / Math.sqrt(1.03), absTol: 0.02, apply: () => set({ ke: 0, km: 0.03, f0: 10, view: "even" }), explain: "The lower mode is the even one, at L + Lm: 10/√1.03 = 9.85 GHz." },
-        { q: "A resonator pair has modes at 9.205 and 9.322 GHz, odd lower. What's k?", unit: "", answer: () => (9.322 ** 2 - 9.205 ** 2) / (9.322 ** 2 + 9.205 ** 2), absTol: 0.0012, apply: () => set({ ke: 0.03, km: 0.0173, f0: 9.263, view: "odd" }), explain: "(9.322² − 9.205²)/(9.322² + 9.205²) = 0.0127. Odd is lower, so it's net electric." },
+        { q: "A resonator pair has modes at 9.207 and 9.325 GHz, odd lower. What's k?", unit: "", answer: () => (9.325 ** 2 - 9.207 ** 2) / (9.325 ** 2 + 9.207 ** 2), absTol: 0.0012, apply: () => set({ ke: 0.03, km: 0.0173, f0: 9.263, view: "odd" }), explain: "(9.325² − 9.207²)/(9.325² + 9.207²) = 0.0127. Odd is lower, so it's net electric." },
         { q: "Cm/C and Lm/L are both 0.03. What's k?", unit: "", answer: () => 0, absTol: 0.002, apply: () => set({ ke: 0.03, km: 0.03 }), explain: "They cancel. The modes land on top of each other and k ≈ 0." },
       ], "ctype");
 

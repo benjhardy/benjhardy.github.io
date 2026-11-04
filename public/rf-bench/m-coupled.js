@@ -166,7 +166,7 @@
           { name: "Coupling from the two mode frequencies", f: `k = (f₂² − f₁²) / (f₂² + f₁²) = (${fmt(f2, 4)}² − ${fmt(f1, 4)}²) / (${fmt(f2, 4)}² + ${fmt(f1, 4)}²) = ${b(fmt(kMeas, 3))}` },
           { name: "Mental shortcut", f: `k ≈ Δf / f₀ = ${fmt(f2 - f1, 3)} / ${fmt(f0, 3)} = ${b(fmt((f2 - f1) / f0, 3))}` },
           { name: "Two-pole Butterworth (g₁ = g₂ = 1.414): k sets bandwidth, Qₑ sets the ends", f: `FBW = k·√(g₁g₂) = 1.414 × ${fmt(kk, 3)} = ${b(fmt(Math.SQRT2 * kk * 100, 3) + " %")}     Qₑ = g₀g₁ / FBW = ${b(fmt(1 / kk, 3))}` },
-          { name: "Tapped quarter-wave: tap near the via couples weakly (high Qₑ)", f: `Qₑ ≈ (π/4) / sin²(π·t / 2L) = (π/4) / sin²(${fmt(90 * st.tap, 3)}°) = ${b(fmt(Qe, 3))}` },
+          { name: "Tapped quarter-wave with Z_r = Z₀ (otherwise multiply by Z₀/Z_r): tap near the via couples weakly (high Qₑ)", f: `Qₑ ≈ (π/4) / sin²(π·t / 2L) = (π/4) / sin²(${fmt(90 * st.tap, 3)}°) = ${b(fmt(Qe, 3))}` },
           { name: "Peak transmission at f₀ for a lossless pair", f: `|S21(f₀)| = 2x / (1 + x²),  x = k·Qₑ = ${fmt(x, 3)}  → ${b(fmt(RF.db20((2 * x) / (1 + x * x)), 3) + " dB")}` },
         ]);
       }

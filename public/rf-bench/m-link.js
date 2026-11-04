@@ -16,7 +16,7 @@
         benchTitle: "The chain, in dBm",
         plotTitle: "Levels and range",
       });
-      const st = { pt: 20, gt: 6, ltx: 1, f: 2.4, d: 100, n: 2, extra: 0, gr: 2, lrx: 1, gl: 15, nfl: 2, nfb: 8, bw: 20, snr: 10, lnaFirst: true };
+      const st = { pt: 20, gt: 6, ltx: 1, f: 2.4, d: 100, n: 2, extra: 0, gr: 2, lrx: 1, gl: 15, nfl: 2, nfb: 8, bw: 20, snr: 10, tant: 290, lnaFirst: true };
 
       function calc(dist = st.d) {
         const lam = C0 / (st.f * 1e9);
@@ -37,7 +37,7 @@
           Ftot += i === 0 ? F(sg.nf) : (F(sg.nf) - 1) / Gc;
           Gc *= G(sg.g);
         });
-        return { nf: 10 * Math.log10(Ftot) };
+        return { nf: 10 * Math.log10(Ftot), te: 290 * (Ftot - 1) };
       }
 
       /* ----- drawing: the chain ----- */
@@ -83,6 +83,7 @@
       C.nfl = RF.slider(ui.ctl, { id: "lk-nfl", label: "LNA noise figure", min: 0.3, max: 8, step: 0.1, value: st.nfl, fmt: dbF("dB"), onInput: (v) => { st.nfl = v; update(); } });
       C.nfb = RF.slider(ui.ctl, { id: "lk-nfb", label: "Rest of receiver NF", min: 1, max: 20, step: 0.5, value: st.nfb, fmt: dbF("dB"), onInput: (v) => { st.nfb = v; update(); } });
       C.bw = RF.slider(ui.ctl, { id: "lk-bw", label: "Bandwidth", min: 0.01, max: 2000, log: true, value: st.bw, fmt: (v) => RF.si(v * 1e6, "Hz"), onInput: (v) => { st.bw = v; update(); } });
+      C.tant = RF.slider(ui.ctl, { id: "lk-ta", label: "Antenna noise temp", min: 10, max: 1000, log: true, value: st.tant, fmt: (v) => fmt(v, 3) + " K", onInput: (v) => { st.tant = v; update(); } });
       C.snr = RF.slider(ui.ctl, { id: "lk-snr", label: "Required SNR", min: -10, max: 35, step: 0.5, value: st.snr, fmt: dbF("dB"), onInput: (v) => { st.snr = v; update(); } });
       const posSeg = RF.seg(ui.ctl, { labelText: "LNA position", options: [{ v: true, label: "At the antenna" }, { v: false, label: "After the cable" }], value: st.lnaFirst, onChange: (v) => { st.lnaFirst = v; update(); } });
       const set = (o) => {
@@ -92,16 +93,17 @@
         update();
       };
       RF.presets(ui.ctl, "Try", [
-        { label: "Wi-Fi 2.4 GHz, 100 m", go: () => set({ pt: 20, gt: 6, ltx: 1, f: 2.4, d: 100, n: 2, extra: 0, gr: 2, lrx: 1, gl: 15, nfl: 2, nfb: 8, bw: 20, snr: 10 }) },
-        { label: "Indoor, n = 3", go: () => set({ f: 2.4, d: 30, n: 3, extra: 6 }) },
-        { label: "28 GHz, phased array, 200 m", go: () => set({ pt: 24, gt: 25, ltx: 1, f: 28, d: 200, n: 2, extra: 3, gr: 20, lrx: 1, gl: 18, nfl: 3, nfb: 10, bw: 400, snr: 10 }) },
-        { label: "LEO downlink, 12 GHz, 550 km", go: () => set({ pt: 40, gt: 30, ltx: 1, f: 12, d: 5.5e5, n: 2, extra: 2, gr: 35, lrx: 0.5, gl: 25, nfl: 1, nfb: 8, bw: 250, snr: 8 }) },
+        { label: "Wi-Fi 2.4 GHz, 100 m", go: () => set({ pt: 20, gt: 6, ltx: 1, f: 2.4, d: 100, n: 2, extra: 0, gr: 2, lrx: 1, gl: 15, nfl: 2, nfb: 8, bw: 20, snr: 10, tant: 290 }) },
+        { label: "Indoor, n = 3", go: () => set({ f: 2.4, d: 30, n: 3, extra: 6, tant: 290 }) },
+        { label: "28 GHz, phased array, 200 m", go: () => set({ pt: 24, gt: 25, ltx: 1, f: 28, d: 200, n: 2, extra: 3, gr: 20, lrx: 1, gl: 18, nfl: 3, nfb: 10, bw: 400, snr: 10, tant: 290 }) },
+        { label: "LEO downlink, 12 GHz, 550 km", go: () => set({ pt: 40, gt: 30, ltx: 1, f: 12, d: 5.5e5, n: 2, extra: 2, gr: 35, lrx: 0.5, gl: 25, nfl: 1, nfb: 8, bw: 250, snr: 8, tant: 50 }) },
       ]);
       const ro = RF.readouts(ui.ctl, [
         { key: "eirp", label: "EIRP" },
         { key: "fspl", label: "Path loss" },
         { key: "pr", label: "At Rx antenna port" },
         { key: "nf", label: "Cascaded NF" },
+        { key: "gt", label: "G/T" },
         { key: "floor", label: "Noise floor" },
         { key: "sens", label: "Sensitivity" },
         { key: "snr", label: "SNR you get" },
@@ -119,13 +121,14 @@
         drawBench();
         const c = calc();
         const rx = receiver();
-        const floor = -174 + 10 * Math.log10(st.bw * 1e6) + rx.nf;
+        const tsys = st.tant + rx.te;
+        const floor = -174 + 10 * Math.log10(st.bw * 1e6) + 10 * Math.log10(tsys / 290);
         const sens = floor + st.snr;
         const snrGot = c.pr - floor;
         const margin = c.pr - sens;
         const cap = st.bw * 1e6 * Math.log2(1 + Math.pow(10, snrGot / 10));
         ro.update({
-          eirp: [fmt(c.eirp, 3), "dBm"], fspl: [fmt(c.fspl, 4), "dB"], pr: [fmt(c.pr, 4), "dBm"], nf: [fmt(rx.nf, 3), "dB"],
+          eirp: [fmt(c.eirp, 3), "dBm"], fspl: [fmt(c.fspl, 4), "dB"], pr: [fmt(c.pr, 4), "dBm"], nf: [fmt(rx.nf, 3), "dB"], gt: [fmt(st.gr - 10 * Math.log10(tsys), 3), "dB/K"],
           floor: [fmt(floor, 4), "dBm"], sens: [fmt(sens, 4), "dBm"], snr: [fmt(snrGot, 3), "dB"], margin: [fmt(margin, 3), "dB"], cap: [RF.si(cap, "b/s")],
         });
         const range = rangeAtZero(sens);
@@ -171,7 +174,7 @@
         RF.setEqs(ui.eqs, [
           { name: "The budget", f: `P_r = P_t − L_tx + G_t − L_path + G_r = ${fmt(st.pt, 3)} − ${fmt(st.ltx, 3)} + ${fmt(st.gt, 3)} − ${fmt(c.fspl + st.extra, 4)} + ${fmt(st.gr, 3)} = ${b(fmt(c.pr, 4) + " dBm")}` },
           { name: "Free-space path loss", f: `FSPL = 20·log(4πd/λ) = 32.45 + 20·log(f_MHz) + 20·log(d_km) = ${b(fmt(fsplFree, 4) + " dB")}` },
-          { name: "Noise floor", f: `N = −174 + 10·log(BW) + NF = −174 + ${fmt(10 * Math.log10(st.bw * 1e6), 3)} + ${fmt(rx.nf, 3)} = ${b(fmt(floor, 4) + " dBm")}` },
+          { name: "Noise floor from the system temperature. With a 290 K antenna, this is −174 + 10·log(BW) + NF", f: `N = −174 + ${fmt(10 * Math.log10(st.bw * 1e6), 3)} + 10·log((${fmt(st.tant, 3)} + ${fmt(rx.te, 3)})/290) = ${b(fmt(floor, 4) + " dBm")}` },
           { name: "Friis for noise: the first stage dominates", f: `F = F₁ + (F₂−1)/G₁ + (F₃−1)/(G₁G₂)  →  NF = ${b(fmt(rx.nf, 3) + " dB")}` },
           { name: "Margin", f: `M = P_r − (N + SNR_req) = ${fmt(c.pr, 4)} − (${fmt(floor, 4)} + ${fmt(st.snr, 3)}) = ${b(fmt(margin, 3) + " dB")}` },
           { name: "Antenna gain from aperture", f: `G = 4π·A·η/λ²,  λ = ${RF.si(c.lam, "m")}` },
@@ -191,6 +194,7 @@
         quote: "I add it in dB. EIRP, minus path loss, plus receive gain, gives the received power. The noise floor is minus 174 plus 10 log bandwidth plus noise figure. Add the SNR the demodulator needs and that's sensitivity. The difference is the margin. Double the distance and you lose 6 dB. Ten times the frequency costs 20 dB with fixed-gain antennas, but with fixed-size antennas you get it back on both ends, which is why millimeter-wave links use arrays. And put the LNA at the antenna, because every dB of loss before it adds directly to the noise figure.",
         bullets: [
           "Anchors: −174 dBm/Hz at 290 K. 1 MHz adds 60 dB, 20 MHz adds 73 dB, 100 MHz adds 80 dB.",
+          "A dish looking at cold sky sees far less than 290 K, so satcom budgets use G/T. The LEO preset's 50 K is an illustrative value.",
           "FSPL anchor: 2.4 GHz at 100 m is about 80 dB. Each doubling of distance adds 6 dB in free space.",
           "State what the margin covers: fading, rain, polarization, pointing, and component aging. A number with no list isn't a budget.",
           "Check linearity too. A budget that closes on noise can still fail if a strong nearby signal compresses the LNA.",

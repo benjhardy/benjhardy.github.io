@@ -111,6 +111,7 @@
         row("Electron mobility (cm²/V·s)", (m) => String(m.mu));
         row("Hole mobility (cm²/V·s)", (m) => String(m.muH));
         row("Saturation velocity (10⁷ cm/s)", (m) => fmt(m.vsat / 1e7, 2));
+        row("Effective velocity for f_T (10⁷ cm/s, rough)", (m) => fmt(m.vEff / 1e7, 2));
         row("Breakdown field (MV/cm)", (m) => fmt(m.ec, 2));
         row("Dielectric constant", (m) => fmt(m.er, 3));
         row("Thermal conductivity (W/m·K)", (m) => String(m.k));
@@ -136,7 +137,7 @@
         const Vmax = (k, fG) => jfom(MAT[k]) / (fG * 1e9);
         pJ.update({
           title: "Speed against voltage: the Johnson limit",
-          subtitle: "f_T × BV ≈ E_c·v_sat/2π. You can't have both. The dots are the f_T each gate length gives you.",
+          subtitle: "f_T × BV ≈ E_c·v_sat/2π. You can't have both. The dots are the f_T this gate length gives, using v_eff from the table.",
           height: 240,
           x: { min: 1, max: 1000, log: true, label: "f_T (GHz)", fmt: (v) => fmt(v, 2) },
           y: { min: 0.1, max: 10000, log: true, label: "Max voltage (V)", fmt: (v) => fmt(v, 2) },
@@ -161,7 +162,7 @@
 
         RF.setEqs(ui.eqs, [
           { name: "Low-field velocity: mobility is the slope", f: `v = μ·E.  μ ratio ${B.name}/${A.name} = ${b(fmt(B.mu / A.mu, 3) + "×")}` },
-          { name: "Transit frequency: the gate length matters as much as the material", f: `f_T ≈ v/(2π·L_g):  ${A.name} ${b(fmt(fT(A, st.lg) / 1e9, 3) + " GHz")},  ${B.name} ${b(fmt(fT(B, st.lg) / 1e9, 3) + " GHz")}` },
+          { name: "Transit frequency: the gate length matters as much as the material", f: `f_T ≈ v_eff/(2π·L_g):  ${A.name} ${b(fmt(fT(A, st.lg) / 1e9, 3) + " GHz")},  ${B.name} ${b(fmt(fT(B, st.lg) / 1e9, 3) + " GHz")}` },
           { name: "Johnson figure of merit", f: `f_T·BV = E_c·v_sat/2π:  ${A.name} ${b(fmt(jfom(A) / 1e9, 3) + " GHz·V")},  ${B.name} ${b(fmt(jfom(B) / 1e9, 3) + " GHz·V")}` },
           { name: "Substrate conduction as a loss tangent", f: `tan δ ≈ 1/(2π·f·ε₀·εᵣ·ρ):  ${A.name} ${b(fmt(tanD(st.a, st.f), 2))},  ${B.name} ${b(fmt(tanD(st.b, st.f), 2))}` },
           { name: "Photon energy at the gap", f: `λ = 1240/E_g nm:  ${A.name} ${fmt(lambdaNm(A.eg), 3)} nm,  ${B.name} ${fmt(lambdaNm(B.eg), 3)} nm` },

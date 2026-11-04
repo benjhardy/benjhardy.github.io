@@ -203,9 +203,9 @@
           { name: "Resonant frequency (shortcut: 5.03 / √(L[nH]·C[pF]) GHz)", f: `f₀ = 1 / (2π√(LC)) = 5.03 / √(${fmt(st.L, 3)} × ${fmt(st.C, 3)}) = ${b(fmt(f0 / 1e9, 4) + " GHz")}` },
           { name: "At resonance the two reactances are equal", f: `X_L = 2πf₀L = X_C = 1/(2πf₀C) = √(L/C) = ${b(fmt(x0, 3) + " Ω")}` },
           { name: "Loaded Q from the measured bandwidth", f: `Q_L = f₀ / BW₃dB = ${fmt(f0 / 1e9, 4)} GHz / ${fmt(bw / 1e6, 3)} MHz = ${b(fmt(QL, 3))}` },
-          { name: "Losses add like parallel resistors", f: `1/Q_L = 1/Qᵤ + 1/Qₑ = 1/${fmt(st.Qu, 3)} + 1/${fmt(Qe, 3)} → Q_L = ${b(fmt(QL, 3))}` },
+          { name: "Losses add like parallel resistors. Qₑ counts both ports (2Qₑ each), and the gap-to-Qₑ curve is illustrative", f: `1/Q_L = 1/Qᵤ + 1/Qₑ = 1/${fmt(st.Qu, 3)} + 1/${fmt(Qe, 3)} → Q_L = ${b(fmt(QL, 3))}` },
           { name: "Peak transmission tells you how lossy the resonator is", f: `|S21(f₀)| = Qᵤ / (Qᵤ + Qₑ) = ${fmt(s21pk, 3)} = ${b(fmt(RF.db20(s21pk), 3) + " dB")}` },
-          { name: "Back out the unloaded Q from a measurement", f: `Qᵤ = Q_L / (1 − |S21|) = ${fmt(QL, 3)} / (1 − ${fmt(s21pk, 3)}) = ${b(fmt(quBack, 3))}` },
+          { name: "Back out the unloaded Q from a measurement (symmetric coupling)", f: `Qᵤ = Q_L / (1 − |S21|) = ${fmt(QL, 3)} / (1 − ${fmt(s21pk, 3)}) = ${b(fmt(quBack, 3))}` },
         ]);
       }
 

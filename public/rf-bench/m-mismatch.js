@@ -251,7 +251,7 @@
       update();
 
       function loop() {
-        phase -= 0.06;
+        phase += 0.06;
         drawInstant();
         anim = requestAnimationFrame(loop);
       }

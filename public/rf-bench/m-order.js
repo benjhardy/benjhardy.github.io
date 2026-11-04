@@ -88,8 +88,8 @@
       const kindSeg = RF.seg(ui.ctl, { labelText: "Response", options: [{ v: "cheb", label: "Chebyshev" }, { v: "butt", label: "Butterworth" }], value: st.kind, onChange: (v) => { st.kind = v; update(); } });
       const nSl = RF.slider(ui.ctl, { id: "or-n", label: "Poles N", min: 1, max: 11, step: 1, value: st.N, fmt: (v) => String(v), onInput: (v) => { st.N = v; update(); } });
       const rlSl = RF.slider(ui.ctl, { id: "or-rl", label: "Passband RL (ripple)", min: 10, max: 30, step: 0.5, value: st.rl, fmt: (v) => `${fmt(v, 3)} dB`, onInput: (v) => { st.rl = v; update(); } });
-      const loSl = RF.slider(ui.ctl, { id: "or-lo", label: "Passband low", min: 1, max: 40, step: 0.05, value: st.lo, fmt: (v) => fmt(v, 4) + " GHz", onInput: (v) => { st.lo = Math.min(v, st.hi - 0.05); update(); } });
-      const hiSl = RF.slider(ui.ctl, { id: "or-hi", label: "Passband high", min: 1.1, max: 45, step: 0.05, value: st.hi, fmt: (v) => fmt(v, 4) + " GHz", onInput: (v) => { st.hi = Math.max(v, st.lo + 0.05); update(); } });
+      const loSl = RF.slider(ui.ctl, { id: "or-lo", label: "Passband low", min: 1, max: 40, step: 0.05, value: st.lo, fmt: (v) => fmt(v, 4) + " GHz", onInput: (v) => { st.lo = Math.min(v, st.hi - 0.05); loSl.set(st.lo, true); update(); } });
+      const hiSl = RF.slider(ui.ctl, { id: "or-hi", label: "Passband high", min: 1.1, max: 45, step: 0.05, value: st.hi, fmt: (v) => fmt(v, 4) + " GHz", onInput: (v) => { st.hi = Math.max(v, st.lo + 0.05); hiSl.set(st.hi, true); update(); } });
       const quSl = RF.slider(ui.ctl, { id: "or-qu", label: "Unloaded Qᵤ", min: 20, max: 2000, log: true, value: st.Qu, fmt: (v) => fmt(v, 3), onInput: (v) => { st.Qu = v; update(); } });
       const f1Sl = RF.slider(ui.ctl, { id: "or-fs1", label: "Reject below at", min: 0.5, max: 45, step: 0.05, value: st.fs1, fmt: (v) => fmt(v, 4) + " GHz", onInput: (v) => { st.fs1 = v; update(); } });
       const f2Sl = RF.slider(ui.ctl, { id: "or-fs2", label: "Reject above at", min: 0.5, max: 50, step: 0.05, value: st.fs2, fmt: (v) => fmt(v, 4) + " GHz", onInput: (v) => { st.fs2 = v; update(); } });
@@ -205,7 +205,7 @@
       }
 
       RF.setSay(ui.say, {
-        quote: "The order comes from the rejection spec, not the bandwidth. Seven poles at 10 % gives about 55 dB half a GHz out, but loss scales with Σg over FBW times Qᵤ. In an open box the lowest modes can radiate, dragging their Q down toward 90, and the lower band edge pays for it. A shielded copper channel can reach Qᵤ around 280: about 1.6 dB midband and 3 dB at the edges. If the rejection spec allowed it, five poles would cut the loss by about 40 %.",
+        quote: "The order comes from the rejection spec, not the bandwidth. Seven poles at 10 % gives about 55 dB at 9 GHz, but loss scales with Σg over FBW times Qᵤ. In an open box the lowest modes can radiate, dragging their Q down toward 90, and the lower band edge pays for it. A shielded copper channel can reach Qᵤ around 280: about 1.6 dB midband and 3 dB at the edges. If the rejection spec allowed it, five poles would cut the loss by about 40 %.",
         bullets: [
           "Pick N from the rejection you need at a stated offset, then check loss with the Q you can actually get.",
           "Loss peaks at the band edges because group delay does. Edges often run twice midband or more.",

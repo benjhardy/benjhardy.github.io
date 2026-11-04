@@ -97,8 +97,8 @@
       const nofSl = RF.slider(ui.ctl, { id: "pa-nof", label: "Fingers (NOF)", min: 2, max: 24, step: 2, value: st.nof, fmt: (v) => String(v), onInput: (v) => { st.nof = v; update(); } });
       const ugwSl = RF.slider(ui.ctl, { id: "pa-ugw", label: "Finger width (UGW)", min: 25, max: 500, step: 5, value: st.ugw, fmt: (v) => fmt(v, 3) + " µm", onInput: (v) => { st.ugw = v; update(); } });
       const jSl = RF.slider(ui.ctl, { id: "pa-j", label: "Current density", min: 0.4, max: 1.5, step: 0.01, value: st.J, fmt: (v) => fmt(v, 3) + " A/mm", onInput: (v) => { st.J = v; update(); } });
-      const vddSl = RF.slider(ui.ctl, { id: "pa-vdd", label: "Supply V_DD", min: 5, max: 50, step: 1, value: st.vdd, fmt: (v) => fmt(v, 3) + " V", onInput: (v) => { st.vdd = v; update(); } });
-      const vkSl = RF.slider(ui.ctl, { id: "pa-vk", label: "Knee V_k", min: 1, max: 10, step: 0.5, value: st.vk, fmt: (v) => fmt(v, 3) + " V", onInput: (v) => { st.vk = Math.min(v, st.vdd - 1); update(); } });
+      const vddSl = RF.slider(ui.ctl, { id: "pa-vdd", label: "Supply V_DD", min: 5, max: 50, step: 1, value: st.vdd, fmt: (v) => fmt(v, 3) + " V", onInput: (v) => { st.vdd = v; st.vk = Math.min(st.vk, v - 1); vkSl.set(st.vk, true); update(); } });
+      const vkSl = RF.slider(ui.ctl, { id: "pa-vk", label: "Knee V_k", min: 1, max: 10, step: 0.5, value: st.vk, fmt: (v) => fmt(v, 3) + " V", onInput: (v) => { st.vk = Math.min(v, st.vdd - 1); vkSl.set(st.vk, true); update(); } });
       const rSl = RF.slider(ui.ctl, { id: "pa-r", label: "Load R_L", min: 1, max: 500, log: true, value: st.R, fmt: (v) => fmt(v, 3) + " Ω", onInput: (v) => { st.R = v; update(); } });
       const brSeg = RF.seg(ui.ctl, { labelText: "Tie the sources with", options: [{ v: "air", label: "Air bridges" }, { v: "via", label: "Source vias" }], value: st.bridge, onChange: (v) => { st.bridge = v; update(); } });
       const set = (o) => {

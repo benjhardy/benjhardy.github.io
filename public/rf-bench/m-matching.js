@@ -90,8 +90,8 @@
           });
           k.push(s("rect", { x, y: yc - wOf(50) / 2, width: x1 - x, height: wOf(50) }, { fill: "var(--gold)" }));
           k.push(T(x + (x1 - x) / 2, yc - wOf(50) / 2 - 8, "50 Ω", {}, { "text-anchor": "middle" }));
-          const eeff = 7, lq = 3e8 / (4 * st.f0 * 1e9 * Math.sqrt(eeff)) * 1e3;
-          k.push(T(286, gy + 20, `each λ/4 on GaAs microstrip (ε_eff ≈ 7): about ${fmt(lq, 3)} mm at ${fmt(st.f0, 3)} GHz`, { fontSize: "11px", fill: "var(--muted)" }, { "text-anchor": "middle" }));
+          const lqs = secs.map((Z) => 3e8 / (4 * st.f0 * 1e9 * Math.sqrt(RF.eeff(RF.msWidth(Z, 12.9, 100), 12.9, 100))) * 1e3);
+          k.push(T(286, gy + 20, `λ/4 on 100 µm GaAs microstrip: ${lqs.map((v) => fmt(v, 3)).join(" and ")} mm at ${fmt(st.f0, 3)} GHz (wider lines have a higher ε_eff)`, { fontSize: "11px", fill: "var(--muted)" }, { "text-anchor": "middle" }));
         } else {
           const stepsL = st.net === "L1" ? [d.L1] : [d.L2.a, d.L2.b];
           const span = (x1 - x0) / stepsL.length;
@@ -125,8 +125,8 @@
       const netSeg = RF.seg(ui.ctl, { label: "Network", labelText: "Network", options: NETS, value: st.net, onChange: (v) => { st.net = v; update(); } });
       const rlSl = RF.slider(ui.ctl, { id: "mt-rl", label: "Die impedance", min: 1, max: 45, log: true, value: st.RL, fmt: (v) => fmt(v, 3) + " Ω", onInput: (v) => { st.RL = v; update(); } });
       const f0Sl = RF.slider(ui.ctl, { id: "mt-f0", label: "Design f₀", min: 1, max: 20, step: 0.1, value: st.f0, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.f0 = v; update(); } });
-      const loSl = RF.slider(ui.ctl, { id: "mt-lo", label: "Band low", min: 0.5, max: 20, step: 0.1, value: st.lo, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.lo = Math.min(v, st.hi - 0.1); update(); } });
-      const hiSl = RF.slider(ui.ctl, { id: "mt-hi", label: "Band high", min: 0.6, max: 40, step: 0.1, value: st.hi, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.hi = Math.max(v, st.lo + 0.1); update(); } });
+      const loSl = RF.slider(ui.ctl, { id: "mt-lo", label: "Band low", min: 0.5, max: 20, step: 0.1, value: st.lo, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.lo = Math.min(v, st.hi - 0.1); loSl.set(st.lo, true); update(); } });
+      const hiSl = RF.slider(ui.ctl, { id: "mt-hi", label: "Band high", min: 0.6, max: 40, step: 0.1, value: st.hi, fmt: (v) => fmt(v, 3) + " GHz", onInput: (v) => { st.hi = Math.max(v, st.lo + 0.1); hiSl.set(st.hi, true); update(); } });
       const spSl = RF.slider(ui.ctl, { id: "mt-spec", label: "Return loss spec", min: 6, max: 25, step: 0.5, value: st.spec, fmt: (v) => fmt(v, 3) + " dB", onInput: (v) => { st.spec = v; update(); } });
       const set = (o) => {
         Object.assign(st, o);
@@ -238,7 +238,7 @@
           { name: "Transformation ratio and your band", f: `r = 50 / ${fmt(st.RL, 3)} = ${b(fmt(r, 3))}     target fractional BW = (f_hi − f_lo) / f_center = ${b(fmt(fbTarget, 3) + " %")}` },
         ];
         if (st.net === "L1") eq.push(
-          { name: "One L-section: its Q is fixed by the ratio", f: `Q = √(r − 1) = √(${fmt(r - 1, 3)}) = ${b(fmt(d.L1.Q, 3))}   → rough fractional BW ≈ 1/Q ≈ ${b(fmt(100 / d.L1.Q, 3) + " %")}` },
+          { name: "One L-section: its Q is fixed by the ratio", f: `Q = √(r − 1) = √(${fmt(r - 1, 3)}) = ${b(fmt(d.L1.Q, 3))}   → 1/Q ≈ ${b(fmt(100 / d.L1.Q, 3) + " %")}  (a rough BW, near 8 dB return loss)` },
           { name: "Series element on the low-R side, shunt element across the high-R side", f: `X_series = Q·R_low = ${fmt(d.L1.Q * st.RL, 3)} Ω → L = ${b(RF.si(d.L1.L, "H"))}     X_shunt = R_high/Q = ${fmt(RH / d.L1.Q, 3)} Ω → C = ${b(RF.si(d.L1.C, "F"))}` });
         if (st.net === "L2") eq.push(
           { name: "Two steps through the geometric mean", f: `R_mid = √(R_low·50) = ${b(fmt(d.L2.Rm, 3) + " Ω")}     each step ratio = ${fmt(Math.sqrt(r), 3)}` },
@@ -253,7 +253,7 @@
       }
 
       RF.setSay(ui.say, {
-        quote: "A single section is a quarter-wave transformer at √(5·50), about 16 Ω. But 10 to 1 means Q ≈ 3, around 30 % bandwidth, so for 2 to 6 GHz I'd step it down in multiple sections. On-chip those would be lumped L-C, and I'd absorb the drain capacitance into the first section. Bode–Fano sets the ceiling.",
+        quote: "A single section is a quarter-wave transformer at √(5·50), about 16 Ω. But 10 to 1 means Q ≈ 3, and one section covers only about 16 % at 15 dB return loss, so for 2 to 6 GHz I'd step it down in multiple sections. On-chip those would be lumped L-C, and I'd absorb the drain capacitance into the first section. Bode–Fano sets the ceiling.",
         bullets: [
           "Bigger ratio → higher Q → narrower band. Split the ratio into smaller steps to widen it.",
           "Shunt element across the larger resistance, series element next to the smaller one.",
@@ -265,7 +265,7 @@
       RF.predict(ui.predict, [
         { q: "Quarter-wave transformer from a 5 Ω die to 50 Ω. What impedance is the line?", unit: "Ω", answer: () => Math.sqrt(250), tol: 0.05, apply: () => set({ RL: 5, net: "Q1" }), explain: "√(5 × 50) = √250 = 15.8 Ω." },
         { q: "A single L-section from 5 Ω to 50 Ω. What's its Q?", unit: "", answer: () => 3, tol: 0.05, apply: () => set({ RL: 5, net: "L1" }), explain: "Q = √(50/5 − 1) = √9 = 3." },
-        { q: "What fractional bandwidth is 2 to 6 GHz?", unit: "%", answer: () => 100, tol: 0.05, apply: () => set({ lo: 2, hi: 6, f0: 4 }), explain: "4 GHz wide around a 4 GHz centre is 100 %. One section with Q = 3 gives roughly 33 %." },
+        { q: "What fractional bandwidth is 2 to 6 GHz?", unit: "%", answer: () => 100, tol: 0.05, apply: () => set({ lo: 2, hi: 6, f0: 4 }), explain: "4 GHz wide around a 4 GHz centre is 100 %. One section with Q = 3 gives about 33 % at 8 dB return loss, and about 13 % at 15 dB." },
         { q: "Two L steps from 5 Ω to 50 Ω. What's the intermediate resistance?", unit: "Ω", answer: () => Math.sqrt(250), tol: 0.05, apply: () => set({ RL: 5, net: "L2" }), explain: "Step through the geometric mean, √(5 × 50) = 15.8 Ω. Each step is then 3.16:1 with Q ≈ 1.5." },
         { q: "Die at 2.5 Ω (a 100 W part). Q of a single L-section?", unit: "", answer: () => Math.sqrt(19), tol: 0.05, apply: () => set({ RL: 2.5, net: "L1" }), explain: "√(20 − 1) = 4.4. The bigger the device, the harder the broadband match." },
       ], "matching");

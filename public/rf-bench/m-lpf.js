@@ -240,7 +240,7 @@
           nmin: [isFinite(nmin) ? String(Math.ceil(nmin - 1e-9)) : "—", isFinite(nmin) ? `(${fmt(nmin, 3)})` : "check f above f_c"],
         });
         const pills = [el("span", { class: "pill " + (rej >= st.A ? "good" : "bad"), text: rej >= st.A ? `Meets ${fmt(st.A, 3)} dB at ${fmt(st.fs, 3)} GHz` : `Short of ${fmt(st.A, 3)} dB at ${fmt(st.fs, 3)} GHz` })];
-        if (st.kind === "cheb" && st.N % 2 === 0) pills.push(el("span", { class: "pill warn", text: `Even-order Chebyshev wants a ${fmt(Z0 * proto().load, 3)} Ω load. With 50 Ω you see the mismatch at DC` }));
+        if (st.kind === "cheb" && st.N % 2 === 0) pills.push(el("span", { class: "pill warn", text: `Even-order Chebyshev wants a ${fmt(st.first === "L" ? Z0 * proto().load : Z0 / proto().load, 3)} Ω load. With 50 Ω, DC is fine but the ripple grows near the band edge` }));
         if (stepped && maxTheta > Math.PI / 4) pills.push(el("span", { class: "pill warn", text: "A section is longer than λ/8: raise Zh or lower Zl" }));
         status.replaceChildren(...pills);
 
@@ -325,7 +325,7 @@
         {
           min: 10, title: "Pick the order from a spec",
           setup: { kind: "cheb", N: 5, fc: 6, rl: RF.rlFromRipple(0.1), real: "ideal", fs: 12, A: 40 },
-          do: ["Spec: f_c = 6 GHz, 0.1 dB ripple, at least 40 dB at 12 GHz.", "Step N until the pill turns green. Compare with the formula in the equations.", "Try N = 6 and look at S11 near DC. Then use 7."],
+          do: ["Spec: f_c = 6 GHz, 0.1 dB ripple, at least 40 dB at 12 GHz.", "Step N until the pill turns green. Compare with the formula in the equations.", "Try N = 6 and read the worst return loss: about 12 dB, not 16.4, and worst near the band edge. S11 near DC looks perfect. Then use 7."],
           q: { text: "Fewest Chebyshev poles for 40 dB at 12 GHz, 0.1 dB ripple, f_c 6 GHz?", unit: "poles", answer: () => 6, absTol: 0.4 },
           notice: "The formula gives 5.45, so 6 on paper. With 50 Ω on both ends, use 7: even-order Chebyshev needs unequal terminations.",
         },

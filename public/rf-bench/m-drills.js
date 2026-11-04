@@ -46,7 +46,7 @@
     { id: "pct", topic: 1, gen() {
       const rl = pick([3, 6, 10, 14, 20, 30]);
       const p = 100 * Math.pow(10, -rl / 10);
-      return { q: `A part has ${rl} dB return loss. What percent of the incident power reflects?`, ans: p, unit: "%", tolRel: 0.15, tolAbs: 0.3,
+      return { q: `A part has ${rl} dB return loss. What percent of the incident power reflects?`, ans: p, unit: "%", tolRel: 0.15, tolAbs: 0.02,
         sol: [`|Γ|² = 10^(−RL/10) = 10^(−${rl}/10) = ${fmt(p, 3)} %`], anchor: "Power uses /10, voltage uses /20. 10 dB → 10 %, 20 dB → 1 %, 3 dB → 50 %." };
     } },
     { id: "vswr", topic: 1, gen() {
@@ -78,9 +78,9 @@
       const onGaAs = Math.random() < 0.5;
       const l0 = 300 / f;
       if (!onGaAs) return { q: `What's the free-space wavelength at ${f} GHz?`, ans: l0, unit: "mm", tolRel: 0.08, sol: [`λ = c/f = 300 / ${f} = ${fmt(l0, 3)} mm`], anchor: "λ(mm) = 300 / f(GHz). 10 GHz is 30 mm." };
-      const lg = l0 / Math.sqrt(7) / 4;
-      return { q: `How long is a quarter wavelength at ${f} GHz on GaAs microstrip with ε_eff ≈ 7?`, ans: lg, unit: "mm", tolRel: 0.1,
-        sol: [`λ_g = λ₀/√ε_eff = ${fmt(l0, 3)} / 2.65 = ${fmt(l0 / Math.sqrt(7), 3)} mm`, `λ_g/4 = ${fmt(lg, 3)} mm`], anchor: "GaAs εr ≈ 12.9, microstrip ε_eff ≈ 7, so lines are about 2.6× shorter than in air." };
+      const lg = l0 / Math.sqrt(8.4) / 4;
+      return { q: `How long is a quarter wavelength at ${f} GHz on 50 Ω GaAs microstrip with ε_eff ≈ 8.4?`, ans: lg, unit: "mm", tolRel: 0.1,
+        sol: [`λ_g = λ₀/√ε_eff = ${fmt(l0, 3)} / 2.90 = ${fmt(l0 / Math.sqrt(8.4), 3)} mm`, `λ_g/4 = ${fmt(lg, 3)} mm`], anchor: "GaAs εr ≈ 12.9. A 50 Ω line on 100 µm has ε_eff ≈ 8.4, so it's about 2.9× shorter than in air." };
     } },
     { id: "qwt", topic: 3, gen() {
       const r = pick([2.5, 5, 10, 12.5, 20, 25, 100, 200]);
@@ -92,7 +92,7 @@
       const r = pick([2.5, 5, 10, 12.5, 25]);
       const q = Math.sqrt(50 / r - 1);
       return { q: `Single L-section from ${r} Ω up to 50 Ω. What's its Q?`, ans: q, unit: "", tolRel: 0.06,
-        sol: [`Q = √(R_high/R_low − 1) = √(${fmt(50 / r, 3)} − 1) = ${fmt(q, 3)}`, `rough fractional bandwidth ≈ 1/Q = ${fmt(100 / q, 3)} %`], anchor: "10:1 → Q = 3. 4:1 → Q = 1.7. 2:1 → Q = 1." };
+        sol: [`Q = √(R_high/R_low − 1) = √(${fmt(50 / r, 3)} − 1) = ${fmt(q, 3)}`, `rough bandwidth at poor return loss ≈ 1/Q = ${fmt(100 / q, 3)} %`], anchor: "10:1 → Q = 3. 4:1 → Q = 1.7. 2:1 → Q = 1." };
     } },
     { id: "qbw", topic: 4, gen() {
       const f0 = pick([2, 5, 10, 20, 40]), bw = pick([20, 50, 100, 200, 400]);
@@ -229,7 +229,7 @@
     { id: "gdres", topic: 9, gen() {
       const bw = pick([10, 50, 100, 200, 500]);
       const t = 1000 / (Math.PI * bw);
-      return { q: `A single resonator with ${bw} MHz 3 dB bandwidth. Group delay at center?`, ans: t, unit: "ns", tolRel: 0.1, sol: [`τg = 1/(π·BW) = 1/(π × ${bw} MHz) = ${fmt(t, 3)} ns`], anchor: "100 MHz is 3.2 ns. Delay goes as 1/BW, and it peaks at a filter's band edges." };
+      return { q: `A single resonator with ${bw} MHz 3 dB bandwidth. Group delay at center?`, ans: t, unit: "ns", tolRel: 0.1, sol: [`τg = 1/(π·BW) = 1/(π × ${bw} MHz) = ${fmt(t, 3)} ns`], anchor: "100 MHz is 3.2 ns. Delay goes as 1/BW, and it peaks near a filter's band edges." };
     } },
     { id: "gdloss", topic: 9, gen() {
       const f = pick([2, 5, 10, 20]), t = pick([0.5, 1, 2, 5]), q = pick([100, 200, 300, 500]);
@@ -261,8 +261,8 @@
     ["0 dBm", "1 mW"], ["+30 dBm", "1 W"], ["+3 dB", "×2 power"], ["+10 dB", "×10 power"],
     ["Γ 0.2", "14 dB RL, 4 %, VSWR 1.5"], ["Γ 0.1", "20 dB RL, 1 %"], ["Γ 0.33", "9.5 dB, 11 %, VSWR 2"],
     ["1 pF at 10 GHz", "16 Ω"], ["1 nH at 10 GHz", "63 Ω"], ["1 nH + 1 pF", "5.03 GHz"],
-    ["λ at 10 GHz", "30 mm in air, ~11 mm on GaAs"], ["λ/4 5 → 50 Ω", "15.8 Ω line"],
-    ["L-section 10:1", "Q = 3, ~33 % BW"], ["R_opt", "2(V_DD − V_k)/I_max"], ["GaN", "~5 W/mm at 28 V"],
+    ["λ at 10 GHz", "30 mm in air, ~10 mm on GaAs"], ["λ/4 5 → 50 Ω", "15.8 Ω line"],
+    ["L-section 10:1", "Q = 3, ~13 % BW at 15 dB RL"], ["R_opt", "2(V_DD − V_k)/I_max"], ["GaN", "~5 W/mm at 28 V"],
     ["tᵣ 50 → 20", "+8 dB above the corner"], ["FR-4", "~170 ps/in"], ["Noise", "−174 dBm/Hz"], ["2.4 GHz, 100 m", "80 dB path loss"], ["GaAs/Si μ", "~6×"],
   ];
 

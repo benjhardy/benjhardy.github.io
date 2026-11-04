@@ -304,7 +304,7 @@
         let pill;
         if (isNaN(guess)) pill = RF.el("span", { class: "pill", text: "No guess" });
         else {
-          const tolAbs = Math.max(Math.abs(ans) * (p.tol ?? 0.1), p.absTol ?? 0);
+          const tolAbs = Math.max(Math.abs(ans) * (p.tol ?? (p.absTol != null ? 0 : 0.1)), p.absTol ?? 0);
           const err = Math.abs(guess - ans);
           const ok = err <= tolAbs;
           const near = err <= tolAbs * 3;
