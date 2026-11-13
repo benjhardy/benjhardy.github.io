@@ -67,7 +67,7 @@ const siteConfig: SiteConfig = {
         },
         {
             text: 'Experience',
-            href: '/BenHardy_Resume.pdf'
+            href: 'https://www.linkedin.com/in/ben-hardy-phd-a6162b218/'
         }//,
         //{
         //    text: 'Blog',
@@ -110,7 +110,7 @@ const siteConfig: SiteConfig = {
     ],
     hero: {
         title: '',
-        text: "Hello, I\'m Ben Hardy, a Senior Application Engineer at DesignForge with a PhD in Physics. I build agentic AI for RF and microwave design in Ansys HFSS, and software that makes electromagnetic simulation faster and easier to use. I build with Claude Code and Cursor and often run several agents in parallel.",
+        text: "Hello, I\'m Ben Hardy, an RF and AI engineer with a PhD in Physics. I build agentic AI for RF and microwave design in Ansys HFSS, and software that makes electromagnetic simulation faster and easier to use. I build with Claude Code and Cursor and often run several agents in parallel.",
         image: {
             src: '/2026/headshot.jpg',
             alt: 'A headshot of me',

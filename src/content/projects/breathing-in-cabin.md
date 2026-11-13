@@ -31,6 +31,6 @@ This project focuses on **in-cabin range-Doppler simulations** for **detecting b
 
 For the **neural network** side—synthetic radar return-based detection of breathing anomalies—see:
 
-[**Synthetic Radar Return-Based Neural Network for Detecting Breathing Anomaly**](/2026/Synthetic%20Radar%20Return-Based%20Neural%20Network%20for%20Detecting%20Breathing%20Anomaly%20.pptx.pdf) (PDF).
+[**Synthetic Radar Return-Based Neural Network for Detecting Breathing Anomaly**](https://doi.org/10.23919/ISAP63122.2025.11362043) (ISAP 2025, IEEE Xplore).
 
 That work uses synthetic breathing waveforms and radar phase data to train a CNN for detecting abnormal breathing patterns; the in-cabin range-Doppler setup provides a realistic scenario for such signals.

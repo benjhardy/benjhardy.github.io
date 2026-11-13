@@ -12,7 +12,7 @@ seo:
 
 ## About me
 
-I'm a Senior Application Engineer at [DesignForge](https://www.designforgeai.com), where I build and evaluate an agentic AI copilot for RF and microwave design in Ansys HFSS. I designed the company's benchmark and the evaluation harness that tracks accuracy across releases, and I build agent skills for RF and MMIC designers.
+I was a Senior Application Engineer at [DesignForge](https://www.designforgeai.com), now part of Marki Microwave, where I worked on an agentic AI copilot for RF and microwave design in Ansys HFSS and built agent skills for RF and MMIC designers.
 
 Before that, I spent nearly three years at [Remcom](https://www.remcom.com) as a solution and application engineer. I built tools that automate electromagnetic simulation workflows, ran demos and tutorials for RF engineers, and did research on radar and computational electromagnetics.
 
